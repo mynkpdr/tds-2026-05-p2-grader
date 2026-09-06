@@ -1,0 +1,532 @@
+{
+  "questions_answered": 8,
+  "participation": 20.0,
+  "analytical": 42.8,
+  "final": 62.8,
+  "per_question": [
+    {
+      "exercise": "1a-dth-month-end",
+      "participation": 2.5,
+      "analytical": 6.4,
+      "verdict": "mixed",
+      "dimensions": [
+        {
+          "name": "Evidence traceability",
+          "weight_pct": 30,
+          "score_0_4": 2,
+          "citations": [
+            "\"Batch control log records delayed ETL ingestion for batch `WEST_MAY_31_01` on May 31 at 23:14 UTC\"",
+            "\"All 842 records contain unique `transaction_id` and `subscriber_id` keys with zero duplicate payment reference IDs\""
+          ]
+        },
+        {
+          "name": "Mechanism and causal judgment",
+          "weight_pct": 25,
+          "score_0_4": 3,
+          "citations": [
+            "\"The May 31 cluster reflects an operational posting delay during ETL batch ingestion rather than duplicate revenue or intentional manipulation.\"",
+            "\"Underlying recharge effective dates span May 1 to May 30\""
+          ]
+        },
+        {
+          "name": "Calibration and alternatives",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "\"Do not treat the operational email as proof without verifying batch logs.\"",
+            "\"because gateway error logs are not captured in the supplied files, the email assertion remains unverified\""
+          ]
+        },
+        {
+          "name": "Decision safety and reframing",
+          "weight_pct": 15,
+          "score_0_4": 2,
+          "citations": [
+            "\"Escalate for a batch-reconciliation audit between `dealer_import_log.csv` and `recharges.csv`\"",
+            "\"if unreconciled rows > 0, hold dealer commission payouts pending gateway log review\""
+          ]
+        },
+        {
+          "name": "Usefulness and clarity",
+          "weight_pct": 10,
+          "score_0_4": 3,
+          "citations": [
+            "\"Perform a 24-hour reconciliation check matching the 842 rows in `recharges.csv` against `dealer_import_log.csv` batch totals.\"",
+            "\"Audit dealer commission payout ledger logs (`commission_payouts.csv`).\""
+          ]
+        }
+      ],
+      "unsupported_or_overstated_claims": [
+        "The claim that transactions were \"matching bank settlement timestamps\" is not supported by the cited evidence table or a specific bank-settlement source.",
+        "The assertion that all records have \"zero duplicate payment reference IDs\" cites only `transaction_id` and `subscriber_id` fields, not a payment-reference field or a reproducible duplicate-cash test.",
+        "The claim that cross-referencing confirmed \"no duplicate account IDs billed twice in the same billing cycle\" lacks cited account-ID fields, query details, or entitlement evidence.",
+        "The causal description of an ETL delay is plausible and supported by the delayed batch status, but the supplied evidence does not establish the specific API-timeout mechanism; the analyst appropriately labels the email unverified.",
+        "The recommendation to \"approve revenue recognition based on `effective_date`\" is not adequately justified by the stated checks and does not explicitly address the required effective-event-date treatment for downstream analytics."
+      ],
+      "strongest_alternative_interpretation": "The analyst handled fraud and duplicate-billing alternatives, but did not fully test the strongest benign interpretation: two West dealers uploaded annual-plan files at month-end with original effective dates, creating a posting-time spike without a material issue. That interpretation requires duplicate-cash and entitlement reconciliation, not merely matching row counts and unique transaction identifiers.",
+      "single_most_valuable_next_improvement": "Perform and document explicit duplicate-cash and entitlement checks using payment references, source_event_ids, accepted import rows, and reconciliation differences; if those reconcile to zero, avoid unnecessary escalation while flagging downstream analyses to use `effective_event_date`."
+    },
+    {
+      "exercise": "1b-dth-complaints-quiet",
+      "participation": 2.5,
+      "analytical": 7.2,
+      "verdict": "good",
+      "dimensions": [
+        {
+          "name": "Evidence traceability",
+          "weight_pct": 30,
+          "score_0_4": 3,
+          "citations": [
+            "\"South-region complaint ticket creation dropped by 42% post-NovaIVR launch ... tickets.csv (fields `region = 'South'`, `created_at`, row count: 1,240 vs pre-pilot 2,138)\"",
+            "\"A channel-split check across `tickets.csv` confirms web/email complaint channels saw a 19% increase\""
+          ]
+        },
+        {
+          "name": "Mechanism and causal judgment",
+          "weight_pct": 25,
+          "score_0_4": 3,
+          "citations": [
+            "\"Callers disconnecting at Step 3 ('Self-Service Menu') increased by 68%\"",
+            "\"NovaIVR Step 3 menu created friction, causing customers to abandon calls ... and call back within 24 hours\""
+          ]
+        },
+        {
+          "name": "Calibration and alternatives",
+          "weight_pct": 20,
+          "score_0_4": 2,
+          "citations": [
+            "\"The 42% drop ... does NOT prove improved customer experience\"",
+            "\"Rejected Hypothesis 2: Reporting Outage or Ticket System Logging Bug\""
+          ]
+        },
+        {
+          "name": "Decision safety and reframing",
+          "weight_pct": 15,
+          "score_0_4": 3,
+          "citations": [
+            "\"Halt national expansion of NovaIVR immediately\"",
+            "\"Revert NovaIVR menu Step 3 to the legacy direct-to-agent fallback routing in the South region\""
+          ]
+        },
+        {
+          "name": "Usefulness and clarity",
+          "weight_pct": 10,
+          "score_0_4": 4,
+          "citations": [
+            "\"Safe Next Action\" and \"Material Unknown: 14-day subscriber churn rate among abandoned callers\"",
+            "\"I would question Farah Iqbal ...\" followed by five targeted operational questions"
+          ]
+        }
+      ],
+      "unsupported_or_overstated_claims": [
+        "\"rather indicates IVR call abandonment\" overstates what the ticket-count decline alone establishes, even though the IVR data provides corroborating evidence.",
+        "\"causing customers to abandon calls\" is causal language based on observational associations; the evidence more directly supports increased co-occurrence of Step 3 drop-off and repeat calls.",
+        "\"confirming the ticket drop was specific to NovaIVR routing\" is stronger than the regional comparison supports because other South-specific causes are not ruled out.",
+        "\"proving complaints shifted rather than disappeared\" is not established by a 19% increase in web/email tickets; it does not prove that all missing cases shifted channels or measure unreported friction.",
+        "The proposed requirement that total complaints decrease across all channels is not operationally defined and does not address whether IVR failures prevented case creation before any channel record existed."
+      ],
+      "strongest_alternative_interpretation": "The submission handles a reporting-outage explanation and acknowledges that ticket reduction does not prove better experience, but it misses the important benign interpretation that some IVR abandonments may be non-complaint exits or successful resolution attempts. It also does not preserve demand mix, seasonality, authentication defects, or other South-only operational causes as material alternatives.",
+      "single_most_valuable_next_improvement": "Add end-to-end journey validation before asserting causality: link IVR attempts, case_create outcomes, repeat contacts, and eventual resolution, then sample/listen to abandoned calls. This would distinguish genuine resolution from unrecorded complaints and test whether the proposed rollback is warranted."
+    },
+    {
+      "exercise": "2a-solar-smell-test",
+      "participation": 2.5,
+      "analytical": 3.5,
+      "verdict": "weak",
+      "dimensions": [
+        {
+          "name": "Evidence traceability",
+          "weight_pct": 20,
+          "score_0_4": 2,
+          "citations": [
+            "The submission gives specific references to `inverter_events.csv`, row ranges, fields, and timestamps for the `THERMAL_DERATE` and `trigger_time`/`clear_time` observations.",
+            "However, the claims about zero irradiance, absent current spikes, and telemetry clock drift are not independently supported by the cited evidence table."
+          ]
+        },
+        {
+          "name": "Investigative reasoning",
+          "weight_pct": 20,
+          "score_0_4": 1,
+          "citations": [
+            "The submission treats zero power flow as proving a firmware or sensor-register error: \u201cproving the alert is a firmware/sensor register error,\u201d without testing ambient temperature, internal temperature, prior operating conditions, or an independent communications/system log.",
+            "It does not triangulate the event against the reported seven-minute communications warning, zero MW impact, and quick recovery, and it does not genuinely test alternative explanations."
+          ]
+        },
+        {
+          "name": "Calibration and uncertainty",
+          "weight_pct": 20,
+          "score_0_4": 1,
+          "citations": [
+            "The wording \u201cactual thermal failure [is] physically impossible\u201d and \u201cestablishing telemetry clock drift\u201d is too certain for the evidence presented.",
+            "Although the hardware finding is labeled low confidence and the recommendation is limited to one cheap check, the central causal claims remain substantially overstated."
+          ]
+        },
+        {
+          "name": "Decision/action quality",
+          "weight_pct": 20,
+          "score_0_4": 2,
+          "citations": [
+            "Grouping `THERMAL_DERATE` events by inverter is a low-cost, potentially useful quality check.",
+            "It is not the most decision-changing next test because it does not verify the actual incident mechanism or reconcile the event with zero MW impact and rapid recovery; the no-spend conclusion is based on an unsupported causal assertion."
+          ]
+        },
+        {
+          "name": "Conclusion fit",
+          "weight_pct": 20,
+          "score_0_4": 1,
+          "citations": [
+            "The conclusion focuses on a proposed firmware/systemic thermal-alert investigation while omitting the strongest supplied operational facts: a short communications warning, no MW impact, and quick recovery.",
+            "The conclusion is therefore under-scoped and overconfident about a data artifact rather than stopping on the supported evidence and treating mixed event wording as a low-priority check."
+          ]
+        }
+      ],
+      "unsupported_or_overstated_claims": [
+        "\u201cActual thermal failure [is] physically impossible\u201d solely because the events occurred during zero-irradiance hours; internal or residual thermal conditions are not excluded.",
+        "\u201cZero power flow ... [proves] the alert is a firmware/sensor register error\u201d; zero output does not identify the alert mechanism.",
+        "The timestamp inversions \u201cestablish\u201d telemetry clock drift rather than another timestamping, ordering, or export artifact; no independent clock or log comparison is provided.",
+        "The submission implicitly treats the cited row ranges as the central incident despite not reconciling them with the seven-minute communications warning and zero-MW/rapid-recovery facts."
+      ],
+      "strongest_alternative_interpretation": "A transient communications or telemetry warning is the best-supported interpretation: it lasted about seven minutes, had zero MW impact, and recovered quickly. The mixed thermal/event wording can be retained as a low-priority data-quality check without inferring hardware failure or proving firmware fault.",
+      "single_most_valuable_next_improvement": "Reconcile the event timestamps and inverter records with the communications status, plant MW output, and recovery timeline using an independent system or controller log before asserting a thermal or telemetry mechanism."
+    },
+    {
+      "exercise": "2b-solar-impact-claim",
+      "participation": 2.5,
+      "analytical": 5.5,
+      "verdict": "mixed",
+      "dimensions": [
+        {
+          "name": "Evidence traceability",
+          "weight_pct": 20,
+          "score_0_4": 2,
+          "citations": [
+            "The submission specifically cites `AI_Pilot_Impact_Note.md`, `dispatch_blocks.csv` fields, and `DSM_Commercial_Extract.pdf`, which is useful traceability.",
+            "However, the central findings\u2014\u201c28% higher ambient wind volatility,\u201d \u201conly a 4.2% true efficiency gain,\u201d and \u201caverage grid frequency remained strictly within the ... zero-penalty band\u201d\u2014are asserted without showing calculations, block IDs, dates, or distributions. It also does not cite the required 29 May `base_schedule_mw` versus `submitted_schedule_mw` comparison."
+          ]
+        },
+        {
+          "name": "Investigative reasoning",
+          "weight_pct": 20,
+          "score_0_4": 2,
+          "citations": [
+            "The submission correctly identifies that \u201cpilot blocks were systematically scheduled during lower ambient wind volatility,\u201d which is a plausible confounder for a cross-day comparison.",
+            "It tests grid frequency as an alternative, but treating average frequency within a band as proving frequency \u201cwas not the cause\u201d is too strong; frequency distributions, timing, and penalty exposure would also matter. The analysis does not perform the same-day counterfactual required by the supplied fields on 29 May."
+          ]
+        },
+        {
+          "name": "Calibration and uncertainty",
+          "weight_pct": 20,
+          "score_0_4": 2,
+          "citations": [
+            "The headline is appropriately described as \u201cUNproven and causally confounded,\u201d and the recommendation delays rollout.",
+            "Calibration is undermined by calling the unsupported 4.2% result a \u201ctrue efficiency gain\u201d and by saying frequency evidence \u201cproves\u201d the cause was excluded. The submission does not distinguish clearly between a favorable pilot-day observation, a normalized association, and a causal estimate."
+          ]
+        },
+        {
+          "name": "Decision/action quality",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "\u201cHold all capital expenditure and national rollout until the 14-day interleaved trial\u201d is a sensible precaution given the weak causal evidence and preserves ongoing pilot data collection.",
+            "The proposed trial is directionally useful but \u201cidentical weather blocks\u201d may be infeasible, and the 15%/5% thresholds and p-value rule are not justified from the operational or economic evidence. It also fails to include the smaller same-day schedule-based test as the immediate discriminating analysis."
+          ]
+        },
+        {
+          "name": "Conclusion fit",
+          "weight_pct": 20,
+          "score_0_4": 2,
+          "citations": [
+            "The conclusion that the 31.6% figure is not established as a causal estimate is directionally correct and aligns with the problem\u2019s distinction between different-day comparison and causal impact.",
+            "It overcorrects by presenting 4.2% as the only supported gain and misses the required same-day counterfactual, which should preserve evidence of a smaller benefit rather than conclude that only the asserted normalized measure is valid."
+          ]
+        }
+      ],
+      "unsupported_or_overstated_claims": [
+        "Observed claim: `AI_Pilot_Impact_Note.md` reports a 31.6% DSM penalty reduction; this is a reported headline, not evidence that the reduction was causal.",
+        "Unsupported or insufficiently demonstrated claim: \u201cControl blocks experienced 28% higher ambient wind volatility than pilot blocks.\u201d The submission gives no reproducible calculation, date/block breakdown, or control for other differences.",
+        "Unsupported or overstated claim: \u201conly a 4.2% true efficiency gain.\u201d The submission does not show the computation, and it does not compare 29 May `base_schedule_mw` with `submitted_schedule_mw` as the supplied same-day counterfactual.",
+        "Overstated inference: average grid frequency within a zero-penalty band \u201cproves grid state was not the cause.\u201d An average does not exclude differences in frequency timing, distribution, or other penalty-relevant conditions.",
+        "Unsupported design assumption: a 14-day trial can alternate modes across \u201cidentical weather blocks\u201d; weather matching and power-system operating conditions would need to be demonstrated."
+      ],
+      "strongest_alternative_interpretation": "The different-day comparison cannot identify a causal 31.6% reduction, but the pilot may still have delivered a smaller same-day benefit. On 29 May, compare penalties or deviations under `base_schedule_mw` with those under `submitted_schedule_mw`; that counterfactual can retain evidence of value without endorsing the 31.6% headline.",
+      "single_most_valuable_next_improvement": "Perform and report the 29 May same-day counterfactual using `base_schedule_mw` versus `submitted_schedule_mw`, with the resulting penalty/deviation difference, uncertainty, and any operational constraints. Then use that estimate to design a feasible matched or randomized follow-up trial."
+    },
+    {
+      "exercise": "3a-customs-mismatch",
+      "participation": 2.5,
+      "analytical": 6.5,
+      "verdict": "mixed",
+      "dimensions": [
+        {
+          "name": "Evidence traceability",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "\"review_note.txt (Line 3, \\\"FLAG_HS_CODE_MISMATCH: 90211090 vs 90211000\\\")\"",
+            "\"country_tariff_matrix.xlsx (Sheet 'Switzerland_CH', Row 48, HS 90211090, Duty: 0%)\"",
+            "\"product_master_current.xlsx (Sheet 'Global_Master', Row 112, Column 'Global_HS')\"",
+            "\"air_waybill.pdf (Box 7), declaration.pdf (Box 14)\""
+          ]
+        },
+        {
+          "name": "Reasoning and hypothesis testing",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "\"Rejected Hypothesis 1: Fraudulent Misdeclaration / Duty Evasion\"",
+            "\"Rejected Hypothesis 2: Incorrect Product SKU Entry on Invoice\"",
+            "\"Missing Evidence: Version mapping rule in canonical-schema-v0.3.md linking Swiss 8-digit national codes to global 6-digit defaults.\""
+          ]
+        },
+        {
+          "name": "Calibration",
+          "weight_pct": 20,
+          "score_0_4": 2,
+          "citations": [
+            "\"eliminating any financial incentive or occurrence of tax evasion\"",
+            "\"The automated mismatch flag is an observed system alert caused by a legacy mapping rule\"",
+            "\"If canonical-schema-v0.3.md confirms 90211090 is the mandatory Swiss sub-heading for 90211000, clear the packet immediately\""
+          ]
+        },
+        {
+          "name": "Process and system understanding",
+          "weight_pct": 20,
+          "score_0_4": 2,
+          "citations": [
+            "\"legacy mapping rule in product_master_current.xlsx rather than an illegal customs misdeclaration\"",
+            "\"Global ERP product master maps Helios 9021 to generic 6-digit code 90211000 without Swiss extension\"",
+            "\"Version mapping rule in canonical-schema-v0.3.md linking Swiss 8-digit national codes to global 6-digit defaults\""
+          ]
+        },
+        {
+          "name": "Decision safety",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "\"Place a temporary administrative hold ... pending a 1-hour cross-check\"",
+            "\"do NOT report a customs declaration error\"",
+            "\"If country_tariff_matrix.xlsx confirms 90211090 is the valid Swiss national sub-code ... release the shipment\""
+          ]
+        }
+      ],
+      "unsupported_or_overstated_claims": [
+        "The statement that the alert was caused by a \"legacy mapping rule\" is not directly established by the cited product-master row; the row shows a code mapping but not its age, rule history, or causal operation.",
+        "The claim that the tariff evidence confirms \"both declared code 90211090 and global code 90211000 carry an identical 0% Swiss import duty rate\" is not fully traceable because only the 90211090 row is specifically cited.",
+        "\"Eliminating any ... occurrence of tax evasion\" is overbroad: equal duty rates reduce a duty-evasion incentive but do not establish that no misdeclaration occurred or address non-duty regulatory consequences.",
+        "The recommendation to \"update the global ERP mapping table\" is premature without confirming the canonical schema, effective jurisdiction, ownership, change control, and whether the global six-digit code should be retained alongside a Swiss national extension."
+      ],
+      "strongest_alternative_interpretation": "The mismatch may be a benign representation or jurisdiction/code-system mismatch: Switzerland uses an eight-digit national tariff sub-code while the global ERP stores a six-digit parent code. However, until the canonical schema and effective tariff classification are verified, a genuine classification or data-entry error remains possible even if the product description and duty rate align.",
+      "single_most_valuable_next_improvement": "Explicitly verify the canonical schema and the authoritative Swiss tariff entry for both code relationships, while distinguishing evidence of a benign code-system mismatch from evidence that independently rules out classification, regulatory, or data-entry errors."
+    },
+    {
+      "exercise": "3b-customs-preference",
+      "participation": 2.5,
+      "analytical": 3.5,
+      "verdict": "weak",
+      "dimensions": [
+        {
+          "name": "Evidence traceability (evidence)",
+          "weight_pct": 20,
+          "score_0_4": 2,
+          "citations": [
+            "The submission ties facts to specific locations, including \u201csupplier_origin_register.csv (Row 18... Expiry Date `2025-12-31`)\u201d and \u201csupplier_declaration_reference.txt (Line 4, `ERR_DOC_NOT_FOUND...`)\u201d.",
+            "However, it does not state limitations of the register, error log, air waybill, or workshop guidance, and treats the register\u2019s \u201ccertificate status\u201d as proof of an expired Long-Term Declaration."
+          ]
+        },
+        {
+          "name": "Reasoning and hypothesis testing (reasoning)",
+          "weight_pct": 20,
+          "score_0_4": 1,
+          "citations": [
+            "It says the comparison \u201cproves the required Long-Term Declaration was expired,\u201d although the cited register entry is described as a supplier certificate status and does not establish that it is the legally relevant declaration.",
+            "It rejects \u201cThird-Country Transshipment / Origin Fraud\u201d because of a \u201cDirect Flight DUB->ZRH,\u201d but routing evidence does not prove manufacturing origin, preferential origin, or the absence of other supply-chain explanations."
+          ]
+        },
+        {
+          "name": "Calibration (calibration)",
+          "weight_pct": 20,
+          "score_0_4": 1,
+          "citations": [
+            "The submission labels the legal conclusion \u201clegally UNsupported\u201d and states that the comparison \u201cproves\u201d invalidity, despite identifying the \u201cExecuted 2026 Long-Term Supplier Declaration\u201d as missing.",
+            "It asserts \u201cthe goods physically originated in Ireland,\u201d but the cited air waybill and declaration origin code do not independently establish manufacturing origin."
+          ]
+        },
+        {
+          "name": "Process and system understanding (systems)",
+          "weight_pct": 20,
+          "score_0_4": 1,
+          "citations": [
+            "The response identifies a potentially relevant process failure\u2014\u201csupplier declaration reference document is missing/unlinked\u201d\u2014but does not explain whether this is a document-lineage/system-linkage problem, an actual absence of supplier evidence, or how either affects the customs claim.",
+            "It does not distinguish manufacturing country from preferential origin requirements beyond asserting that the latter is invalid."
+          ]
+        },
+        {
+          "name": "Decision safety (action)",
+          "weight_pct": 20,
+          "score_0_4": 2,
+          "citations": [
+            "\u201cPay standard non-preferential MFN duty... to prevent customs detention\u201d is a potentially conservative interim action, but the submission does not verify that payment is required or that preference cannot be held pending supplier evidence.",
+            "The recommendation to request a \u201cretroactive 2026 Long-Term Supplier Declaration\u201d and file an amendment for \u201ca full refund\u201d assumes retroactive documentation and refund eligibility without citing the applicable customs procedure or preserving the possibility of obtaining contemporaneous supplier evidence."
+          ]
+        }
+      ],
+      "unsupported_or_overstated_claims": [
+        "\u201cWhile the goods physically originated in Ireland\u201d is not established by the cited air waybill or declaration origin code.",
+        "\u201cPreferential origin is legally UNsupported because the supplier's Long-Term Declaration expired\u201d overstates the evidence: the cited register identifies an expired certificate/status, not necessarily the specific Long-Term Declaration required for this shipment, and the actual 2026 declaration is missing.",
+        "\u201cA validity-window comparison... proves the required Long-Term Declaration was expired\u201d improperly treats an indirect record as conclusive proof.",
+        "\u201cThe consignment was manufactured in Ireland and shipped directly without passing through a non-EU transit hub\u201d is not proved by a DUB-ZRH air waybill or an IE origin field.",
+        "\u201cAsterion Ortho can file a retroactive customs amendment and claim a full refund\u201d is unsupported without the governing procedure, filing deadlines, and proof requirements."
+      ],
+      "strongest_alternative_interpretation": "The register and missing-document error may show a documentation or system-linkage gap rather than loss of preferential entitlement. The shipment\u2019s manufacturing and preferential origin remain unverified; the correct interim conclusion is to hold or condition preference pending a valid supplier declaration and underlying production/origin evidence, rather than declare the claim legally invalid.",
+      "single_most_valuable_next_improvement": "Obtain and verify the supplier\u2019s executed 2026 Long-Term Declaration and underlying origin records, then distinguish whether the register entry concerns that declaration and cite the applicable rule governing validity, retroactive correction, and refund eligibility."
+    },
+    {
+      "exercise": "4a-consumer-qc-queue",
+      "participation": 2.5,
+      "analytical": 5.2,
+      "verdict": "mixed",
+      "dimensions": [
+        {
+          "name": "Evidence traceability",
+          "weight_pct": 20,
+          "score_0_4": 2,
+          "citations": [
+            "\"source_freshness.csv\" (Row 3, field \"last_updated_utc\")",
+            "\"batch_release.csv\" (rows 14, 28, 89, fields \"completed_at\", \"released_at\")",
+            "\"Observed Fact: Time delta between `created_at` and `released_at` ... averages 36.2 hours.\" \u2014 Relevant files and fields are cited, but the snapshot-frequency citation appears mismatched to the claimed field, and the 80% attribution is not traceably demonstrated."
+          ]
+        },
+        {
+          "name": "Causal / investigative reasoning",
+          "weight_pct": 25,
+          "score_0_4": 2,
+          "citations": [
+            "\"Rejected Hypothesis 2: High Lab Testing Failure and Retest Rate ... only 7 batches (2.0%) required re-testing\"",
+            "\"The remaining 32 hours are an artifact of 24-hour ETL batch lags and weekend shift closures.\" \u2014 The submission tests retesting as an alternative, but it jumps from a 4-hour standard and a 24-hour extract frequency to a specific causal decomposition without event-level timestamps or a release-hour profile."
+          ]
+        },
+        {
+          "name": "Calibration and uncertainty",
+          "weight_pct": 15,
+          "score_0_4": 2,
+          "citations": [
+            "\"Unproven Operational Claim: Physical QC testing and approval queue requires 36 hours of active work.\"",
+            "\"Supported Inference: Over 80% of the recorded 36 hours represents inactive queue time caused by daily batch ETL snapshots ... and weekend shift closures.\" \u2014 It distinguishes fact from inference, but labels the unsupported 80% mechanism as supported and treats the metric as invalid more strongly than the evidence allows."
+          ]
+        },
+        {
+          "name": "Decision usefulness / reframing",
+          "weight_pct": 20,
+          "score_0_4": 2,
+          "citations": [
+            "\"Pause dashboard construction.\"",
+            "\"If actual active bench time exceeds 12 hours, resume dashboard construction ... if active bench time is under 5 hours, cancel the dashboard and fix the ETL snapshot frequency.\" \u2014 Pausing an unvalidated KPI is directionally useful and reversible, but canceling the dashboard or prescribing ETL changes before defining the event semantics could create operational risk."
+          ]
+        },
+        {
+          "name": "Disconfirmation and rejected hypotheses",
+          "weight_pct": 10,
+          "score_0_4": 2,
+          "citations": [
+            "\"Rejected Hypothesis 1: Lab Testing Bottleneck / Analyst Inefficiency.\"",
+            "\"Rejected Hypothesis 2: High Lab Testing Failure and Retest Rate.\" \u2014 Retesting is reasonably checked against the data, but the strongest competing explanation\u2014that release timestamps are interface commits rather than decision times\u2014is not considered, and the lab bottleneck is not actually testable from the stated SOP duration alone."
+          ]
+        },
+        {
+          "name": "Questioning / next evidence",
+          "weight_pct": 10,
+          "score_0_4": 3,
+          "citations": [
+            "\"Query real-time LIMS event audit logs ... for true bench completion timestamps (`bench_completed_at`).\"",
+            "\"If actual active bench time exceeds 12 hours ... if active bench time is under 5 hours ...\" \u2014 This requests specific discriminating evidence and gives decision thresholds, although it omits the required timestamp-definition check and source-snapshot reconciliation."
+          ]
+        }
+      ],
+      "unsupported_or_overstated_claims": [
+        "\"The apparent 36-hour ... cycle time ... is an unverified metric artifact inflated by 24-hour ETL snapshot lags and non-working weekend timestamp logging\" \u2014 the artifacts cited establish snapshot frequency and some Friday-to-Monday observations, not that these explain the measured duration or that timestamps are logged only on non-working days.",
+        "\"Over 80% of the recorded 36 hours represents inactive queue time caused by daily batch ETL snapshots ... and weekend shift closures\" \u2014 no calculation or event-level evidence is supplied, and the attribution confounds workflow delay with interface timing.",
+        "\"The remaining 32 hours are an artifact of 24-hour ETL batch lags and weekend shift closures\" \u2014 a 4-hour standard testing timeline does not establish that all remaining elapsed time has those causes.",
+        "\"If active bench time is under 5 hours, cancel the dashboard and fix the ETL snapshot frequency\" \u2014 this is an overstrong operational recommendation before validating whether the dashboard's event definition and source extracts are coherent."
+      ],
+      "strongest_alternative_interpretation": "The measured duration may mix genuine workflow delay with release/interface commit timing. In particular, release timestamps could be concentrated at a scheduled interface time, while QCore and LabTrack extracts may not represent the same point-in-time snapshot. The apparent 36-hour KPI should therefore remain unfit for decision use until the event/decision timestamp definition and event log are validated; ETL lag and weekend closure remain hypotheses rather than established causes.",
+      "single_most_valuable_next_improvement": "Replace the asserted ETL/weekend causal decomposition with a timestamp-semantics test: profile `qcore_release_ts` by hour, reconcile source freshness and snapshot IDs across QCore/LabTrack, and obtain the event/decision timestamp definition or audit log needed to distinguish actual workflow delay from interface-commit timing."
+    },
+    {
+      "exercise": "4b-consumer-spares-search",
+      "participation": 2.5,
+      "analytical": 5.0,
+      "verdict": "mixed",
+      "dimensions": [
+        {
+          "name": "Evidence traceability",
+          "weight_pct": 20,
+          "score_0_4": 2,
+          "citations": [
+            "\"Open purchase requests total $140,000 across 20 active orders\" from `part_requests.csv` rows 1\u201320",
+            "\"Critical spares policy blocks cross-plant transfer for 50% of catalog SKUs\" from `part_restrictions.csv`",
+            "\"Plant B inventory snapshot is 14 days out of date\" from `source_freshness.csv` row 5",
+            "\"Actionable now: $21,000 (15.0% of total value) \u2014 3 requests\""
+          ]
+        },
+        {
+          "name": "Causal / investigative reasoning",
+          "weight_pct": 25,
+          "score_0_4": 2,
+          "citations": [
+            "\"Rejected because `part_restrictions.csv` ... and `spares_transfer_policy.md` ($250 transfer fee) render $70,000 of matches physically or economically unviable\"",
+            "\"Description Mismatch as Primary Procurement Obstacle\" was tested against `spare_parts.csv` and `part_restrictions.csv`",
+            "\"Needs engineering check: $49,000\""
+          ]
+        },
+        {
+          "name": "Calibration and uncertainty",
+          "weight_pct": 15,
+          "score_0_4": 2,
+          "citations": [
+            "The submission assigns claim-specific confidence levels in its evidence table.",
+            "\"Plant B inventory snapshot is 14 days out of date\" and requests physical cycle counts.",
+            "\"Actionable now\" is asserted despite the stated stale inventory issue and without a current availability confirmation."
+          ]
+        },
+        {
+          "name": "Decision usefulness / reframing",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "\"Proceed with a restricted semantic-search pilot\"",
+            "\"re-scope actionable savings down from the apparent $140,000 to $21,000\"",
+            "\"Conduct physical cycle counts at Plant B\" and \"Review engineering tolerance matrices\""
+          ]
+        },
+        {
+          "name": "Disconfirmation and rejected hypotheses",
+          "weight_pct": 10,
+          "score_0_4": 2,
+          "citations": [
+            "\"Rejected Hypothesis 1: Full $140,000 Avoidable Purchase Opportunity\"",
+            "\"Rejected Hypothesis 2: Description Mismatch as Primary Procurement Obstacle\"",
+            "The alternatives are addressed, but the submission does not test whether transfer fees are material relative to avoided purchase cost or whether catalog-level restrictions apply to each matched request."
+          ]
+        },
+        {
+          "name": "Questioning / next evidence",
+          "weight_pct": 10,
+          "score_0_4": 3,
+          "citations": [
+            "\"Conduct physical cycle counts at Plant B to verify whether the 14-day stale inventory ... actually exists\"",
+            "\"Review engineering tolerance matrices for the $49,000 in 'Needs check' bearing/seal requests\""
+          ]
+        }
+      ],
+      "unsupported_or_overstated_claims": [
+        "The statement that \"over 85% of apparent duplicate catalog matches cannot be transferred\" overstates the table: 35% is classified as needing engineering review rather than being non-transferable.",
+        "A $250 handling fee alone does not establish that $70,000 is economically unviable; the submission does not provide transfer quantities, avoided purchase costs, or a fee comparison.",
+        "A restriction rate for 50% of catalog SKUs is not sufficient to conclude that the same share or value of open requests is blocked without a row-level request-to-inventory join.",
+        "\"Actionable now\" is not established by technical match and unrestricted status while the relevant inventory snapshot is 14 days old.",
+        "The claim that exactly three requests are actionable and seven require seal/tolerance validation is not made auditable by the displayed evidence, which shows only three illustrative request rows and no row-level matching detail."
+      ],
+      "strongest_alternative_interpretation": "Semantic search may still provide substantial candidate-generation value, with description mismatch contributing to duplicate-buy risk, while restrictions, engineering equivalence, reservations, UOM or revision constraints, and stale availability data determine actionable value. The evidence supports a restricted pilot, but not yet a reduction of actionable value to exactly $21,000 or a conclusion that 85% of matches cannot transfer.",
+      "single_most_valuable_next_improvement": "Create an auditable request-to-stock match table using manufacturer part number as the primary identity signal, then verify revision, UOM, qualification, reservation/criticality, restriction status, current quantity and timestamp, and transfer economics for every candidate. This would distinguish candidate value from confirmed actionable value and test the $21,000 estimate directly."
+    }
+  ]
+}

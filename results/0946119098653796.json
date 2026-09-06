@@ -1,0 +1,131 @@
+{
+  "questions_answered": 2,
+  "participation": 5.0,
+  "analytical": 17.0,
+  "final": 22.0,
+  "per_question": [
+    {
+      "exercise": "1a-dth-month-end",
+      "participation": 2.5,
+      "analytical": 8.4,
+      "verdict": "good",
+      "dimensions": [
+        {
+          "name": "Evidence traceability",
+          "weight_pct": 30,
+          "score_0_4": 3,
+          "citations": [
+            "\"Zero duplicate `source_event_id`/`recharge_id` anywhere in 24,542 recharge rows\" \u2014 `recharges.csv` (full-file duplicate check)",
+            "\"All 8 relevant batches RECONCILED, `reconciliation_difference_usd=0.00`, `duplicate_source_event_ids=0`\" \u2014 `dealer_import_log.csv`"
+          ]
+        },
+        {
+          "name": "Mechanism and causal judgment",
+          "weight_pct": 25,
+          "score_0_4": 4,
+          "citations": [
+            "\"May-batch effective dates span 2026-05-01\u219205-28\"",
+            "\"Only DLR-104 & DLR-219 show posted_at \u2260 effective_event_date\" and \"Lag is confined to `term_days=365` rows\""
+          ]
+        },
+        {
+          "name": "Calibration and alternatives",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "\"Rejected Hypotheses\" explicitly considers duplicate revenue, manipulated/backdated reporting, and a systemic pipeline defect",
+            "\"No contract text/amendment is supplied\" and \"no evidence of 'entitlement posting' verification was supplied\""
+          ]
+        },
+        {
+          "name": "Decision safety and reframing",
+          "weight_pct": 15,
+          "score_0_4": 3,
+          "citations": [
+            "\"Safe Next Action Reversible, read-only\"",
+            "\"pull the dealer master/territory table\" and \"request Ops to attach the specific contract clause/amendment\""
+          ]
+        },
+        {
+          "name": "Usefulness and clarity",
+          "weight_pct": 10,
+          "score_0_4": 4,
+          "citations": [
+            "\"Do not escalate as duplicate revenue or manipulated reporting\"",
+            "\"no reposting, reversal, or ledger changes required\""
+          ]
+        }
+      ],
+      "unsupported_or_overstated_claims": [
+        "\"documented, recurring contractual batch-upload process\" is only partly supported: recurrence is evidenced, but the contract or amendment is explicitly missing and the email is marked unverified.",
+        "\"not a data-integrity or fraud event\" overstates what the evidence establishes. It supports no observed duplicate-revenue issue, but does not fully exclude fraud or a scoped entitlement/data-integrity problem.",
+        "\"cash=ledger with $0 variance\" is asserted in the rejected-hypotheses section, while the cited evidence directly documents import-log reconciliation; the submission does not show the underlying cash and ledger fields or reconciliation query.",
+        "\"ruling out a general timestamp/ETL bug\" is too strong. The concentration in two dealers and annual plans argues against a systemic defect, but does not exclude a dealer-specific ingestion or mapping defect.",
+        "\"no subscriber with two May annual rows\" is presented as a tested result without identifying the relevant subscriber fields, join, or query output."
+      ],
+      "strongest_alternative_interpretation": "The analyst handled duplicate revenue, deliberate month-end manipulation, and a broad pipeline defect reasonably well. The strongest missed or insufficiently tested alternative is a scoped entitlement/posting defect: import uniqueness and cash reconciliation can hold while the same customer entitlement is granted twice or downstream entitlement records are duplicated. The submission acknowledges that entitlement verification is missing but still recommends closing the flag.",
+      "single_most_valuable_next_improvement": "Perform and document the missing entitlement-level reconciliation: join the annual recharge/import records to subscriber entitlement and cash/ledger records, test one entitlement per source event and customer, and show the query results before closing the case."
+    },
+    {
+      "exercise": "1b-dth-complaints-quiet",
+      "participation": 2.5,
+      "analytical": 8.6,
+      "verdict": "good",
+      "dimensions": [
+        {
+          "name": "Evidence traceability",
+          "weight_pct": 30,
+          "score_0_4": 3,
+          "citations": [
+            "\"What I *could* verify (full `service_events.csv`, Jan\u2013Jun 2026) shows South-region network disruptions did **not** decline\"",
+            "\"South-region network disruptions did not decrease Jan\u2013Jun 2026; May was the worst month (HIGH-severity, ~4,171 accounts, Hyderabad) | service_events.csv (full file, verified)\""
+          ]
+        },
+        {
+          "name": "Mechanism and causal judgment",
+          "weight_pct": 25,
+          "score_0_4": 3,
+          "citations": [
+            "\"A fall in South-region *complaint case counts* is not the same as a fall in *problems experienced* \u2014 case counts are a measured proxy that depends on when a case gets logged\"",
+            "\"If the pilot changed what counts as a case ... volume would drop mechanically regardless of whether the underlying issue was fixed.\""
+          ]
+        },
+        {
+          "name": "Calibration and alternatives",
+          "weight_pct": 20,
+          "score_0_4": 4,
+          "citations": [
+            "\"I could not access `ivr_interactions.jsonl` or `email-ivr-pilot.eml` ... so containment vs. abandonment behavior and the pilot's actual scope/start date are unconfirmed.\"",
+            "\"Material unknowns: (1) whether case-creation rules changed with the pilot; (2) IVR self-service containment vs. abandonment/repeat-contact rate\""
+          ]
+        },
+        {
+          "name": "Decision safety and reframing",
+          "weight_pct": 15,
+          "score_0_4": 4,
+          "citations": [
+            "\"Do not expand NovaIVR nationally on this evidence.\"",
+            "\"Before any expansion decision, build a matched-definition time series comparing South (pilot) vs. a non-pilot region: total *contacts* (not just logged cases), split by resolved-in-IVR / escalated / abandoned, cross-checked against 7-day repeat-contact rate and CSAT.\""
+          ]
+        },
+        {
+          "name": "Usefulness and clarity",
+          "weight_pct": 10,
+          "score_0_4": 4,
+          "citations": [
+            "\"Safe Next Action\"",
+            "\"What exactly has to happen in an IVR call for a case to be created in tickets.csv \u2014 has that trigger changed since NovaIVR launched?\""
+          ]
+        }
+      ],
+      "unsupported_or_overstated_claims": [
+        "\"more consistent with a measurement-definition change\" is stronger than the cited service-events evidence supports; unchanged or worse network disruption does not distinguish failed IVR capture from genuinely improved self-service or other channel effects.",
+        "\"South complaint case counts fell after NovaIVR pilot\" is listed as unverified because the submission could not access the pilot email and does not provide a direct ticket time series around the pilot start date.",
+        "\"case-creation conditions\" are treated as a variable Farah controls, but the submission does not establish that the rules actually changed.",
+        "The statement that the May Hyderabad outage affected \"~4,171 accounts\" is specific but is not tied to a row, query, or calculation that would allow reproduction."
+      ],
+      "strongest_alternative_interpretation": "The submission handled the benign explanation that fewer complaints could reflect improved network reliability, and it noted a billing-migration confound. It missed or underdeveloped the strongest competing interpretation: NovaIVR may have genuinely resolved some contacts while network disruptions remained unchanged, because service-event severity is not a direct measure of customer experience and the submission lacks IVR outcome, repeat-contact, and sampled-call evidence.",
+      "single_most_valuable_next_improvement": "Produce a reproducible South-versus-control time series anchored to the actual pilot start date, using tickets.csv plus IVR sessions and contact outcomes, and quantify pre-case errors, abandonment, containment, escalations, and 7-day repeat contacts; this would test the proposed capture-failure mechanism rather than relying mainly on service-event context."
+    }
+  ]
+}
