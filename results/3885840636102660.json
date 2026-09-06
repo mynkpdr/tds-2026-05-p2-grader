@@ -1,8 +1,8 @@
 {
-  "questions_answered": 5,
-  "participation": 12.5,
-  "analytical": 44.1,
-  "final": 56.6,
+  "questions_answered": 8,
+  "participation": 20.0,
+  "analytical": 70.1,
+  "final": 90.1,
   "per_question": [
     {
       "exercise": "1a-dth-month-end",
@@ -63,6 +63,66 @@
       ],
       "strongest_alternative_interpretation": "The spike could indicate duplicate revenue, manipulated retention reporting, or a pipeline defect rather than a benign posting quirk. The analyst handled these alternatives by testing unique source events, import acceptance, cash-to-ledger reconciliation, and the separation between effective and posting dates, while preserving entitlement activation as an unresolved alternative.",
       "single_most_valuable_next_improvement": "Complete and document the read-only entitlement audit for all 17 accounts, and explicitly recommend using `effective_event_date` for downstream event-time analytics while retaining posting date for accounting controls."
+    },
+    {
+      "exercise": "1b-dth-complaints-quiet",
+      "participation": 2.5,
+      "analytical": 9.5,
+      "verdict": "strong",
+      "dimensions": [
+        {
+          "name": "Evidence traceability",
+          "weight_pct": 30,
+          "score_0_4": 4,
+          "citations": [
+            "\"Containment is 64.8% when pre-authentication sessions are excluded, but falls to 56.1% when all interactions are included.\" Source: `ivr_interactions.jsonl`, recomputed from `terminal_stage`.",
+            "\"South NO_SIGNAL tickets fell from 51 in May to 28 in June, yet service telemetry still shows 10 May events affecting 9,409 accounts and 8 June events affecting 7,045 accounts.\" Sources: `tickets.csv`; `service_events.csv`."
+          ]
+        },
+        {
+          "name": "Mechanism and causal judgment",
+          "weight_pct": 25,
+          "score_0_4": 4,
+          "citations": [
+            "\"The interaction logs also show a major measurement change: legacy routing created cases for 219/442 sessions (49.5%), whereas NOVA-S1 created only 90/2,709 (3.3%).\"",
+            "\"The pilot email states that sessions ending before authentication are tracked in the technical pilot report rather than CareDesk because the customer has not been verified.\""
+          ]
+        },
+        {
+          "name": "Calibration and alternatives",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "\"The 650 sessions ending during authentication therefore represent unmeasured or unresolved customer friction, not confirmed self-service success.\"",
+            "\"There is no evidence showing whether customers who fail authentication contact SkyWave again within seven days.\""
+          ]
+        },
+        {
+          "name": "Decision safety and reframing",
+          "weight_pct": 15,
+          "score_0_4": 4,
+          "citations": [
+            "\"Decision: Hold national expansion and keep the South pilot within its current scope.\"",
+            "\"Run one read-only subscriber callback/recontact reconciliation across all 2,709 NOVA-S1 sessions to measure 7-day repeat contacts.\""
+          ]
+        },
+        {
+          "name": "Usefulness and clarity",
+          "weight_pct": 10,
+          "score_0_4": 4,
+          "citations": [
+            "\"Keep national rollout on hold until the results are reviewed.\"",
+            "\"What formal numerator and denominator definitions for containment, and does policy exclude pre-authentication sessions?\""
+          ]
+        }
+      ],
+      "unsupported_or_overstated_claims": [
+        "\"The 650 sessions ending during authentication therefore represent unmeasured or unresolved customer friction\" is partly overstated: the data establish missing case capture and failed or abandoned authentication, but do not establish that every session involved a complaint or unresolved customer harm.",
+        "\"Underlying service problems continued at roughly 8\u201310 major network events each month\" is only directly evidenced for the cited May and June observations unless the file contains a broader monthly series; the submission does not show the full calculation.",
+        "The proposed \"subscriber callback/recontact reconciliation across all 2,709 NOVA-S1 sessions\" may not be feasible for pre-authentication sessions if those users cannot be reliably linked to subscribers; this feasibility issue is not addressed."
+      ],
+      "strongest_alternative_interpretation": "The analyst handled the possibility that lower volume reflects genuine containment by preserving it as an unknown: \"a low rate would make true containment more credible.\" However, it did not fully test or articulate other benign explanations such as changes in traffic mix, demand, or exposure to the pilot. Most importantly, it should have stated more explicitly that IVR abandonment is not itself evidence of a complaint.",
+      "single_most_valuable_next_improvement": "Explicitly separate IVR abandonment from complaint or harm, then add journey-linked validation\u2014especially sampled call listening and linkage to repeat contacts, successful resolution, and subsequent service outcomes\u2014before treating the missing cases as customer friction or using the result for expansion."
     },
     {
       "exercise": "2a-solar-smell-test",
@@ -328,6 +388,148 @@
       ],
       "strongest_alternative_interpretation": "The claim may be substantively valid: the shipment could have been sourced from current SUP-03, SUP-05, or SUP-06, or a valid declaration may exist in offline procurement records. The observed issue may therefore be missing shipment-to-supplier linkage or packet completeness rather than an invalid preference claim.",
       "single_most_valuable_next_improvement": "Verify the shipment-specific supplier and applicable tariff treatment, then obtain and test the supplier declaration against the 2025-09-18 date, product, supplier, and originating rule before directing either clearance or duty correction."
+    },
+    {
+      "exercise": "4a-consumer-qc-queue",
+      "participation": 2.5,
+      "analytical": 7.4,
+      "verdict": "good",
+      "dimensions": [
+        {
+          "name": "Evidence traceability",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "\"The SOP defines the routine target from required evidence being available to disposition, but the extract has no timestamp...\" \u2014 specifically cites qc_release_sop.md and the batch_release.csv header; \"185 of 262 qcore_release_ts values are exactly 02:10:00\" cites batch_release.csv and source_freshness.csv. The evidence chain is generally specific and cross-file, but the claimed 8.4-hour evidence-to-release result is not traceable because evidence_available_ts is stated to be missing."
+          ]
+        },
+        {
+          "name": "Causal / investigative reasoning",
+          "weight_pct": 25,
+          "score_0_4": 3,
+          "citations": [
+            "\"Headline cycle time of 1.5 days conflates physical receipt-to-release... with the SOP-mandated evidence-to-release standard\" correctly separates the operational clock from the SOP clock.",
+            "\"The observed 02:10:00 timestamp clustering represents a batch-processing synchronization artifact rather than actual release timing\" identifies a plausible mechanism, but treats interface timing as definitively a default/artifact without first validating event or decision timestamps.",
+            "\"Whether 02:10 is a real disposition time or extract default\" is a useful discriminating test."
+          ]
+        },
+        {
+          "name": "Calibration and uncertainty",
+          "weight_pct": 15,
+          "score_0_4": 2,
+          "citations": [
+            "\"The snapshot cannot compute compliance with SOP service targets because evidence_available_ts is missing\" is appropriately bounded.",
+            "However, the evidence table labels several claims \"High\" confidence and states that 02:10 is a synchronization artifact, while also claiming an \"evidence-to-release median of about 8.4 hours\" despite saying the required evidence timestamp is unavailable. The submission does not adequately distinguish interface timestamp, extract default, and actual decision time."
+          ]
+        },
+        {
+          "name": "Decision usefulness / reframing",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "\"Decision: Defer KPI dashboard publication pending timestamp verification\" is a prudent reframing that prevents management use of a potentially misdefined KPI.",
+            "\"Do one read-only validation of 5\u201310 02:10-stamped batches... before building a dashboard\" is small, reversible, and operationally safe. It would be stronger if it explicitly required an event/decision timestamp definition or event log rather than treating live-record agreement with 02:10 as sufficient."
+          ]
+        },
+        {
+          "name": "Disconfirmation and rejected hypotheses",
+          "weight_pct": 10,
+          "score_0_4": 3,
+          "citations": [
+            "The submission rejects genuine process-speed, corrupt-extract, and immediate-publication explanations, and proposes tests for each through live QCore/CertVault checks, right-censoring analysis, and evidence-timestamp reconstruction.",
+            "\"Different live times would disqualify the extract timestamp; matching times would support its use\" tests the timestamp-artifact hypothesis, although matching interface times would not by itself establish that they are decision times."
+          ]
+        },
+        {
+          "name": "Questioning / next evidence",
+          "weight_pct": 10,
+          "score_0_4": 4,
+          "citations": [
+            "The prioritized requests are specific: \"evidence_available_ts or a validated field mapping for 5\u201310 batches,\" \"Live QCore audit for a sample of the 185 stamped rows,\" and a follow-up of the 42 HOLD rows. The final read-only validation is a high-value first query tied directly to the publication decision."
+          ]
+        }
+      ],
+      "unsupported_or_overstated_claims": [
+        "\"Excluding those completed rows gives an evidence-to-release median of about 8.4 hours\" is unsupported or mislabeled because the submission states that evidence_available_ts is missing; at most this could be a proxy based on another timestamp.",
+        "\"The observed 02:10:00 timestamp clustering represents a batch-processing synchronization artifact rather than actual release timing\" is too definitive. The evidence supports an interface/extract-timing hypothesis, but does not establish whether 02:10 is an interface commit, a defaulted value, or the actual disposition event.",
+        "\"If matching times would support its use\" overstates what a live check can establish: matching QCore values could validate extract fidelity while still failing to validate decision-time semantics.",
+        "\"The 42 HOLD rows... are likely to become the slowest observations\" is plausible but not demonstrated; their recency and censoring justify caution, not a known eventual-duration ranking."
+      ],
+      "strongest_alternative_interpretation": "The extract may faithfully report QCore interface-commit times, with the 02:10 concentration reflecting a scheduled publication or snapshot process rather than corrupted data. The apparent cycle time could therefore be a mixture of real workflow delay and interface timing. Even if the timestamps are accurate as system events, they may still be unsuitable for the SOP KPI unless the required-evidence and disposition/decision event timestamps are defined and available.",
+      "single_most_valuable_next_improvement": "Replace the unsupported 8.4-hour evidence-to-release claim and the definitive \"defaulted/artifact\" language with an explicit timestamp-semantics test: obtain the QCore event/audit log and map, for the same 5\u201310 batches, required-evidence availability, disposition decision, interface commit, and extract publication timestamps. Use that mapping to decide whether any KPI can be published and which timestamp is the numerator endpoint."
+    },
+    {
+      "exercise": "4b-consumer-spares-search",
+      "participation": 2.5,
+      "analytical": 9.1,
+      "verdict": "strong",
+      "dimensions": [
+        {
+          "name": "Evidence traceability",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "\"Of 24 open requests worth $166,495.60...\" and the evidence table identify the source files, fields, and request IDs supporting the financial and classification claims.",
+            "\"The global stock snapshot is dated 26 June while the request export is associated with the 24 July ProcureNet snapshot\" triangulates freshness across separate sources.",
+            "The submission is generally traceable, but it provides limited row-level detail for some claimed eligibility checks and does not independently validate the eight 'actionable now' decisions against a current system."
+          ]
+        },
+        {
+          "name": "Causal / investigative reasoning",
+          "weight_pct": 25,
+          "score_0_4": 4,
+          "citations": [
+            "\"Treat search results as candidates, not automatic transfers\" correctly separates retrieval from transferability.",
+            "The rejected hypotheses test semantic similarity, revision equivalence, negative availability, and the need for semantic search against restrictions, inventory, policy, and maintenance-email evidence.",
+            "\"It survives only if search finds valid matches among the 11 blank-MPN requests\" preserves a viable alternative and identifies a discriminating test."
+          ]
+        },
+        {
+          "name": "Calibration and uncertainty",
+          "weight_pct": 15,
+          "score_0_4": 3,
+          "citations": [
+            "The submission distinguishes \"Actionable now,\" \"Needs check,\" and \"Not transferable,\" and explicitly says current confirmation is still required because the global snapshot is stale.",
+            "\"Defend only the eight-request actionable slice, not gross value\" is appropriately conservative about candidate value.",
+            "However, calling the eight requests actionable now while relying on a 26 June global snapshot is somewhat overstated; the operational uncertainty is acknowledged but not quantitatively bounded by a required confirmation SLA or current-query result."
+          ]
+        },
+        {
+          "name": "Decision usefulness / reframing",
+          "weight_pct": 20,
+          "score_0_4": 4,
+          "citations": [
+            "The recommendation to use semantic search as candidate generation with engineering and availability confirmation directly protects against unsafe automatic transfers.",
+            "The proposed sequence\u2014test data hygiene and exact matching first, then test the 11 blank-MPN requests\u2014is a focused and reversible reframing of the brief.",
+            "The decision categories and proposed checks address revision, UOM, qualification, reservation, quantity, and freshness rather than presenting gross semantic-match value as savings."
+          ]
+        },
+        {
+          "name": "Disconfirmation and rejected hypotheses",
+          "weight_pct": 10,
+          "score_0_4": 4,
+          "citations": [
+            "The submission explicitly rejects four plausible alternatives: automatic transfer from a semantic hit, interchangeability within a part family, interpreting negative availability as zero stock, and assuming an expensive semantic-search system is required.",
+            "For each, it gives evidence and states what could revive the hypothesis, such as a live CMMS check, engineering approval, or valid matches among blank-MPN requests."
+          ]
+        },
+        {
+          "name": "Questioning / next evidence",
+          "weight_pct": 10,
+          "score_0_4": 4,
+          "citations": [
+            "The 'What Would Change the Decision' table asks for prioritized, decision-linked evidence: manufacturer part number and revision, live CMMS reservation/availability, engineering and qualification approval, and an exact-versus-semantic recall/precision comparison.",
+            "Each requested evidence item has an explicit consequence\u2014move to actionable, reject, or pilot/reframe\u2014rather than a generic request for more data."
+          ]
+        }
+      ],
+      "unsupported_or_overstated_claims": [
+        "\"Semantic search is not the real problem\" is stronger than the evidence supports: exact MPN joins cover 13 identified requests, but semantic search has not yet been evaluated on the 11 blank-MPN requests.",
+        "The eight-request \"Actionable now\" classification is not fully established while the global MaintStar stock snapshot is stale and current local confirmations have not been shown; it is better characterized as provisionally eligible pending live confirmation.",
+        "\"An exact join finds candidates for all 13\" establishes retrieval candidates, not catalog equivalence, transferability, or engineering approval."
+      ],
+      "strongest_alternative_interpretation": "Semantic search may still have material value for the 11 requests lacking manufacturer part numbers, and exact MPN matching may itself miss valid aliases or normalized identifiers. The available evidence supports using exact matching as the first control and semantic search as a measured candidate-generation pilot, rather than concluding that search is unnecessary.",
+      "single_most_valuable_next_improvement": "Run one prioritized live CMMS and engineering-validation query for the eight provisionally actionable requests\u2014returning current unreserved quantity, reservation/criticality, revision, UOM, and qualification status\u2014and record the result by request. This would test the largest operational leap in the submission and convert stale candidate value into defensible actionable value."
     }
   ]
 }

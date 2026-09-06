@@ -1,0 +1,272 @@
+{
+  "questions_answered": 4,
+  "participation": 10.0,
+  "analytical": 29.1,
+  "final": 39.1,
+  "per_question": [
+    {
+      "exercise": "1a-dth-month-end",
+      "participation": 2.5,
+      "analytical": 7.5,
+      "verdict": "good",
+      "dimensions": [
+        {
+          "name": "Evidence traceability",
+          "weight_pct": 30,
+          "score_0_4": 3,
+          "citations": [
+            "\"dealer_import_log.csv, rows DF-00020, DF-00040\"",
+            "\"dealer_import_log.csv, effective_date_min/max columns\""
+          ]
+        },
+        {
+          "name": "Mechanism and causal judgment",
+          "weight_pct": 3,
+          "score_0_4": 3,
+          "citations": [
+            "\"The 31 May West-region annual-plan cluster is explained by dealer-cash batch reconciliation timing\"",
+            "\"Same monthly-batch pattern (posting only at month-end, full-month effective span) recurs Jan\u2013Jun for both dealers\""
+          ]
+        },
+        {
+          "name": "Calibration and alternatives",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "\"Not verified \u2014 file too large to retrieve the May slice in this session\"",
+            "\"Whether other dealers post daily rather than monthly; if DLR-104/219 were outliers versus peers, that would call for a separate operational explanation.\""
+          ]
+        },
+        {
+          "name": "Decision safety and reframing",
+          "weight_pct": 15,
+          "score_0_4": 3,
+          "citations": [
+            "\"Pull the full May 31 recharge-level rows for DLR-104 and DLR-219 and tie row counts and dollar sums to the DF-00020/DF-00040 batch totals\"",
+            "\"a read-only reconciliation check with no changes to revenue recognition or reporting cadence\""
+          ]
+        },
+        {
+          "name": "Usefulness and clarity",
+          "weight_pct": 10,
+          "score_0_4": 3,
+          "citations": [
+            "\"No escalation as fraud, duplicate revenue, or manipulated reporting.\"",
+            "\"Any batch (May or otherwise) with reconciliation_difference_usd \u2260 0 or nonzero duplicate_source_event_ids would reverse this conclusion toward a genuine defect.\""
+          ]
+        }
+      ],
+      "unsupported_or_overstated_claims": [
+        "\"covering the entire prior month's activity\" is not clearly supported by the cited May effective-date ranges, which are described as occurring within May.",
+        "\"Duplicate revenue \u2014 rejected\" is stronger than the evidence warrants because batch-level reconciliation and duplicate source-event checks do not by themselves verify entitlement-level duplication or tie every May recharge row to the batch totals.",
+        "\"cash exactly matches ledger, no plug\" supports reconciliation, but it does not independently establish that the ledger itself contains no duplicated entitlements.",
+        "\"every reconciled batch from January through June for both dealers\" is cited only as the dealer_import_log.csv \"full history\" and would be more reproducible with explicit row identifiers or a query/result summary."
+      ],
+      "strongest_alternative_interpretation": "The analyst handled fraud, isolated-anomaly, and peer-cadence alternatives reasonably, but missed or underdeveloped the possibility of a pipeline or entitlement-level defect that could survive batch reconciliation. It also missed the benign-but-material alternative that posting-time batching distorts downstream event-time retention and renewal analytics even when cash and entitlement reconciliation is sound.",
+      "single_most_valuable_next_improvement": "Complete and document the recharge-level join for DLR-104 and DLR-219: verify unique source_event_ids, row counts, cash totals, and entitlement/plan assignments against DF-00020 and DF-00040, then explicitly recommend using effective_event_date rather than posted_at for downstream analytics."
+    },
+    {
+      "exercise": "2a-solar-smell-test",
+      "participation": 2.5,
+      "analytical": 8.5,
+      "verdict": "good",
+      "dimensions": [
+        {
+          "name": "Evidence traceability",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "The submission cites inverter_events.csv rows 0\u20133 and specific fields: duration_min, impact_mw, cleared, and severity.",
+            "It specifically identifies row 3 and timestamp 2026-06-04 16:18 for TEMP_SENSOR_RECOVERED on INV-09.",
+            "The claim that the export is truncated or filtered is an inference from the absence of an antecedent in this file, not a directly observed fact."
+          ]
+        },
+        {
+          "name": "Investigative reasoning",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "It connects cleared=yes and impact_mw=0 to rejecting active equipment failure or capacity curtailment.",
+            "It distinguishes the general transient alerts from the separate missing-antecedent issue and proposes checking preceding TEMP_SENSOR_* logs.",
+            "The analysis relies on one event-log channel and does not fully test alternative explanations such as a standalone recovery record or an antecedent outside the available retention window."
+          ]
+        },
+        {
+          "name": "Calibration and uncertainty",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "The submission appropriately limits the recommendation to a 'one cheap check' and does not escalate from zero-impact warning events.",
+            "It labels the event-impact conclusion high confidence but says the missing antecedent is 'worth verifying.'",
+            "However, saying the missing antecedent 'indicates export truncation or log filtering' is somewhat stronger than the evidence supports; it establishes absence in this file, not the cause of that absence."
+          ]
+        },
+        {
+          "name": "Decision/action quality",
+          "weight_pct": 20,
+          "score_0_4": 4,
+          "citations": [
+            "'Stop escalation; perform one cheap check' is proportionate to the reported zero MW impact, cleared status, and short durations.",
+            "Querying preceding TEMP_SENSOR_* logs on INV-09 is a low-cost, decision-relevant check that could distinguish an incomplete export from a genuinely isolated recovery record."
+          ]
+        },
+        {
+          "name": "Conclusion fit",
+          "weight_pct": 20,
+          "score_0_4": 4,
+          "citations": [
+            "'Nothing in this export smells wrong enough to escalate' matches the visible pattern of short-lived, cleared, zero-impact events.",
+            "The conclusion is appropriately scoped by retaining a minor completeness check rather than claiming the export is definitively complete or that no equipment issue ever occurred."
+          ]
+        }
+      ],
+      "unsupported_or_overstated_claims": [
+        "'This indicates export truncation or log filtering' overstates the evidence; the record only shows that no antecedent appears in this file.",
+        "'Investigating these is not worth further time' is reasonable operationally, but should be understood as a proportionality judgment rather than proof that the alerts have no technical significance.",
+        "The rejection of active equipment failure is supported for the events represented in this export, but cannot exclude an unlogged or pre-window condition."
+      ],
+      "strongest_alternative_interpretation": "TEMP_SENSOR_RECOVERED may be a standalone informational recovery record, or its initiating event may precede the available retention/export window; the absent antecedent does not by itself establish truncation or filtering.",
+      "single_most_valuable_next_improvement": "State explicitly that the antecedent absence is only an observation, then query both the preceding time window and export/log-retention metadata for INV-09 to distinguish a missing export record from a standalone recovery event."
+    },
+    {
+      "exercise": "2b-solar-impact-claim",
+      "participation": 2.5,
+      "analytical": 5.6,
+      "verdict": "mixed",
+      "dimensions": [
+        {
+          "name": "Evidence traceability",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "\u201cMay 28 DSM penalty was Rs 662,444 (379.0 MWh gap) and May 29 DSM penalty was Rs 453,086 (282.8 MWh gap)\u201d cites AI_Pilot_Impact_Note.md, dispatch_blocks.csv, and DSM_Commercial_Extract.pdf.",
+            "\u201cRecomputing the 96 time blocks against regulatory DSM band rates confirms exact numerical alignment\u201d provides a reproducibility check, though it does not show the calculation or identify specific fields/timestamps.",
+            "The claim that the workflow \u201csuccessfully integrated tracker stow operating logic\u201d is not directly tied to specified schedule fields or timestamps."
+          ]
+        },
+        {
+          "name": "Investigative reasoning",
+          "weight_pct": 20,
+          "score_0_4": 2,
+          "citations": [
+            "The submission correctly notes that \u201can N=1 control day vs. N=1 treatment day design cannot separate model capability from environmental noise.\u201d",
+            "It considers meteorological severity, revision timing, equipment events, and grid curtailment as plausible alternative explanations.",
+            "It does not construct or describe the required same-day counterfactual using base_schedule_mw versus submitted_schedule_mw on May 29, and therefore does not test whether the pilot improved May 29 relative to the applicable within-day baseline."
+          ]
+        },
+        {
+          "name": "Calibration and uncertainty",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "It explicitly distinguishes the arithmetic result from causal proof: \u201casserting that this result proves the AI model inherently reduces operational DSM expenses by 31.6% is a causally overstated claim.\u201d",
+            "It identifies unresolved uncertainty about weather, revision timing, and equipment/grid events and proposes a larger validation design.",
+            "The evidence table nevertheless labels \u201cThe pilot model inherently guarantees a 31.6% DSM cost reduction\u201d with \u201cHigh\u201d confidence, contradicting the submission\u2019s later causal caveat."
+          ]
+        },
+        {
+          "name": "Decision/action quality",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "\u201cMaintain shadow/pilot implementation without automated dispatch authority\u201d and \u201cRequire manual operator verification\u201d are proportionate safeguards consistent with uncertain causal evidence.",
+            "The proposed counterfactual backtest and weather-normalized paired trial are useful next steps.",
+            "The proposed minimum of 10\u201315 events and the Rs Saved per stow-hour metric are reasonable but not as discriminating as first comparing May 29 base versus submitted schedules and isolating revision timing."
+          ]
+        },
+        {
+          "name": "Conclusion fit",
+          "weight_pct": 20,
+          "score_0_4": 2,
+          "citations": [
+            "The conclusion correctly rejects treating the 31.6% cross-day difference as a causal estimate and preserves a potentially useful pilot signal.",
+            "However, \u201csuccessfully reducing schedule over-commitment\u201d and \u201cimproves time-block schedule alignment\u201d remain causal or mechanism claims based primarily on comparing different days, without the same-day May 29 base_schedule_mw versus submitted_schedule_mw analysis.",
+            "It does not retain and quantify the smaller same-day benefit required by the evidence framework."
+          ]
+        }
+      ],
+      "unsupported_or_overstated_claims": [
+        "\u201cThe AI-assisted scheduling workflow successfully integrated tracker stow operating logic\u201d is not demonstrated by the cited cross-day penalty totals alone.",
+        "\u201cSuccessfully reducing schedule over-commitment\u201d and \u201cimproves time-block schedule alignment\u201d overstate what can be inferred from May 28 versus May 29 without a same-day counterfactual.",
+        "The evidence table\u2019s \u201cpilot model inherently guarantees a 31.6% DSM cost reduction\u201d is unsupported and inconsistent with the submission\u2019s own causal limits.",
+        "\u201cRecomputing the 96 time blocks\u201d is asserted without showing the relevant block-level fields, calculations, or audit trail."
+      ],
+      "strongest_alternative_interpretation": "The May 29 pilot day performed better than May 28, but the observed improvement may primarily reflect different wind severity, timing, stow duration, dispatch conditions, or manual revision behavior. A smaller same-day improvement may still exist if May 29 submitted_schedule_mw is compared with May 29 base_schedule_mw; the evidence does not justify either a 31.6% causal claim or a conclusion of no pilot value.",
+      "single_most_valuable_next_improvement": "Perform and report the May 29 same-day counterfactual using base_schedule_mw versus submitted_schedule_mw for each block, including the resulting DSM penalty and generation-gap difference, while separately identifying which changes were AI-generated versus manual intraday revisions."
+    },
+    {
+      "exercise": "4a-consumer-qc-queue",
+      "participation": 2.5,
+      "analytical": 7.5,
+      "verdict": "good",
+      "dimensions": [
+        {
+          "name": "Evidence traceability",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "\"qcore_release_ts - receipt_ts, mean 37.61 hours / 1.57 days\"; \"batch_release.csv (164 routine released batches; fields receipt_ts, qcore_release_ts)\"",
+            "\"185 out of 220 released batches (84.1%) record a disposition timestamp of exactly 02:10:00\"; \"source_freshness.csv (row 0: QCore snapshot 2026-07-31T02:10:00)\"",
+            "\"51 released batches contained complex exceptions ... and averaged 49.17 hours post-lab completion.\" \u2014 These claims identify relevant files, fields, counts, and counterevidence, but the timestamp-artifact conclusion is not fully established by the cited evidence."
+          ]
+        },
+        {
+          "name": "Causal / investigative reasoning",
+          "weight_pct": 25,
+          "score_0_4": 3,
+          "citations": [
+            "\"Do not build the dashboard using the current extract's apparent cycle time as a performance KPI without reframing the metric and verifying transactional timestamps.\"",
+            "\"Operations conflated upstream laboratory testing duration ... with Quality review time.\"",
+            "\"Smallest Verification Required: Query QCore directly for real-time audit log timestamps\" \u2014 The submission separates upstream latency from post-lab elapsed time and identifies a discriminating event-log test, but treats lab completion as the SOP evidence-availability point and does not fully account for non-coherent extract snapshots."
+          ]
+        },
+        {
+          "name": "Calibration and uncertainty",
+          "weight_pct": 15,
+          "score_0_4": 2,
+          "citations": [
+            "\"True Routine QC Disposition Cycle Time ... averages 19.09 hours ... fully meeting the 24-hour service target.\"",
+            "\"84.1% of release timestamps are artifacts of QCore's daily 02:10:00 snapshot refresh rather than real-time transactional releases.\"",
+            "\"What Would Change the Decision\" \u2014 The submission names missing evidence, but its use of \"true,\" \"fully meeting,\" and \"disproved\" is too certain given that required evidence may not equal lab completion and the extracts are not a coherent point-in-time snapshot."
+          ]
+        },
+        {
+          "name": "Decision usefulness / reframing",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "\"Do not build the dashboard using the current extract's apparent cycle time as a performance KPI without reframing the metric and verifying transactional timestamps.\"",
+            "\"Smallest Verification Required: Query QCore directly for real-time audit log timestamps\" \u2014 This is a useful, reversible reframing that protects against optimizing a measurement artifact, though it should also require a documented event-definition decision before reporting SLA compliance."
+          ]
+        },
+        {
+          "name": "Disconfirmation and rejected hypotheses",
+          "weight_pct": 10,
+          "score_0_4": 3,
+          "citations": [
+            "\"Hypothesis 1: Routine QC release disposition is failing its 24-hour SLA target. Why Rejected: ... 19.09 hours from lab completion to QCore release\"",
+            "\"Hypothesis 2: qcore_release_ts reflects real-time user disposition entries. Why Rejected: ... 185 out of 220 released timestamps occur at exactly 02:10:00\"",
+            "\"If the following sources were provided, they could materially refine or alter the recommendation\" \u2014 Competing explanations are considered and future evidence is named, but the first hypothesis is not safely rejected until the SOP's full required-evidence timestamp is established."
+          ]
+        },
+        {
+          "name": "Questioning / next evidence",
+          "weight_pct": 10,
+          "score_0_4": 4,
+          "citations": [
+            "\"Query QCore directly for real-time audit log timestamps\"",
+            "\"CertVault Timestamp Extract: COA index/upload completion timestamps (coa_available_ts)\"",
+            "\"LabTrack Sample Receipt vs Test Start Logs\" \u2014 The submission prioritizes the highest-value timestamp query and also identifies targeted follow-up evidence that would distinguish interface timing, evidence availability, and laboratory delay."
+          ]
+        }
+      ],
+      "unsupported_or_overstated_claims": [
+        "\"True Routine QC Disposition Cycle Time\" and \"fully meeting the 24-hour service target\" overstate what can be concluded from lab_complete_ts when the SOP starts the clock at required evidence available, which may include COA and other evidence.",
+        "\"185 out of 220 ... are artifacts ... rather than real-time transactional releases\" is stronger than the evidence supports: concentration at 02:10 and the refresh timestamp show likely interface timing, but do not prove the underlying decision time for every row.",
+        "\"Hypothesis 1 ... Disproved by data\" is premature because the extracts may not be a coherent point-in-time snapshot and the relevant start event has not been verified."
+      ],
+      "strongest_alternative_interpretation": "The 02:10 concentration may be an interface-publication or daily snapshot timestamp layered onto decisions made earlier, so the observed 19.09-hour post-lab interval may mix workflow delay with publication delay. Alternatively, some batches may genuinely have been decided near that time; only QCore transactional audit events joined to a defined required-evidence-available event can distinguish these explanations.",
+      "single_most_valuable_next_improvement": "Replace the categorical SLA conclusion with a bounded finding: report the lab_complete_ts-to-interface-release interval as provisional, explicitly label it as not necessarily the SOP clock, and obtain a small matched sample of QCore audit events plus the complete required-evidence-available timestamp before declaring compliance."
+    }
+  ]
+}

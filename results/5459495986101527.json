@@ -1,9 +1,70 @@
 {
-  "questions_answered": 6,
-  "participation": 15.0,
-  "analytical": 49.5,
-  "final": 64.5,
+  "questions_answered": 8,
+  "participation": 20.0,
+  "analytical": 67.1,
+  "final": 87.1,
   "per_question": [
+    {
+      "exercise": "1a-dth-month-end",
+      "participation": 2.5,
+      "analytical": 8.1,
+      "verdict": "good",
+      "dimensions": [
+        {
+          "name": "Evidence traceability",
+          "weight_pct": 30,
+          "score_0_4": 3,
+          "citations": [
+            "\"Dollar-for-dollar match against the import log: DLR-104 (8 rows/$723.42) and DLR-219 (9 rows/$782.87), 90 annual rows total on both sides\"",
+            "\"Zero duplication by any test: recharge_id and source_event_id both 100% unique\""
+          ]
+        },
+        {
+          "name": "Mechanism and causal judgment",
+          "weight_pct": 25,
+          "score_0_4": 3,
+          "citations": [
+            "\"The 31-May cluster is not fabricated, duplicated, or manipulated revenue \u2014 it is two West dealers (DLR-104, DLR-219) submitting their annual-plan files in a single month-end batch rather than posting daily.\"",
+            "\"if a trend report is built on posted_at instead of effective_event_date, this same pattern will keep re-appearing as a false spike each month\""
+          ]
+        },
+        {
+          "name": "Calibration and alternatives",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "\"Two supporting observations below are rated Medium rather than High because they rely on a derived calculation rather than a direct field read\"",
+            "\"Whether this cash is recognized in May or amortized over the 12-month term isn't visible in these files\""
+          ]
+        },
+        {
+          "name": "Decision safety and reframing",
+          "weight_pct": 15,
+          "score_0_4": 4,
+          "citations": [
+            "\"Leave the postings untouched\"",
+            "\"rebuild the trend chart using effective_event_date instead of posted_at\""
+          ]
+        },
+        {
+          "name": "Usefulness and clarity",
+          "weight_pct": 10,
+          "score_0_4": 4,
+          "citations": [
+            "\"Safe Next Action\"",
+            "\"separately confirm recognition treatment with Revenue Assurance and validate the West-dealer list against the dealer master before this gets referenced externally\""
+          ]
+        }
+      ],
+      "unsupported_or_overstated_claims": [
+        "\"Duplicate/fake revenue \u2014 impossible given fully unique IDs, no content-level duplicates, and a reconciliation difference of exactly zero.\" These checks strongly reduce the duplicate-revenue hypothesis but cannot make fabrication or all forms of manipulation impossible.",
+        "\"The 31-May cluster is ... two West dealers ... submitting their annual-plan files in a single month-end batch rather than posting daily.\" The mechanism is plausible and consistent with the data, but the submission does not directly cite or quote the ops email or another independent source establishing the dealers' batching practice.",
+        "\"Backdating or manipulated reporting \u2014 posting always occurs on or after the effective date ...\" Posting after effective date does not by itself establish that effective dates were not manipulated; the conclusion needs the stated corroboration and appropriately bounded language.",
+        "\"Annual pricing tracks monthly pricing at roughly 12x across all four plans \u2014 no sign of padding.\" An average or aggregate 12x relationship does not rule out row-level pricing anomalies, which the analyst appropriately proposes to spot-check."
+      ],
+      "strongest_alternative_interpretation": "The analyst handled the main alternatives\u2014duplicate revenue, manipulated reporting, and a broken ingestion pipeline\u2014and preserved recognition-treatment and dealer-master uncertainties. The strongest alternative it could have addressed more explicitly is a data or timestamp-boundary defect that creates an apparent month-end cluster despite valid underlying rows; it mentions a timezone or day-boundary check only as a follow-up rather than explaining why existing evidence largely discounts it.",
+      "single_most_valuable_next_improvement": "Provide a reproducible event-time versus posting-time analysis with the exact effective_event_date distribution for the 90 annual rows, joined to import-log source_event_ids and reconciliation fields, and cite the ops email as corroboration rather than presenting the batching mechanism as established fact."
+    },
     {
       "exercise": "1b-dth-complaints-quiet",
       "participation": 2.5,
@@ -65,6 +126,69 @@
       ],
       "strongest_alternative_interpretation": "The analyst handled the possibility that the pilot created genuinely new self-service value, but only weakly: it cited use of new paths without measuring completion or downstream outcomes. It missed or underdeveloped the possibility that stable aggregate outage events can coexist with fewer complaints because self-service genuinely reduced complaint propensity, or because classification/routing changed independently of authentication capture. Aggregate event counts are not sufficient to reject that interpretation.",
       "single_most_valuable_next_improvement": "Add end-to-end journey linkage or a sampled-call study that follows NOVA authentication failures through case creation, repeat contacts, alternate channels, and resolution; this would test both the hidden-complaint mechanism and the claimed residual self-service benefit rather than inferring them from aggregate counts."
+    },
+    {
+      "exercise": "2a-solar-smell-test",
+      "participation": 2.5,
+      "analytical": 9.5,
+      "verdict": "strong",
+      "dimensions": [
+        {
+          "name": "Evidence traceability",
+          "weight_pct": 20,
+          "score_0_4": 4,
+          "citations": [
+            "The submission identifies specific source fields and values: \"impact_mw reads 0 and cleared reads yes on every single row,\" \"severities cap out at warning,\" and \"longest duration is 7 minutes\" from inverter_events.csv.",
+            "It separately labels the completeness issue as unknown: \"Nothing in the file states whether this is the entire event log for the window or a filtered subset.\""
+          ]
+        },
+        {
+          "name": "Investigative reasoning",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "The submission cross-checks event names against impact, cleared status, severity, duration, and recurrence rather than treating names as proof: \"The alarming part is entirely the vocabulary, not the numbers.\"",
+            "It considers an innocent explanation for the zero-impact field by asking whether it is \"actually calculated per event rather than defaulting to zero.\"",
+            "The inference that an unfolding fault would necessarily produce repetition or nonzero impact is somewhat stronger than the evidence supports."
+          ]
+        },
+        {
+          "name": "Calibration and uncertainty",
+          "weight_pct": 20,
+          "score_0_4": 4,
+          "citations": [
+            "It does not claim the export is complete and explicitly requests confirmation that there is no \"filter or truncation cutting the export short.\"",
+            "It scopes the conclusion conditionally: \"Assuming that check comes back clean, there's nothing further to do with these four rows.\"",
+            "It avoids escalation while preserving a low-cost check rather than expressing certainty about the plant's overall condition."
+          ]
+        },
+        {
+          "name": "Decision/action quality",
+          "weight_pct": 20,
+          "score_0_4": 4,
+          "citations": [
+            "The recommended action is proportionate: \"a low-cost completeness check\" confirming the date filter and matching the plant's full logged event count.",
+            "It also proposes checking whether impact_mw is genuinely calculated, which is a discriminating test of the main residual uncertainty.",
+            "The recommendation preserves the operational conclusion that the displayed rows do not justify escalation."
+          ]
+        },
+        {
+          "name": "Conclusion fit",
+          "weight_pct": 20,
+          "score_0_4": 4,
+          "citations": [
+            "The conclusion accurately reflects the visible signals: \"no impact, no recurrence, nothing still open.\"",
+            "It does not invent a plant problem from warning vocabulary and appropriately treats completeness as a representativeness check rather than grounds for escalation.",
+            "The conditional stopping point is consistent with the evidence and the stated uncertainty."
+          ]
+        }
+      ],
+      "unsupported_or_overstated_claims": [
+        "\"If this were an unfolding fault, at minimum you'd expect repetition on one inverter or a nonzero impact figure somewhere\" is an overstatement: the absence of recurrence and measured impact makes an unfolding fault less supported, but does not logically rule out a transient or misreported fault.",
+        "\"Four rows total across the full date span\" is supported as a description of the supplied CSV but should not be read as proof that the CSV is complete; the submission otherwise recognizes this limitation."
+      ],
+      "strongest_alternative_interpretation": "The export may be incomplete or impact_mw may default to zero, so the reassuring pattern could reflect data-quality or filtering behavior rather than actual absence of plant impact. The submission identifies both possibilities and proposes checks without escalating prematurely.",
+      "single_most_valuable_next_improvement": "Make the causal qualification explicit: describe the result as no evidence of impact in the supplied export, then verify both export completeness and impact_mw semantics against an independent plant event count or raw telemetry before treating the rows as representative."
     },
     {
       "exercise": "2b-solar-impact-claim",
