@@ -63,6 +63,16 @@ SCHEMA = {
     ],
 }
 
+def _validate(result):
+    """Catch schema-valid-but-garbage output: a model that stalls mid-rubric can still
+    emit valid JSON with most dimensions missing. Real rubrics always return 5-6
+    dimensions; weight_pct sums and citation wording vary too much across genuine
+    gradings to check reliably, so dimension count is the only stable signal."""
+    dims = result.get("dimensions", [])
+    if len(dims) < 3:
+        raise ValueError(f"only {len(dims)} dimensions (expected >=3)")
+
+
 _INSTRUCTION = (
     "Evaluate this analyst submission per the rubric above. Use exactly the dimension "
     "names and weights the rubric defines. Respond with the required evaluator output "
@@ -99,8 +109,10 @@ def grade(rubric_text, submission_text, model, timeout=60, retries=3):
             resp = httpx.post(f"{base_url}/chat/completions", json=payload, headers=headers, timeout=timeout)
             resp.raise_for_status()
             content = resp.json()["choices"][0]["message"]["content"]
-            return json.loads(content)
-        except (httpx.TimeoutException, httpx.HTTPStatusError) as e:
+            result = json.loads(content)
+            _validate(result)
+            return result
+        except (httpx.TimeoutException, httpx.HTTPStatusError, ValueError) as e:
             last_exc = e
             if attempt < retries:
                 time.sleep(2**attempt)
@@ -119,8 +131,10 @@ async def grade_async(client, rubric_text, submission_text, model, timeout=60, r
             resp = await client.post("/chat/completions", json=payload, headers=headers, timeout=timeout)
             resp.raise_for_status()
             content = resp.json()["choices"][0]["message"]["content"]
-            return json.loads(content)
-        except (httpx.TimeoutException, httpx.HTTPStatusError) as e:
+            result = json.loads(content)
+            _validate(result)
+            return result
+        except (httpx.TimeoutException, httpx.HTTPStatusError, ValueError) as e:
             last_exc = e
             if attempt < retries:
                 await asyncio.sleep(2**attempt)

@@ -33,12 +33,16 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from common import PRIVATE_DIR, QID_TO_SLUG, rubric_path, slugify
-from grade import grade_async
+from grade import _validate, grade_async
 
 
 async def grade_job(client, sem, rubric_text, text, model, out_path):
     if out_path.exists():
-        return "cached"
+        try:
+            _validate(json.loads(out_path.read_text()))
+            return "cached"
+        except ValueError:
+            pass  # cached file is schema-valid but semantically bad -- regrade it
     async with sem:
         try:
             result = await grade_async(client, rubric_text, text, model)
