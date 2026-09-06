@@ -1,0 +1,134 @@
+{
+  "questions_answered": 2,
+  "participation": 5.0,
+  "analytical": 15.4,
+  "final": 20.4,
+  "per_question": [
+    {
+      "exercise": "1a-dth-month-end",
+      "participation": 2.5,
+      "analytical": 8.5,
+      "verdict": "good",
+      "dimensions": [
+        {
+          "name": "Evidence traceability",
+          "weight_pct": 30,
+          "score_0_4": 4,
+          "citations": [
+            "\"dealer_import_log.csv: DF-00020 cash=$723.42 = ledger=$723.42; DF-00040 cash=$782.87 = ledger=$782.87\"",
+            "\"recharges.csv: 0 duplicate `source_event_id` (full dataset), 0 duplicate `recharge_id`, 17 unique subscribers in 17 records\""
+          ]
+        },
+        {
+          "name": "Mechanism and causal judgment",
+          "weight_pct": 25,
+          "score_0_4": 3,
+          "citations": [
+            "\"Dealer batch files use month-end `posted_at` while retaining original `effective_event_date`\"",
+            "\"Monthly batching recurred consistently in March, April, May, and June 2026\""
+          ]
+        },
+        {
+          "name": "Calibration and alternatives",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "\"Material Unknowns & Decision-Changing Evidence\"",
+            "\"Subscriber entitlement provisioning timestamps on active DTH decoders relative to `effective_event_date`\""
+          ]
+        },
+        {
+          "name": "Decision safety and reframing",
+          "weight_pct": 15,
+          "score_0_4": 3,
+          "citations": [
+            "\"Add an automated cohort reporting rule ... to attribute dealer annual plan renewals to their transaction month (`effective_event_date`) rather than batch upload timestamp (`posted_at`)\"",
+            "\"This is a non-destructive, read-only reporting adjustment\""
+          ]
+        },
+        {
+          "name": "Usefulness and clarity",
+          "weight_pct": 10,
+          "score_0_4": 4,
+          "citations": [
+            "\"Direct Escalation Judgment\"",
+            "\"Safe, Reversible Next Action\""
+          ]
+        }
+      ],
+      "unsupported_or_overstated_claims": [
+        "\"represents legitimate, contractually permitted batch-processed dealer renewals\" is not established: the submission explicitly says contract amendments remain unverified.",
+        "\"Rejected Hypothesis: Manipulated Reporting\" is too definitive. Reconciliation and recurring batching rule out or weaken duplicate/reconciliation concerns but do not establish that reporting was not intentionally manipulated.",
+        "\"All 17 transactions fully reconcile\" overstates the evidence because cash and ledger reconciliation were tested, but entitlement provisioning was identified as an untested material unknown.",
+        "\"The ingestion pipeline correctly preserved transaction-level `effective_event_date`\" is supported only for field presence and acceptance; the submission does not independently validate the field's correctness against source contracts or entitlement records.",
+        "\"No escalation required\" is stronger than warranted while entitlement timing and contract authorization remain unresolved."
+      ],
+      "strongest_alternative_interpretation": "The analyst considered the key benign posting-time explanation and identified entitlement lag and unauthorized batching as alternatives, but did not test entitlement provisioning before ruling out a material issue. A plausible remaining interpretation is that financial reconciliation is clean while subscribers experienced delayed entitlement or the dealers used an unauthorized process.",
+      "single_most_valuable_next_improvement": "Run and report the entitlement-impact check: join the 17 renewals to decoder provisioning/service logs and compare activation timing with `effective_event_date`; condition the no-escalation decision on no material lag, while retaining the effective-date reporting fix."
+    },
+    {
+      "exercise": "1b-dth-complaints-quiet",
+      "participation": 2.5,
+      "analytical": 6.9,
+      "verdict": "mixed",
+      "dimensions": [
+        {
+          "name": "Evidence traceability",
+          "weight_pct": 30,
+          "score_0_4": 3,
+          "citations": [
+            "\"Sessions ending pre-authentication are omitted from CareDesk ticket reporting\" \u2014 `email-ivr-pilot.eml` & `ivr_interactions.jsonl`",
+            "\"24.0% of South NovaIVR sessions (650/2,709) terminate at pre-authentication stage\" \u2014 `ivr_interactions.jsonl` (`terminal_stage = authenticate`: 302 ERROR, 162 ABANDONED, 186 RESOLVED)"
+          ]
+        },
+        {
+          "name": "Mechanism and causal judgment",
+          "weight_pct": 25,
+          "score_0_4": 3,
+          "citations": [
+            "\"Because CareDesk case logging requires post-authentication customer context, callers trapped or dropped pre-authentication fail to generate complaint tickets.\"",
+            "\"Agent transfers dropped artificially from 49.5% to 3.3% due to blocked `case_create` routing\""
+          ]
+        },
+        {
+          "name": "Calibration and alternatives",
+          "weight_pct": 20,
+          "score_0_4": 2,
+          "citations": [
+            "\"The drop in South-region complaint cases is not evidence of improved customer experience. Instead, it is an artifact of technical defect-driven ticket suppression and reporting distortion.\"",
+            "\"Genuine Reduction in Customer Issues: Rejected because external service events in South ... occurred continuously throughout May\u2013June 2026, confirming customer needs remained constant.\""
+          ]
+        },
+        {
+          "name": "Decision safety and reframing",
+          "weight_pct": 15,
+          "score_0_4": 2,
+          "citations": [
+            "\"DO NOT EXPAND THE NOVAIVR PILOT NATIONALLY AT THIS TIME.\"",
+            "\"Implement an automatic fallback route in NovaIVR transferring callers directly to an agent queue after a single authentication failure or 45 seconds of inactivity\""
+          ]
+        },
+        {
+          "name": "Usefulness and clarity",
+          "weight_pct": 10,
+          "score_0_4": 4,
+          "citations": [
+            "\"Repeat Call & Channel Spillover Rate: CDR data needed to verify whether callers experiencing pre-authentication errors gave up or retried via other channels.\"",
+            "\"What do qualitative call audit records show regarding customer intent and resolution outcomes for the 1,109 sessions that ended at `balance_check` or `pack_info` under NovaIVR?\""
+          ]
+        }
+      ],
+      "unsupported_or_overstated_claims": [
+        "\"Instead, it is an artifact of technical defect-driven ticket suppression and reporting distortion\" is too definitive: the evidence supports a strong measurement-failure hypothesis, but the submission does not establish that every reduction is an artifact or quantify any genuine CX improvement.",
+        "\"Genuine Reduction in Customer Issues\" is rejected because service events occurred continuously, but service-event continuity does not prove that customer demand, complaint propensity, or issue severity remained constant.",
+        "\"non-IVR channels ... all dropped simultaneously, reflecting forced routing into NovaIVR where callers got stuck before ticket creation\" asserts routing causality without showing linked customer journeys or ruling out channel mix, reporting, or operational changes.",
+        "\"73% of 'contained/resolved' sessions ... merely reach balance/pack prompts without resolving underlying issues\" overstates what terminal prompts demonstrate; reaching those prompts is not proof that the underlying issue was unresolved.",
+        "\"Agent transfers dropped artificially ... due to blocked `case_create` routing\" may be directionally plausible, but the cited counts alone do not establish that blocked case creation caused the entire transfer-rate change.",
+        "\"callers trapped or dropped pre-authentication fail to generate complaint tickets\" should be limited to the documented case-creation rule; it does not show whether those callers complained, self-resolved, retried, or used another channel.",
+        "The proposed fallback after a single authentication failure or 45 seconds of inactivity is presented as safe and reversible without assessing agent-queue capacity, wait times, abandonment, or the risk of worsening service during a high-volume failure."
+      ],
+      "strongest_alternative_interpretation": "The submission appropriately considers that missing case creation, rather than improved experience, could explain the ticket decline and identifies repeat contacts and sampled calls as needed validation. However, it largely misses the strongest benign alternative: IVR abandonment is not itself a complaint or failed outcome. Some callers may have self-resolved, intentionally ended the session, or retried successfully elsewhere, and the observed service events do not establish unchanged complaint demand.",
+      "single_most_valuable_next_improvement": "Replace definitive causal claims with a linked-journey validation plan: join IVR sessions to case creation, repeat contacts, transfers, and subsequent outcomes, then audit a representative sample of abandoned, errored, and apparently contained calls before changing routing or making national-expansion decisions."
+    }
+  ]
+}
