@@ -1,8 +1,8 @@
 {
   "questions_answered": 8,
   "participation": 20.0,
-  "analytical": 63.8,
-  "final": 83.8,
+  "analytical": 63.2,
+  "final": 83.2,
   "per_question": [
     {
       "exercise": "1a-dth-month-end",
@@ -375,7 +375,7 @@
     {
       "exercise": "4a-consumer-qc-queue",
       "participation": 2.5,
-      "analytical": 8.8,
+      "analytical": 8.2,
       "verdict": "strong",
       "dimensions": [
         {
@@ -383,28 +383,69 @@
           "weight_pct": 20,
           "score_0_4": 3,
           "citations": [
-            "\"among 219 completed dispositions, the median is 39.4 hours (~1.64 days) and mean 45.4 hours\"",
-            "\"40/164 (24%) exceed 24 hours from lab_complete_ts to qcore_release_ts\"",
-            "\"LabTrack snapshot is 48h-refresh and was last refreshed 2026-07-29 23:00, while QCore is daily.\"",
-            "\"SOP routine target is 24h from required evidence available to disposition, not from receipt.\"],",
-            "unsupported_or_overstated_claims []",
-            "strongest_alternative_interpretation",
-            "The observed delay could reflect genuine QC review time after all required evidence was available, rather than only an incorrectly defined receipt-to-release clock.",
-            "single_most_valuable_next_improvement",
-            "Explicitly profile qcore_release_ts by hour and reconcile the apparent 02:10 concentration with the batch-level audit trail, while retaining the SOP/evidence-availability check.",
-            "overall_label",
-            "strong",
-            "verdict",
-            "strong"
+            "\u201camong 219 completed dispositions, the median is 39.4 hours (~1.64 days) and mean 45.4 hours\u201d \u2014 specific `batch_release.csv` metrics; \u201cSOP routine target is 24h from required evidence available\u201d \u2014 `qc_release_sop.md`; \u201cLabTrack snapshot is 48h-refresh ... while QCore is daily\u201d \u2014 `source_freshness.csv`.",
+            "The memo gives precise counts, fields, file names, and acknowledges source-freshness limitations. It does not include the relevant release-hour profile or explicitly quantify the timestamp-alignment problem across extracts."
+          ]
+        },
+        {
+          "name": "Causal / investigative reasoning",
+          "weight_pct": 25,
+          "score_0_4": 3,
+          "citations": [
+            "\u201creceipt\u2192release would mix laboratory/evidence waiting with Quality review\u201d",
+            "\u201cverify that `lab_complete_ts` really represents the point at which all required evidence became available\u201d",
+            "\u201cI would not conclude that the 1.5-day figure proves poor QC performance\u201d",
+            "The submission separates the observed cycle metric from the SOP-defined mechanism, tests whether `lab_complete_ts` is the correct boundary, and avoids jumping to poor-QC causation. It does not investigate the extreme concentration of `qcore_release_ts` around 02:10, which could independently indicate interface timing."
+          ]
+        },
+        {
+          "name": "Calibration and uncertainty",
+          "weight_pct": 15,
+          "score_0_4": 3,
+          "citations": [
+            "\u201cverify before using \u2018~1.5 days\u2019 as the routine QC-release KPI\u201d",
+            "\u201capparent routine cases\u201d",
+            "\u201cUntil that check is done, label the dashboard metric \u2018receipt-to-disposition elapsed time\u2019\u201d",
+            "Confidence is claim-specific and the memo identifies missing timestamp definitions and refresh timing as decision-relevant. It could more explicitly bound how non-coherent snapshots affect the 40/164 comparison."
+          ]
+        },
+        {
+          "name": "Decision usefulness / reframing",
+          "weight_pct": 20,
+          "score_0_4": 4,
+          "citations": [
+            "\u201cdo not use the ~1.5-day figure as a 24-hour SOP-performance KPI\u201d",
+            "\u201clabel the dashboard metric \u2018receipt-to-disposition elapsed time,\u2019 not \u2018QC release cycle time\u2019\u201d",
+            "\u201cBefore tomorrow\u2019s dashboard, obtain the data-catalog definition ... plus one batch-level audit trail\u201d",
+            "The recommendation safely reframes the KPI, is reversible, protects against misattributing upstream/interface delay to QC, and proposes a small verification before operational use."
+          ]
+        },
+        {
+          "name": "Disconfirmation and rejected hypotheses",
+          "weight_pct": 10,
+          "score_0_4": 3,
+          "citations": [
+            "\u201cI would not conclude that the 1.5-day figure proves poor QC performance\u201d",
+            "\u201cI would also not dismiss the data as simply \u2018stale\u2019\u201d",
+            "The memo rejects both poor-QC and simple-staleness explanations using the SOP boundary and freshness evidence. It does not fully test the competing explanation that scheduled/interface commits create the apparent delay."
+          ]
+        },
+        {
+          "name": "Questioning / next evidence",
+          "weight_pct": 10,
+          "score_0_4": 4,
+          "citations": [
+            "\u201cobtain the data-catalog definition of the enterprise timestamps plus one batch-level audit trail showing when all required evidence became available and when authorized disposition was recorded\u201d",
+            "This is a prioritized, high-value request that directly discriminates workflow delay from timestamp/interface delay and explains how the result changes KPI use."
           ]
         }
       ],
       "unsupported_or_overstated_claims": [
-        "The statement that the extracts can reproduce a roughly 1.5-day receipt-to-release cycle is supported by the cited summary, but the submission does not independently establish whether the timestamp fields are comparable across snapshots.",
-        "The conclusion that receipt-to-release would 'mix laboratory/evidence waiting with Quality review' is a reasonable inference, but it should be stated as conditional until the required-evidence timestamp is verified."
+        "The statement that the extract can reproduce a roughly 1.5-day receipt-to-release cycle is supported, but the memo should more explicitly qualify cross-source comparisons because LabTrack and QCore are not a coherent same-snapshot extract.",
+        "The claim that the 'more important issue' is timestamp validity is plausible, but it underexplores the observable release-time concentration around 02:10 as an independent diagnostic of interface timing."
       ],
-      "strongest_alternative_interpretation": "A substantial share of the 40/164 apparent routine cases exceeding 24 hours could represent genuine post-evidence QC review delay; the submission appropriately leaves this open but does not test it against event-level decision or interface timestamps.",
-      "single_most_valuable_next_improvement": "Add an explicit hourly profile of qcore_release_ts and reconcile the 02:10 concentration with one or more event-level audit trails. This would distinguish a real workflow delay from an interface-commit or batch-processing timestamp artifact and materially strengthen the KPI recommendation."
+      "strongest_alternative_interpretation": "The apparent long cycle may be substantially driven by enterprise/interface commit timing or scheduled batch publication rather than routine QC review delay; receipt-to-release may also include legitimate upstream evidence waiting. A batch-level event log distinguishing evidence availability, review/decision, authorization, and interface commit would discriminate these explanations.",
+      "single_most_valuable_next_improvement": "Profile `qcore_release_ts` by hour and reconcile one batch-level event trail across LabTrack and QCore, including required-evidence availability, authorized disposition, and interface commit timestamps. This would test both the SOP boundary and the suspected interface-timing artifact before KPI adoption."
     },
     {
       "exercise": "4b-consumer-spares-search",

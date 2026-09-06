@@ -1,8 +1,8 @@
 {
   "questions_answered": 8,
   "participation": 20.0,
-  "analytical": 62.2,
-  "final": 82.2,
+  "analytical": 61.8,
+  "final": 81.8,
   "per_question": [
     {
       "exercise": "1a-dth-month-end",
@@ -466,7 +466,7 @@
     {
       "exercise": "4b-consumer-spares-search",
       "participation": 2.5,
-      "analytical": 7.2,
+      "analytical": 6.8,
       "verdict": "good",
       "dimensions": [
         {
@@ -474,21 +474,62 @@
           "weight_pct": 20,
           "score_0_4": 3,
           "citations": [
-            "\"$24.2k of open quotes match stock already on-hand at the requesting site\"",
-            "\"spare_parts.csv + part_requests.csv, joined on manufacturer_part_no/revision\"",
-            "\"maintenance_email.txt... source_freshness.csv showing the underlying CMMS (`MaintStar-global`) refreshes only monthly\"",
-            "\"spare_parts.csv rows HA-0022 and ME-0006 show negative global-available quantities\"],",
-            "citations_reason_placeholder_do_not_use?:"
+            "\"$24.2k of open quotes match stock already on-hand at the requesting site\"; cites spare_parts.csv + part_requests.csv joined on manufacturer_part_no/revision and gives concrete examples such as PR-260716/721, NO-0005, and PMP-2288. This is specific and mostly traceable, but the arithmetic and all underlying rows are not shown.",
+            "\"$105.7k is gated by reservation, site-qualification flags, or insufficient on-hand quantity\"; cites part_restrictions.csv fields and identifies freshness. The submission acknowledges that the restriction freshness comparison is inferred rather than directly documented."
+          ]
+        },
+        {
+          "name": "Causal / investigative reasoning",
+          "weight_pct": 25,
+          "score_0_4": 3,
+          "citations": [
+            "\"Semantic search on descriptions is the main lever.\" Rejected as the sole story because requests such as PR-260701/706/719 explicitly stated FLT-1199, while qualification restrictions remained the blocker.",
+            "\"available_qty_global tells you what's really free.\" Rejected using negative available quantities, the maintenance email, and monthly MaintStar-global refreshes. This triangulates independent operational and data-quality signals, though it does not fully test whether the same-site cases also have current reservation or demand constraints."
+          ]
+        },
+        {
+          "name": "Calibration and uncertainty",
+          "weight_pct": 15,
+          "score_0_4": 3,
+          "citations": [
+            "Uses claim-specific confidence labels: \"High\" for same-MPN joins and restriction flags, \"Medium-High\" for cross-site opportunities, and \"Medium\" for the stale/claimed interpretation.",
+            "\"Cross-site 'available' figures may already be stale/claimed\" and \"low confidence in what the true global count is\" appropriately limit certainty. However, calling the same-site fix \"zero-risk\" and labeling some matches \"Actionable now\" is stronger than warranted given stale inventory and incomplete point-in-time consistency."
+          ]
+        },
+        {
+          "name": "Decision usefulness / reframing",
+          "weight_pct": 3,
+          "score_0_4": 3,
+          "citations": [
+            "\"should be the first pilot target, separate from 'global semantic search'\" provides useful prioritization and separates local relabeling from cross-site transfer.",
+            "\"candidates for engineering/planner review, not automatic transfers\" and the MT-18 receiving-engineer sign-off caveat add safeguards. The recommendation would be stronger with explicit pilot success criteria and a current-state validation gate before treating any value as actionable."
+          ]
+        },
+        {
+          "name": "Disconfirmation and rejected hypotheses",
+          "weight_pct": 10,
+          "score_0_4": 3,
+          "citations": [
+            "\"Semantic search on descriptions is the main lever.\" Rejected with the FLT-1199 examples, showing that identical MPNs can still be blocked by qualification policy.",
+            "\"available_qty_global tells you what's really free.\" Rejected with negative quantities and the maintenance email. These are tested alternatives rather than merely listed, but the submission does not state what future evidence would revive the competing interpretations."
+          ]
+        },
+        {
+          "name": "Questioning / next evidence",
+          "weight_pct": 10,
+          "score_0_4": 0,
+          "citations": [
+            "The submission recommends engineering/planner and receiving-engineer review but does not explicitly request a prioritized next dataset, interview, query, or discriminating test. It therefore provides no sufficiently defined next-evidence request."
           ]
         }
       ],
       "unsupported_or_overstated_claims": [
-        "\"This is zero-risk to fix\" overstates the safety of same-MPN local reuse because UOM, revision, qualification, and local operating constraints still require confirmation.",
-        "The classification of approximately 20% as \"actionable now\" is internally qualified by the statement that cross-site use still requires receiving-engineer sign-off and logistics confirmation; it should be labeled candidate or conditionally actionable rather than immediately actionable.",
-        "The claim that restriction/qualification data is materially fresher than the stock table is explicitly inferred from local_status_as_of, but the submission acknowledges there is no explicit source_freshness.csv row for part_restrictions; freshness and point-in-time consistency therefore remain uncertain."
+        "\"This is zero-risk to fix\" overstates certainty: same-site stock may still be reserved, stale, quarantined, or subject to operational controls not visible in the cited join.",
+        "\"Actionable now\" for inventory matches is too strong without a current reservation/availability check, especially after identifying a monthly MaintStar-global snapshot and negative global-availability values.",
+        "The conclusion that the main blocker for the FLT-1199 examples is qualification policy is plausible and supported by the cited flags, but it does not establish that search or local process failure played no role."
       ],
-      "strongest_alternative_interpretation": "The apparent duplicate-buying problem may be driven primarily by qualification, reservation, and data-governance controls rather than poor semantic retrieval. Even the same-MPN examples may not be transferable, while semantic search could still be valuable as a candidate-generation layer for finding local or cross-site candidates.",
-      "single_most_valuable_next_improvement": "Turn the proposed categories into a controlled, reversible pilot with explicit acceptance checks for revision, UOM, qualification, reservation, current stock status, and transfer quantity; measure candidate precision separately from confirmed transfer value using a fresh MaintStar and reservation/transaction extract."
+      "strongest_alternative_interpretation": "The apparent 20% actionable value may be materially overstated because the stock, reservations, and requests are not a coherent point-in-time snapshot. Some same-site matches may also be stale or operationally unavailable, while some cross-site matches classified as 'needs check' may become transferable after current reservation and qualification validation.",
+      "single_most_valuable_next_improvement": "Request a prioritized current-state validation extract for the listed candidates\u2014on-hand quantity, reservation status, revision/UOM, and receiving-site qualification as of the same timestamp\u2014and rerun the value buckets with explicit success criteria for the local relabeling and cross-site pilots."
     }
   ]
 }

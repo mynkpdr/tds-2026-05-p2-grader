@@ -1,8 +1,8 @@
 {
   "questions_answered": 8,
   "participation": 20.0,
-  "analytical": 64.1,
-  "final": 84.1,
+  "analytical": 72.3,
+  "final": 92.3,
   "per_question": [
     {
       "exercise": "1a-dth-month-end",
@@ -386,24 +386,77 @@
     {
       "exercise": "4a-consumer-qc-queue",
       "participation": 2.5,
-      "analytical": 0.0,
-      "verdict": "mixed",
+      "analytical": 8.2,
+      "verdict": "strong",
       "dimensions": [
         {
           "name": "Evidence traceability",
           "weight_pct": 20,
+          "score_0_4": 4,
+          "citations": [
+            "\"185 of 262 qcore_release_ts values are exactly 02:10:00\" \u2014 cites the specific file, field, count, and corroborating source-freshness record.",
+            "\"The SOP defines the routine target from required evidence being available to disposition, but the extract has no timestamp\" \u2014 directly links the conclusion to the SOP wording and data schema.",
+            "\"The 42 HOLD rows are open/right-censored\" \u2014 identifies the specific population and fields supporting the survivorship-bias claim."
+          ]
+        },
+        {
+          "name": "Causal / investigative reasoning",
+          "weight_pct": 3,
           "score_0_4": 3,
           "citations": [
-            "\"185 of 262 qcore_release_ts values are exactly 02:10:00, coinciding with the QCore daily snapshot time\"",
-            "\"The SOP defines the routine target from required evidence being available to disposition, but the extract has no timestamp for certificate/specification/deviation evidence availability.\"",
-            "\"The 42 HOLD rows are open/right-censored\"],",
-            "reason_placeholder?"
+            "\"the observed 02:10:00 timestamp clustering represents a batch-processing synchronization artifact rather than actual release timing\" \u2014 distinguishes an interface/timing mechanism from apparent process duration.",
+            "\"A live portal check is required before alleging a control breach\" \u2014 preserves source-lag as an alternative explanation for missing COA status.",
+            "\"Read-only live audit of 10 batches with 02:10:00 extract timestamps\" \u2014 proposes a test that could discriminate snapshot timing from reliable event timing."
+          ]
+        },
+        {
+          "name": "Calibration and uncertainty",
+          "weight_pct": 15,
+          "score_0_4": 3,
+          "citations": [
+            "\"Confidence: Medium-High\" for the 73 non-routine rows \u2014 appropriately qualifies claims affected by source lag.",
+            "\"missing/index-pending COA may be source lag rather than confirmed release without evidence\" \u2014 makes uncertainty decision-relevant rather than merely generic.",
+            "\"The extract cannot calculate the true SOP metric because the starting evidence timestamp is unmodeled\" \u2014 clearly identifies the material limitation, though the timing semantics could be bounded more explicitly as interface versus decision time."
+          ]
+        },
+        {
+          "name": "Decision usefulness / reframing",
+          "weight_pct": 20,
+          "score_0_4": 4,
+          "citations": [
+            "\"Decision: Hold KPI launch; the brief is mis-framed\" \u2014 changes the decision rather than accepting the supplied KPI definition.",
+            "\"The real question is whether this snapshot can support a release KPI\" \u2014 correctly reframes the analytical objective around metric validity.",
+            "\"targeted read-only spot-check of 5\u201310 batches\" \u2014 proposes a small, reversible verification step with explicit outcomes for interpreting the timestamps."
+          ]
+        },
+        {
+          "name": "Disconfirmation and rejected hypotheses",
+          "weight_pct": 10,
+          "score_0_4": 3,
+          "citations": [
+            "\"'The data is broken and should be discarded': rejected because timestamps ... have no negative durations\" \u2014 tests and rejects a data-corruption explanation using observed fields.",
+            "\"'The 45.5-hour average is the SOP cycle time': rejected because ... required-evidence availability ... is not represented\" \u2014 rejects the central alternative by reference to the SOP start event.",
+            "\"'COA MISSING proves release without certificates': rejected ... because ... the extract may lag the portal\" \u2014 identifies the strongest compliance alternative and states what evidence could revive it."
+          ]
+        },
+        {
+          "name": "Questioning / next evidence",
+          "weight_pct": 10,
+          "score_0_4": 3,
+          "citations": [
+            "\"Required evidence availability timestamp\" and \"true disposition time of 02:10 batches\" \u2014 requests specific evidence tied to the key uncertainties.",
+            "\"Execute a targeted read-only spot-check of 5\u201310 batches in live QCore and CertVault\" \u2014 prioritizes a limited, high-value query rather than asking for all data.",
+            "The request would be stronger if it explicitly prioritized the event/decision timestamp definition or an event log over live spot checks alone."
           ]
         }
       ],
-      "unsupported_or_overstated_claims": [],
-      "strongest_alternative_interpretation": "",
-      "single_most_valuable_next_improvement": ""
+      "unsupported_or_overstated_claims": [
+        "\"the observed 02:10:00 timestamp clustering represents a batch-processing synchronization artifact rather than actual release timing\" is strongly suggested by the exact clustering and snapshot schedule, but the available extract alone does not prove the underlying decision times; it should be stated as an interface-timestamp hypothesis pending event-log or live-record validation.",
+        "The statement that \"70.6% of release times reflect a 02:10:00 snapshot artifact\" is numerically descriptive but uses \"artifact\" as a settled causal interpretation rather than distinguishing observed interface commits from unknown decision times.",
+        "The proposed live QCore/CertVault spot-check may not resolve the KPI start definition unless it captures event-level evidence-availability and disposition/decision timestamps."
+      ],
+      "strongest_alternative_interpretation": "The 02:10:00 values may be valid enterprise release or decision timestamps rather than merely snapshot commits, and the apparent long cycle time could reflect genuine workflow delay. This interpretation would be revived if event-level records show decisions actually occurred at or near 02:10 and evidence became available substantially earlier.",
+      "single_most_valuable_next_improvement": "Prioritize a timestamp-semantics audit: obtain the QCore event log or documented definitions for evidence-availability, disposition decision, and interface release timestamps, with source-extract cutoffs. This would directly determine whether the KPI is measuring workflow duration or interface synchronization delay before any operational intervention."
     },
     {
       "exercise": "4b-consumer-spares-search",

@@ -393,20 +393,71 @@
           "weight_pct": 20,
           "score_0_4": 3,
           "citations": [
-            "\"185/262 rows (70.6%) have qcore_release_ts = 02:10:00 exactly\"",
-            "\"QCore's typical_refresh is \\\"daily,\\\" snapshot_ts = 2026-07-31T02:10:00 \u2014 matches the clustered stamp exactly\"",
-            "\"Mean cycle time ... is 28.3h for snapshot-stamped rows vs 19.4h for rows with a precise (non-02:10) timestamp\"",
-            "\"SOP's 24h target explicitly runs \\\"from required evidence available to disposition\\\"\"],"
+            "\u201c185/262 rows (70.6%) have qcore_release_ts = 02:10:00 exactly\u201d \u2014 cites batch_release.csv and the specific field.",
+            "\u201cQCore's typical_refresh is \u2018daily,\u2019 snapshot_ts = 2026-07-31T02:10:00\u201d \u2014 cites source_freshness.csv.",
+            "\u201cSOP's 24h target explicitly runs \u2018from required evidence available to disposition\u2019\u201d \u2014 cites the specific SOP language.",
+            "The chain is specific and uses multiple artifacts, but it does not explicitly address that the extracts may not represent a coherent point-in-time snapshot."
+          ]
+        },
+        {
+          "name": "Causal / investigative reasoning",
+          "weight_pct": 25,
+          "score_0_4": 3,
+          "citations": [
+            "\u201cThe apparent \u2018day and a half\u2019 cycle time is at least partly a snapshot-quantization artifact, not a measured process speed.\u201d",
+            "The analyst compares snapshot-stamped rows with precise-timestamp rows and reports a 28.3h versus 19.4h difference, separating a measurement mechanism from the apparent KPI symptom.",
+            "\u201cPull QCore's live transactional disposition history ... and compare true release time against the 02:10:00 placeholder\u201d identifies a direct mechanism test, although the possibility that dispositions genuinely occur at 02:10 is not fully developed as an alternative."
+          ]
+        },
+        {
+          "name": "Calibration and uncertainty",
+          "weight_pct": 15,
+          "score_0_4": 3,
+          "citations": [
+            "Confidence is labeled claim by claim as \u201cHigh\u201d or \u201cMedium.\u201d",
+            "The conclusion says the KPI should be verified and that cycle time is \u201cat least partly\u201d an artifact rather than asserting that every row is invalid.",
+            "The proposed live-history check appropriately recognizes that current extract timestamps do not establish true decision time, though the final statement that the KPI is \u201csound as-is\u201d if timestamps are close to 02:10 is too broad without validating SOP population and timestamp semantics."
+          ]
+        },
+        {
+          "name": "Decision usefulness / reframing",
+          "weight_pct": 20,
+          "score_0_4": 4,
+          "citations": [
+            "\u201cYes \u2014 verify before using this as a KPI\u201d directly reframes the question from accepting the apparent cycle time to validating the measurement.",
+            "The recommendation is small, targeted, and reversible: sample the 185 snapshot-stamped batches and compare them with live transactional history.",
+            "It provides explicit decision criteria: use live-system sourcing or model snapshot latency if true times are spread across the prior day, while preserving a validation path if they are genuinely close to 02:10."
+          ]
+        },
+        {
+          "name": "Disconfirmation and rejected hypotheses",
+          "weight_pct": 10,
+          "score_0_4": 3,
+          "citations": [
+            "\u201cThe clustering at 02:10 is coincidental, not a snapshot artifact\u201d \u2014 rejected using exact-time matching and recurrence across dates.",
+            "\u201cCycle time is uniformly ~1.5 days regardless of measurement method\u201d \u2014 rejected using the reported 28.3h versus 19.4h comparison.",
+            "The competing explanation that releases could genuinely be batched at 02:10 is not explicitly tested in the current evidence, although the proposed live-history query would discriminate it."
+          ]
+        },
+        {
+          "name": "Questioning / next evidence",
+          "weight_pct": 10,
+          "score_0_4": 4,
+          "citations": [
+            "\u201cPull QCore's live transactional disposition history (not the nightly extract) for a sample of the 185 snapshot-stamped batches\u201d is a narrowly targeted, high-value request.",
+            "It specifies the comparison needed\u2014true release time versus the 02:10:00 value\u2014and explains how each possible result changes the KPI decision.",
+            "A further request for the event/decision timestamp definition would strengthen it, but the proposed evidence is already the most direct discriminator."
           ]
         }
       ],
       "unsupported_or_overstated_claims": [
-        "\"That means for most rows, \\\"release timestamp\\\" is not when disposition actually happened\" is strongly suggested by the clustering and freshness evidence, but is not proven without QCore event or decision timestamps.",
-        "\"The apparent \\\"day and a half\\\" cycle time is at least partly a snapshot-quantization artifact\" is well supported as a hypothesis, but the submission does not fully separate snapshot latency from the use of lab_complete_ts instead of the SOP's required-evidence-available timestamp.",
-        "\"If the real timestamps land close to 02:10 anyway, the KPI is sound as-is\" is too broad because KPI validity also depends on SOP population definition, event semantics, and whether the extracts form a coherent point-in-time snapshot."
+        "\u201cThat means for most rows, \u2018release timestamp\u2019 is not when disposition actually happened\u201d is a strong inference from clustering and refresh metadata, not a proven fact; releases could in principle genuinely occur at the batch time.",
+        "\u201cIf the real timestamps land close to 02:10 anyway, the KPI is sound as-is\u201d is overstated because SOP start-point semantics, exception exclusions, and the distinction between required-evidence availability and lab completion would still need validation.",
+        "The submission reports 28.3h and 19.4h computed means without showing the calculation, row counts, or treatment of missing values, so those figures are not fully auditable from the submission alone.",
+        "It does not explicitly flag that QCore and LabTrack extracts may come from different snapshots, which limits confidence in end-to-end cycle-time joins. "
       ],
-      "strongest_alternative_interpretation": "The 02:10 concentration may reflect a genuine scheduled release process, a mix of scheduled and transactional releases, or an extract/interface commit rather than purely a placeholder. In addition, the reported cycle may be distorted by starting at lab completion instead of required evidence availability and by non-coherent source snapshots.",
-      "single_most_valuable_next_improvement": "Request a small, date-stratified sample of QCore transactional event history containing both the actual disposition/decision timestamp and the interface or extract commit timestamp, joined with the corresponding required-evidence-available timestamp and source snapshot metadata. Use it to quantify timestamp latency and determine whether the KPI definition must change before reporting performance."
+      "strongest_alternative_interpretation": "The 02:10 concentration may reflect a real nightly operational disposition batch rather than merely a timestamp placeholder. The current evidence makes snapshot quantization plausible and strongly supported, but live transactional event times are needed to distinguish interface timing from genuinely batched decisions.",
+      "single_most_valuable_next_improvement": "Obtain a minimally sufficient matched sample of QCore transactional disposition events, including the event/decision timestamp definition and extract time, for snapshot-stamped batches; compare those times with required-evidence availability and explicitly reconcile source freshness across QCore and LabTrack before recalculating the SOP KPI."
     },
     {
       "exercise": "4b-consumer-spares-search",

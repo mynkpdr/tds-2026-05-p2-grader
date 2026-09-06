@@ -456,32 +456,79 @@
       "exercise": "4b-consumer-spares-search",
       "participation": 2.5,
       "analytical": 8.0,
-      "verdict": "good",
+      "verdict": "strong",
       "dimensions": [
         {
           "name": "Evidence traceability",
           "weight_pct": 20,
           "score_0_4": 3,
           "citations": [
-            "\"Multiple open PRs share exact manufacturer_part_no with stock at other sites\"",
-            "\"~84 % of clean MPN+rev matches are unreserved and QUALIFIED_COMMON\"",
-            "\"MaintStar-global snapshot is monthly (2026-06-26); local screens are live\"",
-            "\"part_requests.csv + spare_parts.csv\"",
-            "\"part_restrictions.csv\"",
-            "\"source_freshness.csv\"],",
-            "reasoning_note",
-            "reasoning_note"
+            "\"Multiple open PRs share exact manufacturer_part_no with stock at other sites\" sourced to \"part_requests.csv + spare_parts.csv\"",
+            "\"~84 % of clean MPN+rev matches are unreserved and QUALIFIED_COMMON\" sourced to \"part_restrictions.csv\"",
+            "\"MaintStar-global snapshot is monthly (2026-06-26); local screens are live\" sourced to \"source_freshness.csv\"",
+            "\"PR-260703 / PR-260721 / PR-260711\" and corresponding MPN, revision, reservation, and qualification notes in the Candidate Matches table."
+          ]
+        },
+        {
+          "name": "Causal / investigative reasoning",
+          "weight_pct": 25,
+          "score_0_4": 3,
+          "citations": [
+            "\"There is a genuine cross-site opportunity driven by inconsistent descriptions for the same manufacturer part numbers.\"",
+            "\"Every description similarity is an immediate transfer.\" Rejected because \"MPN is the first check; reserved critical stock and site-specific qualification must be respected.\"",
+            "\"Global available quantity is reliable enough for automatic transfer.\" Rejected because the extract is monthly and quantity can lag local reservations.",
+            "\"Revision differences are immaterial.\" Rejected because revision/configuration is a required confirmation."
+          ]
+        },
+        {
+          "name": "Calibration and uncertainty",
+          "weight_pct": 15,
+          "score_0_4": 3,
+          "citations": [
+            "\"approximately $20\u201325 k can be treated as actionable now\" versus \"Another ~$15\u201320 k needs an engineering / planner check\" and a remaining amount that is \"not transferable on current evidence\"",
+            "\"Global available quantity should be treated cautiously because MaintStar-global is a monthly extract.\"",
+            "\"Yes (partial)\", \"Needs check\", and \"Needs eng + MPN confirm\" distinguish different evidence states."
+          ]
+        },
+        {
+          "name": "Decision usefulness / reframing",
+          "weight_pct": 20,
+          "score_0_4": 4,
+          "citations": [
+            "\"Proceed with a semantic-search pilot focused on MPN-normalised matching\"",
+            "\"surface only unreserved QUALIFIED_COMMON hits as \u2018actionable\u2019, and route revision / site-specific / reserved hits to engineering review\"",
+            "\"Do not auto-generate transfer orders from the current global extract alone.\""
+          ]
+        },
+        {
+          "name": "Disconfirmation and rejected hypotheses",
+          "weight_pct": 10,
+          "score_0_4": 3,
+          "citations": [
+            "\"Every description similarity is an immediate transfer.\" Rejected by policy and the email.",
+            "\"Global available quantity is reliable enough for automatic transfer.\" Rejected due to the monthly extract and reservation lag.",
+            "\"Revision differences are immaterial.\" Rejected because several requests and stock records differ in revision.",
+            "\"What Would Change the Decision\" identifies live quantity, explicit MPN/revision, and engineering confirmation as evidence that could alter the judgment."
+          ]
+        },
+        {
+          "name": "Questioning / next evidence",
+          "weight_pct": 10,
+          "score_0_4": 3,
+          "citations": [
+            "\"Live (or daily) available quantity and reservation status from local CMMS instead of the monthly global extract.\"",
+            "\"Explicit manufacturer part numbers and required revisions on the remaining description-only requests.\"",
+            "\"Confirmation from receiving-site engineers that SITE_SPECIFIC_CHECK items are interchangeable for the requesting asset.\""
           ]
         }
       ],
       "unsupported_or_overstated_claims": [
-        "The approximate $55k opportunity, $20\u201325k actionable amount, and $15\u201320k engineering-review amount are not supported with row-level calculations or explicit request quantities and prices in the submission.",
-        "The statement that approximately 84% of clean MPN-plus-revision matches are unreserved and QUALIFIED_COMMON is cited to the restrictions file but lacks the denominator, calculation, or specific rows.",
-        "Calling matches \"actionable now\" may overstate certainty where availability and reservations rely on a monthly global extract and the extract is not necessarily point-in-time consistent with the request and stock records.",
-        "The selected match table does not show quantities, UOM, timestamps, or exact restriction fields for each candidate, so some claims of immediate actionability are not independently auditable from the submission."
+        "The \"$20\u201325 k actionable now\" figure is not fully auditable from the submission because it does not show the underlying request values, quantities, UOM checks, or the calculation mapping each amount to specific rows.",
+        "Calling matches \"actionable now\" is somewhat overstated while availability and reservation data come from a monthly global extract; these are better described as conditionally actionable candidates pending live confirmation.",
+        "The statement that \"~84 % of clean MPN+rev matches are unreserved and QUALIFIED_COMMON\" is attributed to part_restrictions.csv but lacks row-level counts and denominator definition."
       ],
-      "strongest_alternative_interpretation": "The apparent cross-site value may be materially lower than the candidate value because the extracts are temporally inconsistent and because identical MPN and revision do not by themselves establish asset-level interchangeability, current availability, or transfer eligibility. The opportunity could therefore be primarily a candidate-generation benefit rather than immediately transferable stock.",
-      "single_most_valuable_next_improvement": "Provide a reproducible row-level reconciliation for every claimed dollar bucket using request quantity and value, stock quantity and timestamp, MPN, revision, UOM, qualification, reservation, and site-specific restrictions; then validate the highest-value candidates against live local availability and receiving-site engineering approval before labeling them actionable."
+      "strongest_alternative_interpretation": "The apparent cross-site opportunity may be substantially smaller than the candidate value because stale global availability, reservations, UOM differences, qualification constraints, and revision/site-specific requirements could invalidate otherwise exact MPN matches. Description-only matches may also reflect only family similarity rather than catalog equivalence.",
+      "single_most_valuable_next_improvement": "Recalculate the candidate and actionable-value ranges from an auditable row-level table that includes request quantity/value, stock quantity/UOM, exact MPN and revision, qualification, reservation/criticality, source timestamp, and the live local availability confirmation; label all matches as candidates until that refresh is complete."
     }
   ]
 }

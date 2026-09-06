@@ -1,8 +1,8 @@
 {
   "questions_answered": 8,
   "participation": 20.0,
-  "analytical": 55.5,
-  "final": 75.5,
+  "analytical": 63.7,
+  "final": 83.7,
   "per_question": [
     {
       "exercise": "1a-dth-month-end",
@@ -384,24 +384,77 @@
     {
       "exercise": "4a-consumer-qc-queue",
       "participation": 2.5,
-      "analytical": 0.0,
-      "verdict": "good",
+      "analytical": 8.2,
+      "verdict": "strong",
       "dimensions": [
         {
           "name": "Evidence traceability",
           "weight_pct": 20,
           "score_0_4": 3,
           "citations": [
-            "\"84% (185/220) of qcore_release_ts times are exactly 02:10:00\"; \"batch_release.csv\"",
-            "\"QCore refreshes only daily, not live\"; \"source_freshness.csv, row \\\"QCore\\\"\"",
-            "\"42/262 rows are open HOLD\"; \"batch_release.csv\"",
-            "\"30 of those HOLDs are over 24h past evidence-ready\"; \"batch_release.csv + qc_release_sop.md\"],"
+            "\"84% (185/220) of qcore_release_ts times are exactly 02:10:00\" \u2014 precise field, count, and source citation support the central anomaly.",
+            "\"42/262 rows are open HOLD\" and \"30 of those HOLDs are over 24h past evidence-ready\" \u2014 relevant cross-file claims are cited, but the submission does not provide row-level identifiers or reconcile the later reference to \"30 MISSING/INDEX_PENDING RELEASED batches.\"",
+            "\"coa_status gap likely a CertVault index-lag artifact\" \u2014 source freshness is relevant, but the causal interpretation is only indirectly evidenced."
+          ]
+        },
+        {
+          "name": "Causal / investigative reasoning",
+          "weight_pct": 25,
+          "score_0_4": 3,
+          "citations": [
+            "\"consistent with QCore's daily batch refresh ... rather than a live disposition clock\" \u2014 distinguishes a measurement/interface mechanism from the apparent cycle-time symptom.",
+            "\"an 84% clustering at one exact clock-time is not random variance, it's a system artifact\" \u2014 correctly identifies a strong timing anomaly, but exact clustering does not by itself distinguish extract stamping from a genuinely scheduled release process.",
+            "\"ask QCore/IT for the true authorization-event timestamp ... versus the extract's write timestamp\" \u2014 proposes a discriminating test rather than treating the mechanism as proven."
+          ]
+        },
+        {
+          "name": "Calibration and uncertainty",
+          "weight_pct": 15,
+          "score_0_4": 3,
+          "citations": [
+            "\"Do not publish '~1.5 days' ... yet\" and the use of \"consistent with\" and \"likely\" \u2014 appropriately withholds KPI use while preserving hypotheses.",
+            "The table labels several claims \"High\" confidence, including \"QCore refreshes only daily, not live\" and the HOLD interpretation; these labels overstate what extract freshness alone establishes and do not explicitly address that QCore/LabTrack extracts may not be a coherent snapshot.",
+            "\"Medium\" confidence for the CertVault explanation acknowledges uncertainty, though the submission still treats that explanation as the primary one without direct event evidence."
+          ]
+        },
+        {
+          "name": "Decision usefulness / reframing",
+          "weight_pct": 20,
+          "score_0_4": 4,
+          "citations": [
+            "\"Do not publish '~1.5 days' as a release-cycle KPI yet\" \u2014 directly reframes the decision from optimizing a potentially invalid metric to validating timestamp semantics.",
+            "\"require any KPI to separately report open-HOLD backlog age\" \u2014 protects against hiding in-progress work while preserving a useful operational measure.",
+            "\"ask QCore/IT for the true authorization-event timestamp ... and require ... backlog age\" \u2014 small, reversible actions that create evidence and reduce reporting risk."
+          ]
+        },
+        {
+          "name": "Disconfirmation and rejected hypotheses",
+          "weight_pct": 10,
+          "score_0_4": 3,
+          "citations": [
+            "The submission rejects normal variance using the 02:10 concentration, rejects treating HOLD work as irrelevant, and tests a stale-index alternative for CertVault.",
+            "\"more likely a stale read than a true gap\" is plausible but not established; the strongest competing explanation\u2014that QCore uses a scheduled but semantically valid release process\u2014should have been stated explicitly and tested with event/audit records.",
+            "\"What Would Change the Decision\" identifies evidence that could revive the competing timestamp interpretation."
+          ]
+        },
+        {
+          "name": "Questioning / next evidence",
+          "weight_pct": 10,
+          "score_0_4": 4,
+          "citations": [
+            "\"ask QCore/IT for the true authorization-event timestamp (audit log) versus the extract's write timestamp\" \u2014 high-value, narrowly scoped query that directly discriminates workflow delay from interface timing.",
+            "\"A live pull (not the nightly CertVault index)\" and confirmation from the Site/Quality lead on overdue HOLD exception coding \u2014 targeted follow-ups tied to separate decisions rather than a generic request for more data.",
+            "The requested audit/event evidence would determine whether the KPI can be defined and published, while the backlog and CertVault checks address operational and data-quality consequences."
           ]
         }
       ],
-      "unsupported_or_overstated_claims": [],
-      "strongest_alternative_interpretation": "",
-      "single_most_valuable_next_improvement": ""
+      "unsupported_or_overstated_claims": [
+        "\"QCore refreshes only daily, not live\" and the statement that elapsed-time math is \"quantized to roughly 24h\" conflate extract refresh timing with the semantics of the underlying release event; the evidence supports a serious timestamp concern, not yet that the release process itself is daily or quantized.",
+        "The CertVault explanation that the coa_status gap is \"likely ... an index-lag artifact\" is reasonable but not demonstrated by the cited freshness row alone.",
+        "The submission inconsistently refers first to 30 overdue HOLDs and later to \"30 MISSING/INDEX_PENDING RELEASED batches\"; those populations should be reconciled before acting on the claim."
+      ],
+      "strongest_alternative_interpretation": "The 02:10 concentration could reflect a scheduled, valid QCore authorization or release process rather than merely an extract-write artifact. In that case the metric may still be operationally meaningful, but it would measure scheduled/interface release timing rather than the decision time defined by the SOP. An audit/event log linking required-evidence availability, authorization, and extract commit would distinguish these interpretations.",
+      "single_most_valuable_next_improvement": "Obtain and reconcile a small event-level sample containing required-evidence-available time, authorization/decision time, QCore extract-write time, and source snapshot timestamps; use it to define the KPI before interpreting the 1.5-day value or attributing overdue HOLDs and certificate gaps."
     },
     {
       "exercise": "4b-consumer-spares-search",

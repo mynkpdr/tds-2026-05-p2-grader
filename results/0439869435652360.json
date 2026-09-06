@@ -1,8 +1,8 @@
 {
   "questions_answered": 8,
   "participation": 20.0,
-  "analytical": 71.9,
-  "final": 91.9,
+  "analytical": 72.0,
+  "final": 92.0,
   "per_question": [
     {
       "exercise": "1a-dth-month-end",
@@ -455,7 +455,7 @@
     {
       "exercise": "4b-consumer-spares-search",
       "participation": 2.5,
-      "analytical": 7.8,
+      "analytical": 7.9,
       "verdict": "good",
       "dimensions": [
         {
@@ -463,22 +463,67 @@
           "weight_pct": 20,
           "score_0_4": 3,
           "citations": [
-            "\"24 requests total $166,495.60; 8 actionable, 12 needs check, 4 not transferable\"",
-            "\"BLT-7302 HA-0022 has 3 on hand but global availability is -1, showing an availability lag\"",
-            "\"MaintStar-global availability is based on a monthly snapshot and can be stale; local CMMS is live\"",
-            "\"11 of 24 requests have a blank manufacturer part number\"",
-            "\"Blank manufacturer part numbers (8 requests)\"],"
+            "\"24 requests total $166,495.60; 8 actionable, 12 needs check, 4 not transferable\"; source: \"part_requests.csv + spare_parts.csv + part_restrictions.csv\"",
+            "\"BLT-7302 HA-0022 has 3 on hand but global availability is -1\"; source: \"spare_parts.csv + maintenance_email.txt\"",
+            "\"MaintStar-global availability is based on a monthly snapshot and can be stale\"; source: \"source_freshness.csv\""
+          ]
+        },
+        {
+          "name": "Causal / investigative reasoning",
+          "weight_pct": 25,
+          "score_0_4": 4,
+          "citations": [
+            "\"A search hit means the part should be transferred.\" Rejected because identity, revision, qualification, reservation and actual free stock must all pass the transfer policy.",
+            "\"A negative global availability means the stock cannot be used.\" Rejected because BLT-7302 has positive physical stock despite -1 global availability.",
+            "\"All matching stock can be allocated to every request.\" Rejected because the same physical inventory cannot satisfy multiple requests."
+          ]
+        },
+        {
+          "name": "Calibration and uncertainty",
+          "weight_pct": 15,
+          "score_0_4": 3,
+          "citations": [
+            "\"The global search should be treated as a candidate-finding tool, not as automatic approval for transfers.\"",
+            "\"12 worth $64,234.05 need a specific verification\" and \"4 worth $81,725.24 are not transferable.\"",
+            "\"Confirm live stock for even the 8 actionable transfers because the global inventory snapshot is about four weeks older than the request export.\""
+          ]
+        },
+        {
+          "name": "Decision usefulness / reframing",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "\"I would proceed with the 8 clean transfers, verify the 12 conditional cases, and keep the 4 servo-drive purchases external.\"",
+            "\"The firm avoidable value is therefore about $20.5k, not the full search value.\"",
+            "\"Recheck reservations before cancelling any external purchase order.\""
+          ]
+        },
+        {
+          "name": "Disconfirmation and rejected hypotheses",
+          "weight_pct": 10,
+          "score_0_4": 4,
+          "citations": [
+            "The submission explicitly rejects six alternatives, including automatic transfer from a search hit, interpreting negative global availability as unusable stock, description-only matching, family interchangeability, unrestricted allocation, and transfer based solely on high value.",
+            "\"Obtain engineering approval for VLV-3722 revision A/B interchangeability\" and \"Confirm receiving-site qualification for any stock marked SITE_SPECIFIC_CHECK\" identify evidence that could change the classification."
+          ]
+        },
+        {
+          "name": "Questioning / next evidence",
+          "weight_pct": 10,
+          "score_0_4": 3,
+          "citations": [
+            "\"Confirm the manufacturer part number for the 11 requests with missing identity\"",
+            "\"Check live local availability for BLT-7302 HA-0022 and PMP-2288 ME-0006\"",
+            "\"Obtain engineering approval for VLV-3722 revision A/B interchangeability\""
           ]
         }
       ],
       "unsupported_or_overstated_claims": [
-        "The exact 8/12/4 classification and $20,536.31 'firm avoidable value' are not fully traceable because the submission says 11 requests have blank manufacturer part numbers but later lists only 8 blank-identity requests, and the conditional-match rows appear to overlap or otherwise do not reconcile cleanly to 12 requests.",
-        "\"Showing an availability lag\" is stronger than the evidence supports; the negative global value and positive physical stock establish an inconsistency, but not necessarily its cause without a timestamp or transaction comparison.",
-        "Calling eight transfers \"actionable now\" is in tension with the later instruction to \"confirm live stock for even the 8 actionable transfers\" when the global snapshot is four weeks older than the request export.",
-        "\"The firm avoidable value is therefore about $20.5k\" may overstate realized avoidable savings until live availability, reservations, identity, and receiving-site acceptance are confirmed."
+        "\"The firm avoidable value is therefore about $20.5k\" is somewhat overstated because the submission itself says even the 8 apparently actionable transfers require live-stock and reservation confirmation; this is better described as provisional candidate value or value pending execution checks.",
+        "The label \"Actionable now\" for the 8 clean transfers is in tension with the later requirement to confirm live stock for all 8 against a stale global snapshot."
       ],
-      "strongest_alternative_interpretation": "The search has identified plausible candidates, but none\u2014or fewer than eight\u2014may yet be operationally transferable because the source extracts are temporally inconsistent and the submission itself does not reconcile blank identities and request counts. The $20.5k figure is therefore candidate value or upper-bound avoidable value rather than firm value.",
-      "single_most_valuable_next_improvement": "Reconcile every request to one candidate and one status in a row-level allocation table, then run a live pre-transfer check for identity, revision, qualification, reservation, and available quantity. This would resolve both the 8-versus-11 blank-identity inconsistency and whether the claimed $20.5k is actionable."
+      "strongest_alternative_interpretation": "The evidence supports eight high-quality candidates rather than eight currently executable transfers: if local availability, reservations, or qualification have changed since the stale MaintStar snapshot, the immediately avoidable value could be below $20.5k. Conversely, some of the 12 conditional cases may become actionable after identity or engineering checks.",
+      "single_most_valuable_next_improvement": "Prioritize a live local-inventory and reservation check for the eight proposed transfers, then report their value as confirmed actionable value only after that check; this would resolve the main tension between the recommendation to proceed and the acknowledged snapshot staleness."
     }
   ]
 }

@@ -1,8 +1,8 @@
 {
   "questions_answered": 8,
   "participation": 20.0,
-  "analytical": 63.0,
-  "final": 83.0,
+  "analytical": 68.8,
+  "final": 88.8,
   "per_question": [
     {
       "exercise": "1a-dth-month-end",
@@ -381,7 +381,7 @@
     {
       "exercise": "4a-consumer-qc-queue",
       "participation": 2.5,
-      "analytical": 0.0,
+      "analytical": 5.8,
       "verdict": "mixed",
       "dimensions": [
         {
@@ -389,18 +389,57 @@
           "weight_pct": 20,
           "score_0_4": 3,
           "citations": [
-            "\"42/262 rows (16%) are disposition=HOLD with blank qcore_release_ts\"",
-            "\"All 42 HOLD rows have site=Riverbend\"",
-            "\"LabTrack ... last synced 2026-07-29 23:00, vs. the QCore snapshot at 2026-07-31 02:10\"],",
-            "reason:",
-            "reason",
-            "reason"
+            "\"42/262 rows (16%) are disposition=HOLD with blank qcore_release_ts\"; \"All 42 HOLD rows have site=Riverbend\"; \"LabTrack ... last synced 2026-07-29 23:00, vs. the QCore snapshot at 2026-07-31 02:10\" \u2014 Claims are tied to specific files, fields, counts, and dates, with some source-freshness caveats. However, the evidence does not address the SOP's required-evidence start point or the timestamp semantics of qcore_release_ts."
+          ]
+        },
+        {
+          "name": "Causal / investigative reasoning",
+          "weight_pct": 25,
+          "score_0_4": 2,
+          "citations": [
+            "\"the problem isn't arithmetic, it's scope (which rows are included)\"; \"HOLD batches ... clustered in the most recent week\" \u2014 The submission tests selection and backlog explanations and distinguishes arithmetic from scope. It does not test whether the apparent delay is caused by interface timing, nor whether lab completion is the correct cycle start under the SOP."
+          ]
+        },
+        {
+          "name": "Calibration and uncertainty",
+          "weight_pct": 15,
+          "score_0_4": 2,
+          "citations": [
+            "\"The figure is real but incomplete\"; \"LabTrack ... is an analytics extract, not live application\"; confidence is marked \"Medium\" for the freshness claim \u2014 Uncertainty is acknowledged and partly claim-specific, but the submission still treats the completed-row calculation as the relevant KPI and asserts systematic understatement without bounding the effects of censoring, timestamp semantics, or non-coherent snapshots."
+          ]
+        },
+        {
+          "name": "Decision usefulness / reframing",
+          "weight_pct": 20,
+          "score_0_4": 2,
+          "citations": [
+            "\"verify before treating '~1.5 days' as a performance KPI\"; \"recompute cycle time including open batches (age = snapshot_ts \u2212 receipt_ts for HOLD rows), broken out by site\" \u2014 This usefully pauses publication and proposes a site-level check, but the proposed metric may itself be invalid: it uses receipt rather than required-evidence availability and snapshot age rather than a defined event/decision timestamp. It also omits a reversible test of timestamp semantics before dashboarding."
+          ]
+        },
+        {
+          "name": "Disconfirmation and rejected hypotheses",
+          "weight_pct": 10,
+          "score_0_4": 2,
+          "citations": [
+            "\"The 1.5-day figure is simply wrong/miscalculated. Rejected\"; \"HOLD batches are evenly distributed ... Rejected\"; \"This is normal FIFO variation ... Rejected as the primary explanation\" \u2014 Multiple alternatives are considered with relevant evidence, but the strongest competing explanation\u2014interface commit timing and mixed extract snapshots\u2014is not tested or rejected."
+          ]
+        },
+        {
+          "name": "Questioning / next evidence",
+          "weight_pct": 10,
+          "score_0_4": 3,
+          "citations": [
+            "\"The open-hold aging report from QCore itself (or a live pull)\"; \"The retained 'reason for reordering' text\" \u2014 Requests are prioritized and operationally relevant, especially the live QCore aging data and exception reasons. The highest-value missing request is an event log or explicit definition of required-evidence and decision timestamps, which would discriminate workflow delay from interface timing."
           ]
         }
       ],
-      "unsupported_or_overstated_claims": [],
-      "strongest_alternative_interpretation": "",
-      "single_most_valuable_next_improvement": ""
+      "unsupported_or_overstated_claims": [
+        "\"A KPI built only from closed cases will systematically understate true cycle time\" is directionally plausible but not established without defining the KPI, handling right-censoring, and confirming that qcore_release_ts represents the relevant completion event.",
+        "\"the problem isn't arithmetic, it's scope\" overstates the diagnosis because the submission does not test whether qcore_release_ts is an interface commit rather than the decision/release time.",
+        "\"recompute cycle time including open batches (age = snapshot_ts \u2212 receipt_ts for HOLD rows)\" assumes receipt is the correct start event, contrary to the SOP's required-evidence-available rule."
+      ],
+      "strongest_alternative_interpretation": "The apparent ~1.5-day cycle may be substantially a measurement artifact: qcore_release_ts may record an interface commit rather than the operational decision time, while lab and QCore extracts are from different snapshots. The HOLD concentration could still indicate a real Riverbend backlog, but that cannot be separated from timestamp and extract-timing effects using the proposed recomputation alone.",
+      "single_most_valuable_next_improvement": "Request and analyze a small event-level sample linking required-evidence-available, decision/approval, interface commit, and qcore_release_ts timestamps, with extract-snapshot timestamps. Use it first to define the KPI and then separately assess right-censored HOLD aging by site."
     },
     {
       "exercise": "4b-consumer-spares-search",

@@ -1,8 +1,8 @@
 {
   "questions_answered": 8,
   "participation": 20.0,
-  "analytical": 71.3,
-  "final": 91.3,
+  "analytical": 73.0,
+  "final": 93.0,
   "per_question": [
     {
       "exercise": "1a-dth-month-end",
@@ -256,7 +256,7 @@
     {
       "exercise": "3a-customs-mismatch",
       "participation": 2.5,
-      "analytical": 8.5,
+      "analytical": 10.0,
       "verdict": "strong",
       "dimensions": [
         {
@@ -264,33 +264,57 @@
           "weight_pct": 20,
           "score_0_4": 4,
           "citations": [
-            "\"The accepted Swiss declaration for P1001 uses tariff/classification code 90211000\" (declaration.pdf)",
-            "\"Current Helios master for P1001 contains 90211090, while its base/legacy classification is 902110\" (product_master_current.xlsx)",
-            "\"The canonical model does not capture code system, nomenclature version, effective dates, ruling authority, or document version\" (canonical-schema-v0.3.md)"
+            "\"The accepted Swiss declaration for P1001 uses tariff/classification code 90211000 | declaration.pdf | High\"",
+            "\"Current Helios master for P1001 contains 90211090, while its base/legacy classification is 902110 | product_master_current.xlsx | High\"",
+            "\"The canonical model does not capture code system, nomenclature version, effective dates, ruling authority, or document version | canonical-schema-v0.3.md | High\""
           ]
         },
         {
           "name": "Reasoning and hypothesis testing",
           "weight_pct": 20,
-          "score_0_4": 3,
+          "score_0_4": 4,
           "citations": [
-            "\"Rejected: any 90211000 vs 90211090 mismatch automatically proves a declaration error. Both share HS6 902110\"",
-            "\"Rejected: the flag indicates the wrong product was declared. The declaration and invoice consistently identify P1001\"",
-            "\"the available canonical schema does not preserve the code-system identifier, nomenclature version, effective dates, ruling authority, or document version\"]},{",
-            "name\"Process and system understanding",
-            "weight_pct",
-            "score_0_4",
-            "citations"
+            "\"Rejected: any 90211000 vs 90211090 mismatch automatically proves a declaration error.\"",
+            "\"Both share HS6 902110, while the materials do not establish that Helios 90211090 is the applicable Swiss code/version on 4 Nov 2025.\"",
+            "\"Rejected: the flag indicates the wrong product was declared.\""
+          ]
+        },
+        {
+          "name": "Calibration",
+          "weight_pct": 20,
+          "score_0_4": 4,
+          "citations": [
+            "\"the available canonical schema does not preserve the code-system identifier, nomenclature version, effective dates, ruling authority, or document version\"",
+            "\"The decision-changing missing evidence is the Swiss tariff/nomenclature or product-specific ruling effective on 4 Nov 2025\"",
+            "\"Confidence: Medium-High.\""
+          ]
+        },
+        {
+          "name": "Process and system understanding",
+          "weight_pct": 20,
+          "score_0_4": 4,
+          "citations": [
+            "\"the automated comparison may be comparing codes from different classification systems or versions rather than detecting an actual wrong declaration\"",
+            "\"fix the comparison control so it matches country, nomenclature and effective date before flagging future code mismatches\""
+          ]
+        },
+        {
+          "name": "Decision safety",
+          "weight_pct": 20,
+          "score_0_4": 4,
+          "citations": [
+            "\"Do not escalate CH-2025-000522 as a likely declaration error on the code mismatch alone.\"",
+            "\"Ask the broker or customs owner for the Swiss code basis/ruling effective on the declaration date.\"",
+            "\"Escalate the declaration only if that source shows 90211090 (or another code) was required; otherwise close the filing alert\""
           ]
         }
       ],
       "unsupported_or_overstated_claims": [
-        "\"Confidence: Medium-High\" is somewhat stronger than the evidence warrants because the submission correctly identifies that the authoritative Swiss code, applicable version, and effective-date evidence are missing.",
-        "\"Treat this as a reference-data/control exception, not a likely filing error\" is a reasonable operational posture, but the materials do not establish that a jurisdiction/version mismatch actually occurred; they establish only that it cannot be ruled out.",
-        "The submission does not directly demonstrate that 90211000 and 90211090 belong to different systems or versions; it infers that possibility from missing metadata."
+        "The classification of the issue as a \"reference-data/control exception\" is a reasonable working diagnosis but is not conclusively established until the Swiss tariff or ruling is obtained.",
+        "\"Confidence: Medium-High\" may be slightly high because the decisive jurisdiction- and date-specific classification evidence is explicitly missing, although the proposed action remains cautious."
       ],
-      "strongest_alternative_interpretation": "90211090 may have been the required Swiss code on 4 November 2025, making 90211000 a genuine declaration error. The shared HS6 classification does not resolve the Swiss 8-digit requirement, and the current product master could contain the applicable national extension; a Swiss tariff source, broker rationale, or ruling effective on the filing date is needed to test this interpretation.",
-      "single_most_valuable_next_improvement": "Obtain and cite the authoritative Swiss tariff or product-specific ruling effective 4 November 2025, including its code-system/version metadata, then explicitly compare it with both the declaration code and the product-master code."
+      "strongest_alternative_interpretation": "90211090 may be the applicable Swiss code on 4 Nov 2025, making 90211000 a genuine declaration error; the submission appropriately leaves this possibility open and conditions escalation on obtaining the applicable Swiss tariff or ruling.",
+      "single_most_valuable_next_improvement": "Explicitly distinguish the proven facts from the control-failure hypothesis and reduce or qualify the medium-high confidence until the effective Swiss tariff, nomenclature version, or ruling is verified."
     },
     {
       "exercise": "3b-customs-preference",
@@ -359,7 +383,7 @@
     {
       "exercise": "4a-consumer-qc-queue",
       "participation": 2.5,
-      "analytical": 9.8,
+      "analytical": 10.0,
       "verdict": "strong",
       "dimensions": [
         {
@@ -367,19 +391,76 @@
           "weight_pct": 20,
           "score_0_4": 4,
           "citations": [
-            "\"In `batch_release.csv`, the median receipt-to-release time for completed records is about 39.4 hours\"",
-            "\"185 of 262 records have `qcore_release_ts` exactly at 02:10:00\"",
-            "\"SOP target is 24 h from required evidence available to disposition; extract lacks that timestamp\"",
-            "\"Some released records show `coa_status=MISSING` or `INDEX_PENDING`\"],",
-            "reason? no, schema doesn't allow reason! Need only properties exact? Can extra? Must match schema. We cannot add reason. Need finish JSON. Ensure no invalid weird. Let's compose."
+            "\"In batch_release.csv, the median receipt-to-release time for completed records is about 39.4 hours\"",
+            "\"185 of 262 records have qcore_release_ts exactly at 02:10:00\"",
+            "\"SOP defines the routine target differently: 24 hours from 'required evidence available' to disposition\"",
+            "\"LabTrack is only a 48-hour analytics extract and CertVault is a nightly index\"",
+            "The submission cites specific files, fields, counts, timestamps, and SOP language, while acknowledging stale or non-equivalent status evidence."
+          ]
+        },
+        {
+          "name": "Causal / investigative reasoning",
+          "weight_pct": 25,
+          "score_0_4": 4,
+          "citations": [
+            "\"That pattern could mean the extract is stamping a daily interface/snapshot time rather than the true human disposition event\"",
+            "\"This must be checked before interpreting queue time\"",
+            "The analysis separates the observed receipt-to-release interval from the SOP interval and identifies timestamp semantics as a possible measurement mechanism rather than asserting it as fact.",
+            "It proposes comparing QCore disposition audit timestamps with the last required-evidence timestamp, which would discriminate workflow delay from interface timing."
+          ]
+        },
+        {
+          "name": "Calibration and uncertainty",
+          "weight_pct": 15,
+          "score_0_4": 4,
+          "citations": [
+            "\"could mean\"",
+            "\"does not by itself prove improper release\"",
+            "\"Until then, treat the apparent 1.5-day number as descriptive extract latency, not a validated QC performance KPI\"",
+            "\"If those timestamps are genuine event times and a reliable 'all evidence available' timestamp can be derived, then build the dashboard\"",
+            "Confidence is claim-specific and the recommendation changes conditionally based on timestamp validity and evidence availability."
+          ]
+        },
+        {
+          "name": "Decision usefulness / reframing",
+          "weight_pct": 20,
+          "score_0_4": 4,
+          "citations": [
+            "\"Do not build a performance KPI from the apparent 'about 1.5 days' cycle time yet\"",
+            "\"Verify the timestamp definitions first\"",
+            "\"build the dashboard using evidence-ready \u2192 authorized disposition, excluding periods with open complex exceptions as the SOP requires\"",
+            "The submission directly reframes the decision from optimizing an apparent KPI to validating whether the KPI measures the SOP-defined process, with a reversible and safeguarded next step."
+          ]
+        },
+        {
+          "name": "Disconfirmation and rejected hypotheses",
+          "weight_pct": 10,
+          "score_0_4": 4,
+          "citations": [
+            "\"Rejected: '39 hours proves QC is missing its 24-hour target.'\"",
+            "\"Rejected: released batches with current MISSING/INDEX_PENDING certificate status prove a process violation\"",
+            "\"the status extract may be stale or not equivalent to evidence availability at disposition\"",
+            "It tests the strongest tempting interpretations against the SOP clock definition and source-freshness limitations, and identifies evidence that could revive either interpretation."
+          ]
+        },
+        {
+          "name": "Questioning / next evidence",
+          "weight_pct": 10,
+          "score_0_4": 4,
+          "citations": [
+            "\"The smallest useful verification is to take a small sample of batches\u2014especially several with qcore_release_ts = 02:10:00\"",
+            "\"compare the extract against the actual QCore disposition audit timestamp and the timestamp when the last required evidence became available\"",
+            "\"confirm from the data catalog whether qcore_release_ts is an event timestamp or snapshot/interface timestamp\"",
+            "The request is prioritized, targeted to the timestamp anomaly, and explicitly tied to the decision about whether a KPI can be built."
           ]
         }
       ],
       "unsupported_or_overstated_claims": [
-        "\"Treat the apparent 1.5-day number as descriptive extract latency\" is slightly stronger than the evidence supports: the pattern establishes a plausible interface/snapshot-timestamp explanation, but does not yet prove that all of the apparent duration is extract latency."
+        "The phrase \"treat the apparent 1.5-day number as descriptive extract latency\" is slightly stronger than the evidence strictly establishes; it could instead reflect genuine workflow delay, a timestamping artifact, or both. The surrounding conditional language appropriately limits the practical conclusion.",
+        "The statement that LabTrack is \"only a 48-hour analytics extract\" and CertVault is a \"nightly index\" is acceptable if directly stated in source_freshness.csv, but those freshness limitations should not be treated as proof of the exact state at disposition."
       ],
-      "strongest_alternative_interpretation": "The 02:10:00 concentration could reflect a legitimate scheduled release or batch-processing convention rather than a measurement artifact; the actual QCore disposition audit timestamp and evidence-availability timestamp would discriminate these explanations.",
-      "single_most_valuable_next_improvement": "State the sampled verification as a formal decision test with a pass/fail rule: compare actual disposition audit times and last-required-evidence times for 02:10:00 records versus non-02:10:00 records, while reconciling extract snapshot times."
+      "strongest_alternative_interpretation": "The 02:10:00 concentration could reflect a genuine scheduled release or batch-processing practice rather than an interface timestamp artifact, and the 39.4-hour interval could include real workflow delay. Only event-level audit timestamps and a reliable last-required-evidence timestamp can distinguish these explanations.",
+      "single_most_valuable_next_improvement": "Explicitly validate cross-source temporal consistency by obtaining a same-as-of sample containing QCore audit events, evidence-availability events, and source extraction timestamps; use that sample to quantify how often qcore_release_ts differs from the actual disposition time before labeling the apparent cycle time as extract latency."
     },
     {
       "exercise": "4b-consumer-spares-search",

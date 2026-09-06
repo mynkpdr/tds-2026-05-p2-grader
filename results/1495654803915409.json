@@ -1,8 +1,8 @@
 {
   "questions_answered": 8,
   "participation": 20.0,
-  "analytical": 43.2,
-  "final": 63.2,
+  "analytical": 47.6,
+  "final": 67.6,
   "per_question": [
     {
       "exercise": "1a-dth-month-end",
@@ -384,7 +384,7 @@
     {
       "exercise": "4a-consumer-qc-queue",
       "participation": 2.5,
-      "analytical": 0.0,
+      "analytical": 4.4,
       "verdict": "weak",
       "dimensions": [
         {
@@ -392,17 +392,62 @@
           "weight_pct": 20,
           "score_0_4": 2,
           "citations": [
-            "\"Operations is measuring Receipt-to-Release cycle time (averaging 45.1 hours)\"",
-            "\"70.6% of release timestamps (185 out of 262) are padded to exactly 02:10:00\"",
-            "\"Source: batch_release.csv & qc_release_sop.md\"],",
-            "reason? I cannot add reason due schema.",
-            "reason"
+            "\"70.6% of release timestamps (185 out of 262) are padded to exactly 02:10:00\" \u2014 cites batch_release.csv with useful quantitative specificity.",
+            "\"Northport, Harbor, and Meridian are missing all batch receipt data after 20 July 2026\" \u2014 cites the relevant file, but does not identify fields, rows, or reconcile source freshness."
+          ]
+        },
+        {
+          "name": "Causal / investigative reasoning",
+          "weight_pct": 25,
+          "score_0_4": 2,
+          "citations": [
+            "\"introducing artificial delays\" \u2014 correctly identifies a timestamp-pattern explanation, but infers the mechanism without requesting event/decision timestamps or an event log.",
+            "\"The 42 batches on HOLD at Riverbend are a result of a broken QCore data sync\" \u2014 asserts causality from missing data without testing whether the records were operationally stuck or merely incompletely extracted."
+          ]
+        },
+        {
+          "name": "Calibration and uncertainty",
+          "weight_pct": 15,
+          "score_0_4": 1,
+          "citations": [
+            "The table labels all major claims \"High\" confidence and the judgment describes \"severe data synchronization failures,\" despite unresolved timestamp semantics and non-coherent extract timing.",
+            "\"The SOP target is 24 hours from Lab Complete to Release\" \u2014 presents a potentially incorrect interpretation of the SOP as certain rather than checking the required-evidence-available definition."
+          ]
+        },
+        {
+          "name": "Decision usefulness / reframing",
+          "weight_pct": 20,
+          "score_0_4": 2,
+          "citations": [
+            "\"Do NOT build the dashboard using this extract\" \u2014 prudently prevents use of a potentially misleading KPI.",
+            "\"A fresh database extract where the sync pipelines ... are fully functional\" \u2014 useful direction, but it is broad and does not define a reversible validation step, success criteria, or protect against rebuilding the dashboard on still-misdefined timestamps."
+          ]
+        },
+        {
+          "name": "Disconfirmation and rejected hypotheses",
+          "weight_pct": 10,
+          "score_0_4": 1,
+          "citations": [
+            "\"The plant quality teams are experiencing a massive backlog: Rejected\" \u2014 rejects the strongest operational alternative largely from the same incomplete extracts, without independently testing workflow evidence or stating what evidence could revive it."
+          ]
+        },
+        {
+          "name": "Questioning / next evidence",
+          "weight_pct": 10,
+          "score_0_4": 2,
+          "citations": [
+            "\"A fresh database extract ... and ... actual granular release times\" \u2014 requests relevant evidence, but does not prioritize the highest-value query: the timestamp definition and event/decision log, nor explain how that evidence would distinguish workflow delay from interface timing."
           ]
         }
       ],
-      "unsupported_or_overstated_claims": [],
-      "strongest_alternative_interpretation": "",
-      "single_most_valuable_next_improvement": ""
+      "unsupported_or_overstated_claims": [
+        "The SOP target is stated as Lab Complete to Release; the relevant SOP definition is required evidence available, so the reported 19.1-hour compliance result may be based on the wrong start event.",
+        "The 02:10 concentration supports an interface-timestamp anomaly, but \"padded ... due to a daily batch update\" is a causal inference not established by the extract alone.",
+        "The assertion that Riverbend's 42 HOLD batches are caused by a broken QCore sync, and not operational backlog, is overconfident without event-level or independent operational evidence.",
+        "The conclusion that all apparent queue volumes are \"heavily distorted\" is not bounded by source-freshness checks or a coherent point-in-time reconciliation."
+      ],
+      "strongest_alternative_interpretation": "The extracts may contain both real workflow delay and interface-commit timing artifacts. The 02:10 concentration can make release-cycle metrics appear worse, while stale or non-coincident snapshots can also create apparent missing receipts and HOLD records; operational backlog therefore remains unresolved rather than rejected.",
+      "single_most_valuable_next_improvement": "Request and inspect the timestamp definition plus a small event log linking required-evidence-available, decision/release, and interface-commit times, with extract timestamps. Use it to recalculate a bounded sample KPI before deciding whether the dashboard is unusable or merely requires corrected metric definitions."
     },
     {
       "exercise": "4b-consumer-spares-search",

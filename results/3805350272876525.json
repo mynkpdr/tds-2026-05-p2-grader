@@ -1,8 +1,8 @@
 {
   "questions_answered": 8,
   "participation": 20.0,
-  "analytical": 60.2,
-  "final": 80.2,
+  "analytical": 69.7,
+  "final": 89.7,
   "per_question": [
     {
       "exercise": "1a-dth-month-end",
@@ -387,7 +387,7 @@
     {
       "exercise": "4a-consumer-qc-queue",
       "participation": 2.5,
-      "analytical": 0.0,
+      "analytical": 9.5,
       "verdict": "strong",
       "dimensions": [
         {
@@ -395,21 +395,63 @@
           "weight_pct": 20,
           "score_0_4": 4,
           "citations": [
-            "\"receipt->release 45.5 h mean vs SOP evidence->release 26.9 h mean / 21.3 h median\"",
-            "\"185/262 (70.6%) qcore_release_ts stamped at exactly 02:10:00 = QCore daily snapshot\"",
-            "\"42 HOLD rows have null release time (open, no cycle time)\"",
-            "\"42 HOLD all received >= 07-24; dispositioned rows all <= 07-20\"",
-            "\"plus a fresher, source-aligned extract so LabTrack/QCore lags don't contaminate the delta\"],",
-            "citations_reason_not_allowed_in_schema_placeholder_do_not_include_this_key? no this is invalid JSON thought",
-            "reason_placeholder_should_not_exist",
-            "foo",
-            "bar"
+            "\"185/262 (70.6%) qcore_release_ts stamped at exactly 02:10:00\"; \"batch_release.csv + source_freshness.csv\" \u2014 precise field, count, percentage, and triangulation.",
+            "\"42 HOLD rows have null release time\" and \"42 HOLD all received >= 07-24\"; \"batch_release.csv\" \u2014 directly traceable claims with relevant counterevidence to the headline KPI."
+          ]
+        },
+        {
+          "name": "Causal / investigative reasoning",
+          "weight_pct": 4,
+          "score_0_4": 4,
+          "citations": [
+            "\"Wrong clock,\" \"Snapshot artifact,\" \"Exceptions included,\" and \"Survivorship\" separate measurement semantics, timestamp behavior, population definition, and censoring rather than treating the headline as a single causal process failure.",
+            "\"If they vary in QCore but are all 02:10 here, the timestamp is a snapshot default\" \u2014 proposes a discriminating observation rather than asserting the mechanism solely from the anomaly."
+          ]
+        },
+        {
+          "name": "Calibration and uncertainty",
+          "weight_pct": 15,
+          "score_0_4": 3,
+          "citations": [
+            "\"I would verify before using the apparent cycle time as a KPI\" and \"would need a live-portal check before alleging a breach\" \u2014 appropriately conditions decisions on missing evidence.",
+            "\"likely CertVault index lag\" and the request for \"a fresher, source-aligned extract\" acknowledge uncertainty and temporal inconsistency, although calling the intraday duration \"fabricated\" and the process \"genuine[ly] fast\" is stronger than the available validation supports."
+          ]
+        },
+        {
+          "name": "Decision usefulness / reframing",
+          "weight_pct": 20,
+          "score_0_4": 4,
+          "citations": [
+            "\"verify before using the apparent cycle time as a KPI\" reframes the decision from process optimization to metric validity.",
+            "\"pull the true disposition timestamp from live QCore for ~5-10 batches\" and adopt \"evidence->disposition, RELEASED only, open exceptions excluded\" \u2014 a small, reversible test and a safer provisional metric definition."
+          ]
+        },
+        {
+          "name": "Disconfirmation and rejected hypotheses",
+          "weight_pct": 10,
+          "score_0_4": 4,
+          "citations": [
+            "\"'1.5 days is a real cycle time' \u2014 only on the non-SOP receipt clock\" and \"'The data is broken, discard it' \u2014 arithmetic is clean\" actively test and reject competing explanations.",
+            "\"COA MISSING = released without a certificate\" is treated as a hypothesis requiring a live-portal check, preserving a plausible alternative rather than alleging a breach."
+          ]
+        },
+        {
+          "name": "Questioning / next evidence",
+          "weight_pct": 10,
+          "score_0_4": 4,
+          "citations": [
+            "\"Smallest verification: pull the true disposition timestamp from live QCore for ~5-10 batches whose extract time is 02:10:00\" \u2014 narrowly prioritized and explicitly tied to the decision.",
+            "\"The data-catalog definition of qcore_release_ts\" and \"a fresher, source-aligned extract\" identify the key semantic and snapshot evidence needed next."
           ]
         }
       ],
-      "unsupported_or_overstated_claims": [],
-      "strongest_alternative_interpretation": "",
-      "single_most_valuable_next_improvement": ""
+      "unsupported_or_overstated_claims": [
+        "\"the intraday duration is fabricated for most rows\" is a plausible inference from the 02:10 concentration, but it is not established until the live-QCore or event-log comparison is performed.",
+        "\"the genuine process is fast\" overstates what can be concluded after excluding timestamp-concentrated rows; the result may still reflect interface timing or other selection effects.",
+        "The claim that 02:10 is specifically \"the QCore daily-snapshot time\" is useful context, but its causal meaning should remain provisional until the timestamp definition and source extraction process are confirmed."
+      ],
+      "strongest_alternative_interpretation": "02:10 may be a legitimate batch/interface commit time rather than a defaulted or fabricated release time. In that case, the KPI could be measuring interface latency after an earlier decision event, not true workflow duration; the apparent cycle time would still be unsuitable for process evaluation, but for a different reason.",
+      "single_most_valuable_next_improvement": "Replace the provisional conclusion that the process is fast with an explicitly bounded conclusion: obtain the event/decision timestamp definition or event log and compare it with qcore_release_ts in an aligned point-in-time extract, then report separate decision-to-disposition and interface-commit-to-disposition measures."
     },
     {
       "exercise": "4b-consumer-spares-search",

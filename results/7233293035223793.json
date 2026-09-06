@@ -1,8 +1,8 @@
 {
   "questions_answered": 8,
   "participation": 20.0,
-  "analytical": 49.9,
-  "final": 69.9,
+  "analytical": 55.0,
+  "final": 75.0,
   "per_question": [
     {
       "exercise": "1a-dth-month-end",
@@ -392,7 +392,7 @@
     {
       "exercise": "4a-consumer-qc-queue",
       "participation": 2.5,
-      "analytical": 0.0,
+      "analytical": 5.1,
       "verdict": "mixed",
       "dimensions": [
         {
@@ -400,16 +400,63 @@
           "weight_pct": 20,
           "score_0_4": 3,
           "citations": [
-            "\"SOP QL-204 defines routine service target as 24 hours from required evidence available (`lab_complete_ts`) to quality disposition (`qcore_release_ts)`\"",
-            "\"Mean QA disposition time from lab complete to QCore release is 26.9 hours... median 21.3 hours\"",
-            "\"Data staleness varies wildly across systems... `LabTrack` has a 48-hour snapshot lag\"],",
-            "reasonasing_removed? no"
+            "\"SOP QL-204 defines routine service target as 24 hours from required evidence available (`lab_complete_ts`) to quality disposition (`qcore_release_ts`).\" \u2014 Specific source, section, and fields are identified, though the submission does not provide row-level support and overstates the implication of the mean/median results.",
+            "\"Mean QA disposition time ... is 26.9 hours ... median 21.3 hours\" and \"Overall dock receipt to QCore release averages 45.5 hours\" \u2014 These are traceable calculations from named fields, but the submission does not clearly acknowledge that the 26.9-hour mean exceeds the 24-hour target."
+          ]
+        },
+        {
+          "name": "Causal / investigative reasoning",
+          "weight_pct": 25,
+          "score_0_4": 2,
+          "citations": [
+            "\"calculating overall duration from raw dock receipt (`receipt_ts`) rather than lab completion/evidence availability (`lab_complete_ts`)\" \u2014 Correctly distinguishes upstream waiting from the SOP-defined service interval.",
+            "\"severe multi-system timestamp lag in the extract\" and \"static CSV cycle time calculations\" \u2014 Treats source freshness as causal proof of distorted cycle time without testing whether the calculation actually joins mutable cross-system records or whether release timestamps are interface commits rather than decision times."
+          ]
+        },
+        {
+          "name": "Calibration and uncertainty",
+          "weight_pct": 15,
+          "score_0_4": 1,
+          "citations": [
+            "\"High (100%)\" is assigned to every major claim, including the conclusion that source freshness distorts cycle-time calculations \u2014 This is overconfident given unresolved timestamp semantics, non-coherent snapshots, and the absence of event-level validation.",
+            "\"REJECTED\" and \"well within operational targets\" \u2014 The conclusion is not appropriately bounded: the stated mean of 26.9 hours is above the 24-hour target, even though the median is below it."
+          ]
+        },
+        {
+          "name": "Decision usefulness / reframing",
+          "weight_pct": 20,
+          "score_0_4": 2,
+          "citations": [
+            "\"RE-FRAME KPI BOUNDARIES BEFORE BUILDING THE DASHBOARD\" \u2014 This is a useful reframing away from the 36-hour operational claim and toward the SOP boundary.",
+            "\"Do not deploy the dashboard until ... live API pipelines are connected\" \u2014 The recommendation is stronger than the evidence supports, lacks a small reversible validation step and success criteria, and could delay useful analysis when an event/decision timestamp audit may be higher value than live APIs."
+          ]
+        },
+        {
+          "name": "Disconfirmation and rejected hypotheses",
+          "weight_pct": 10,
+          "score_0_4": 2,
+          "citations": [
+            "\"Hypothesis 1 ... REJECTED\" based on the 21.3-hour median \u2014 Tests an alternative explanation, but does not reconcile the above-target 26.9-hour mean or distributional performance.",
+            "\"Hypothesis 2: Upstream System Snapshots are Synchronized. REJECTED.\" \u2014 Identifies a real data-quality concern, but does not test the stronger competing explanation that QCore release timestamps represent interface commits rather than decision times."
+          ]
+        },
+        {
+          "name": "Questioning / next evidence",
+          "weight_pct": 10,
+          "score_0_4": 2,
+          "citations": [
+            "\"Live QCore & LabTrack API Audit Logs ... for the last 30 days\" \u2014 Relevant evidence, but broad and not prioritized around the highest-value timestamp-definition question.",
+            "\"Clarify whether batches with open deviations ... should be excluded\" \u2014 A useful boundary question, though it does not request the event log or documented definition of decision/release timestamps needed to distinguish workflow delay from interface timing."
           ]
         }
       ],
-      "unsupported_or_overstated_claims": [],
-      "strongest_alternative_interpretation": "",
-      "single_most_valuable_next_improvement": ""
+      "unsupported_or_overstated_claims": [
+        "The assertion that a 26.9-hour mean is \"well within operational targets\" is unsupported because it exceeds the stated 24-hour target; only the median is below target.",
+        "The claim that a 48-hour LabTrack snapshot lag necessarily distorts the calculated `lab_complete_ts`-to-`qcore_release_ts` cycle time is not established from `source_freshness.csv` alone.",
+        "The claim that dashboard deployment should wait for live API pipelines is over-prescriptive without first validating timestamp semantics and event definitions."
+      ],
+      "strongest_alternative_interpretation": "The apparent cycle-time problem may be driven substantially by QCore's `qcore_release_ts` being an interface-commit timestamp rather than the quality decision time. The 02:10 concentration of release timestamps would support this possibility, while source freshness may be a separate data-integrity issue rather than the primary cause.",
+      "single_most_valuable_next_improvement": "Request and inspect a small event-level sample linking required-evidence-available time, quality decision time, interface release/commit time, and extract snapshot time, specifically checking the extreme 02:10 release-time concentration. Use that test to decide whether the KPI should measure workflow duration, interface latency, or both."
     },
     {
       "exercise": "4b-consumer-spares-search",

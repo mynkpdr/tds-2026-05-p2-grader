@@ -1,8 +1,8 @@
 {
   "questions_answered": 8,
   "participation": 20.0,
-  "analytical": 62.9,
-  "final": 82.9,
+  "analytical": 70.4,
+  "final": 90.4,
   "per_question": [
     {
       "exercise": "1a-dth-month-end",
@@ -386,25 +386,78 @@
     {
       "exercise": "4a-consumer-qc-queue",
       "participation": 2.5,
-      "analytical": 0.0,
+      "analytical": 7.5,
       "verdict": "good",
       "dimensions": [
         {
           "name": "Evidence traceability",
           "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "\"185 of 262 rows (70.6%) are stamped at exactly 02:10:00\" and cites batch_release.csv qcore_release_ts plus source_freshness.csv QCore snapshot_time.",
+            "\"All 42 HOLD rows received on/after 2026-07-24; all 220 dispositioned rows arrived by 07-20\" and cites batch_release.csv disposition, receipt_ts, and shortage_exposure_usd.",
+            "The claims are field-specific and include counts, medians, and denominators, but the submission does not show the underlying rows or reconcile all cohort definitions."
+          ]
+        },
+        {
+          "name": "Causal / investigative reasoning",
+          "weight_pct": 25,
+          "score_0_4": 3,
+          "citations": [
+            "\"The defect is semantic, not structural\" appropriately separates valid arithmetic from potentially invalid timestamp meaning.",
+            "\"the same extract produces anything from ~5 h to ~45 h depending on how they fall\" tests clock definition, timestamp artifacts, exclusions, and censoring rather than jumping directly from the headline KPI to a process cause.",
+            "The reasoning does not fully test whether QCore's snapshot timestamp can be joined validly to LabTrack or other extracts from a different snapshot."
+          ]
+        },
+        {
+          "name": "Calibration and uncertainty",
+          "weight_pct": 15,
+          "score_0_4": 3,
+          "citations": [
+            "The evidence table labels the CertVault interpretation \"Medium\" confidence while labeling direct count and timing claims \"High\" confidence.",
+            "\"The data catalog's definition of qcore_release_ts is decisive\" and the submission states how opposite definitions would change the decision.",
+            "The conclusion that 02:10:00 is a snapshot artifact is stated too strongly in places despite the catalog definition and event-level semantics still being unresolved."
+          ]
+        },
+        {
+          "name": "Decision usefulness / reframing",
+          "weight_pct": 20,
           "score_0_4": 4,
           "citations": [
-            "\"185 of 262 rows (70.6%) are stamped at exactly 02:10:00\"",
-            "\"73 rows (27.9%) are SOP-excluded exceptions\"",
-            "\"All 42 HOLD rows received on/after 2026-07-24; all 220 dispositioned rows arrived by 07-20\"",
-            "Evidence Table citing batch_release.csv fields, qc_release_sop.md, and source_freshness.csv],",
-            "reason"
+            "\"a dashboard built tomorrow would measure the extract's own artifacts rather than the process\" directly reframes the brief before implementation.",
+            "\"require an event-level extract before any dashboard is built\" is a small, reversible safeguard against optimizing a measurement artifact.",
+            "The recommendation also identifies a separate live-HOLD queue and shortage-exposure track, protecting against survivorship and operational risk rather than treating the dashboard as sufficient."
+          ]
+        },
+        {
+          "name": "Disconfirmation and rejected hypotheses",
+          "weight_pct": 10,
+          "score_0_4": 3,
+          "citations": [
+            "The submission explicitly tests and rejects \"1.5 days is a trustworthy cycle time,\" \"the extract is garbage, discard it,\" and \"COA MISSING proves batches shipped without certificates.\"",
+            "For each, it identifies a record or condition that would revive the hypothesis, including a catalog definition showing that 02:10:00 was a genuine event time.",
+            "The competing explanation that separate extracts are not a coherent point-in-time snapshot is not explicitly tested or rejected."
+          ]
+        },
+        {
+          "name": "Questioning / next evidence",
+          "weight_pct": 10,
+          "score_0_4": 4,
+          "citations": [
+            "\"get the data-catalog definition of qcore_release_ts and spot-check 5-10 of the 02:10:00 batches in live QCore before building anything\" is a narrowly targeted, high-value next step.",
+            "The requested evidence directly discriminates interface/snapshot timing from genuine release events and changes whether a dashboard or event-level extract is appropriate.",
+            "The submission also requests an agreed metric definition and a live HOLD-queue view, both tied to explicit downstream decisions."
           ]
         }
       ],
-      "unsupported_or_overstated_claims": [],
-      "strongest_alternative_interpretation": "",
-      "single_most_valuable_next_improvement": ""
+      "unsupported_or_overstated_claims": [
+        "The submission calls 02:10:00 \"QCore's daily-snapshot boundary\" and says the artifact concern is \"confirmed,\" although source_freshness.csv's snapshot_time alone may establish extract timing, not that every qcore_release_ts value is a snapshot default rather than a real event timestamp.",
+        "It alternates between the SOP's evidence-to-disposition target and an \"evidence-to-release\" calculation. The target clock and endpoint need to be reconciled before reporting the 21.3-hour or 8.4-hour figures as the SOP KPI.",
+        "The claim that 73 rows are SOP-excluded is not transparently reconciled with the listed category counts of 31, 13, and 39, which sum to 83 unless overlaps are documented.",
+        "The CertVault lag is a plausible explanation for COA MISSING, but the statement that it \"matches\" nightly-index lag does not establish that no control breach occurred without row-level timing or certificate evidence."
+      ],
+      "strongest_alternative_interpretation": "The 02:10:00 concentration may reflect a legitimate scheduled release or batch-processing event rather than a pure timestamp artifact, while the apparent cycle-time inflation could also result from delayed evidence availability, endpoint misdefinition, or non-coherent joins between QCore, LabTrack, and CertVault snapshots. An event/decision log and aligned as-of timestamps would distinguish these explanations.",
+      "single_most_valuable_next_improvement": "Recompute and present one explicitly defined SOP metric using the correct \"required evidence available\" to disposition endpoint, with a row-level event-timestamp audit for the 02:10:00 records and aligned source as-of timestamps; this would resolve both the endpoint conflation and the timestamp/snapshot ambiguity before any KPI decision."
     },
     {
       "exercise": "4b-consumer-spares-search",

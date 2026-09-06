@@ -1,8 +1,8 @@
 {
   "questions_answered": 8,
   "participation": 20.0,
-  "analytical": 62.9,
-  "final": 82.9,
+  "analytical": 71.4,
+  "final": 91.4,
   "per_question": [
     {
       "exercise": "1a-dth-month-end",
@@ -454,25 +454,78 @@
     {
       "exercise": "4b-consumer-spares-search",
       "participation": 2.5,
-      "analytical": 0.0,
-      "verdict": "mixed",
+      "analytical": 8.5,
+      "verdict": "strong",
       "dimensions": [
         {
           "name": "Evidence traceability",
           "weight_pct": 20,
           "score_0_4": 3,
           "citations": [
-            "\"The global stock snapshot is dated 26 June while the request export is associated with the 24 July ProcureNet snapshot\"",
-            "\"Revision-B valve supply is two free units ... against four units of revision-B demand\"",
-            "\"All four not-transferable requests are MTR-4401 servo-drive requests\"],",
-            "reason:",
-            "reason_value"
+            "\"The 24 open requests total $166,495.60...\" citing `part_requests.csv`, all 24 rows, `qty`, `external_quote_usd` \u2014 specific and relevant trace for the value calculation.",
+            "\"Revision-B valve supply is two free units... against four units of revision-B demand\" citing `spare_parts.csv`, `part_requests.csv`, and `part_restrictions.csv` \u2014 triangulates inventory, demand, and restrictions.",
+            "\"PR-260709, PR-260714, PR-260716, PR-260717, PR-260719, others\" \u2014 the vague 'others' and incomplete row-level mapping weaken traceability for the needs-check population."
+          ]
+        },
+        {
+          "name": "Causal / investigative reasoning",
+          "weight_pct": 25,
+          "score_0_4": 3,
+          "citations": [
+            "\"Every search hit represents a direct transfer opportunity\" is tested against reservations and zero stock, separating candidate retrieval from transfer eligibility.",
+            "\"Same part family means interchangeable\" is rejected using revision-A versus revision-B evidence and the documented substitution rule.",
+            "\"An expensive semantic-search system is required\" is rejected from the exact-MPN result, but the conclusion that the remaining problem is primarily master-data hygiene is broader than the evidence because blank-MPN requests may still require semantic candidate generation."
+          ]
+        },
+        {
+          "name": "Calibration and uncertainty",
+          "weight_pct": 15,
+          "score_0_4": 3,
+          "citations": [
+            "\"The global stock snapshot is dated 26 June while the request export is associated with the 24 July...\" and \"'actionable now' still requires current confirmation\" appropriately identifies temporal inconsistency.",
+            "\"Needs check\" is used for competing revision-B demand, negative availability, identity uncertainty, and revision mismatch.",
+            "The phrase \"An exact MPN join resolves all 13 identified requests immediately\" overstates what the join establishes: it retrieves candidates, while current availability, reservations, and engineering approval remain unresolved."
+          ]
+        },
+        {
+          "name": "Decision usefulness / reframing",
+          "weight_pct": 20,
+          "score_0_4": 4,
+          "citations": [
+            "\"Do not convert raw search hits into automatic transfers\" is a safe, operationally relevant decision.",
+            "\"Defend only the eight-request actionable slice, not gross value\" usefully separates candidate value from potentially actionable value.",
+            "The proposed comparison of exact-MPN matching with semantic search on the 24 requests is a small, reversible pilot with a decision criterion: material additional valid matches versus little gain."
+          ]
+        },
+        {
+          "name": "Disconfirmation and rejected hypotheses",
+          "weight_pct": 10,
+          "score_0_4": 4,
+          "citations": [
+            "The submission explicitly rejects direct transfer from every search hit, interchangeability based on part family, interpreting available quantity -1 as zero, and the necessity of an expensive semantic-search system.",
+            "For the rejected direct-transfer hypothesis it identifies the strongest counterevidence\u2014critical-asset reservations and zero stock\u2014and states that live CMMS data could revive the conclusion if records are wrong.",
+            "For revision substitution it identifies the approval evidence needed before the hypothesis could be accepted."
+          ]
+        },
+        {
+          "name": "Questioning / next evidence",
+          "weight_pct": 10,
+          "score_0_4": 4,
+          "citations": [
+            "\"Manufacturer part number and revision from local maintenance records\" is a focused request for resolving the 11 blank-part-number cases.",
+            "\"Live local CMMS reservation and availability query\" directly addresses stale and sentinel inventory data.",
+            "\"Receiving engineer and qualification approval\" targets the decision right for revision/site-specific substitutions, and the search pilot specifies how its result would change the recommendation."
           ]
         }
       ],
-      "unsupported_or_overstated_claims": [],
-      "strongest_alternative_interpretation": "",
-      "single_most_valuable_next_improvement": ""
+      "unsupported_or_overstated_claims": [
+        "\"An exact MPN join resolves all 13 identified requests immediately\" conflates candidate retrieval with operational resolution; restrictions, reservations, freshness, and current availability still require confirmation.",
+        "\"Semantic search is not the real problem\" and \"Master-data hygiene, not search, is the priority\" are too categorical. Exact MPN joins address 13 requests, but semantic search may still be valuable for the 11 blank-MPN requests as candidate generation.",
+        "The eight-request \"actionable now\" classification is not fully consistent with the stated 26 June inventory snapshot and the admission that live confirmation is still required.",
+        "The needs-check table uses \"others\" and does not provide a complete request-by-request trace for all 24 requests. "
+      ],
+      "strongest_alternative_interpretation": "Exact MPN matching demonstrates that semantic search is unnecessary for the identified-MPN subset, but semantic search remains potentially valuable for the 11 blank-MPN requests. The best solution may therefore be a hybrid: exact MPN matching first, semantic search for candidate generation on incomplete descriptions, followed by engineering, revision, UOM, qualification, reservation, and live-availability confirmation.",
+      "single_most_valuable_next_improvement": "Replace the categorical dismissal of semantic search with a complete request-level evaluation: run exact-MPN matching and semantic candidate generation on the 11 blank-MPN requests, then have engineering validate identity and eligibility while querying live CMMS availability. Report retrieval candidates separately from confirmed transferable value and quantify incremental valid matches."
     }
   ]
 }

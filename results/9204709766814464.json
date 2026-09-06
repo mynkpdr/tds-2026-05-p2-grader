@@ -481,23 +481,70 @@
         {
           "name": "Evidence traceability",
           "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "\"24 open requests, $166,496 at qty \u00d7 quote\" from `part_requests.csv`; \"Half the value is blocked by critical-spare reservation\" from `part_restrictions.csv`; \"Requests are up to 7 days stale\" from `source_freshness.csv`.",
+            "\"PR-260707/718 carry both 'Timing belt 25mm' and BLT-7302\" and \"PR-260701 both 'HEPA filter 24in approx' and FLT-1199\" from `part_requests.csv`.",
+            "Reason: The submission identifies relevant files, fields, dates, request IDs, and several counterexamples, but the $47,468 allocation and $119,943 cluster total are not supported by a reproducible row-level allocation exhibit."
+          ]
+        },
+        {
+          "name": "Causal / investigative reasoning",
+          "weight_pct": 25,
           "score_0_4": 4,
           "citations": [
-            "\"Five same-site clusters ... hold $119,943 of $166,496 (72%)\"",
-            "\"MaintStar-global was snapshotted 2026-06-26, monthly refresh\"",
-            "\"Half the value is blocked by critical-spare reservation: 4 MTR-4401 requests, $81,725\"",
-            "\"Semantic matching is corroborated ... PR-260707/718 carry both 'Timing belt 25mm' and BLT-7302\"],",
-            "reason_placeholder_for_schema_not_allowed? no"
+            "\"Naive per-request matching suggested $64,191 coverable, but it double-counts donor units; allocating each once gives $47,468.\"",
+            "\"The $166k is largely avoidable through cross-site transfer\" is rejected using reservation, revision gaps, absent stock, and donor-pool limits.",
+            "\"Description mismatch is the root cause\" is tested against 13 of 24 requests already carrying the correct MPN and same-site duplication."
+          ]
+        },
+        {
+          "name": "Calibration and uncertainty",
+          "weight_pct": 15,
+          "score_0_4": 4,
+          "citations": [
+            "\"Actionable now: $0\" is explicitly qualified by the stale `MaintStar-global` snapshot, engineer-owned equivalence, and impossible negative availability values.",
+            "\"Needs engineering check: $47,468\" and \"Not transferable from current evidence: $119,028\" distinguish candidate value from currently usable value.",
+            "The submission labels the quote-price interpretation \"Moderate\" and states that the result changes depending on whether `external_quote_usd` is unit or extended."
+          ]
+        },
+        {
+          "name": "Decision usefulness / reframing",
+          "weight_pct": 20,
+          "score_0_4": 4,
+          "citations": [
+            "\"The duplication is real, but the brief is mis-framed\" reframes the problem toward same-site de-duplication and MPN normalization rather than assuming cross-site semantic search.",
+            "\"Run a two-week manual pilot on MPN normalisation and same-site de-duplication, with live stock checks, before commissioning any semantic-search build.\"",
+            "The recommendation protects against reservation, revision, UOM, freshness, and donor double-counting risks while proposing a reversible test."
+          ]
+        },
+        {
+          "name": "Disconfirmation and rejected hypotheses",
+          "weight_pct": 10,
+          "score_0_4": 4,
+          "citations": [
+            "The submission rejects three competing hypotheses: \"The $166k is largely avoidable through cross-site transfer,\" \"Description mismatch is the root cause,\" and \"Zero avoidable value; stop here.\"",
+            "It supplies evidence for each rejection and preserves uncertainty by stating that work-order linkage could still prove up to $73,697 of duplicate raising."
+          ]
+        },
+        {
+          "name": "Questioning / next evidence",
+          "weight_pct": 10,
+          "score_0_4": 4,
+          "citations": [
+            "\"A live local-CMMS re-check of the ~12 donor rows behind the $47,468\" is identified as the highest-value operational validation.",
+            "It also requests \"the work order behind each request,\" clarification of whether `external_quote_usd` is unit or extended, and engineering confirmation of VLV-3722 revision substitution and MTR-4401 reservations.",
+            "Reason: These requests are prioritized, specific, and tied to explicit changes in the decision."
           ]
         }
       ],
       "unsupported_or_overstated_claims": [
-        "\"The duplication is real\" and the claim that five same-site clusters represent redundant demand are not fully established without the work-order evidence; the submission appropriately acknowledges that this is currently unprovable.",
-        "\"Neither needs global search\" is somewhat overstated: same-site MPN normalization addresses much of the observed value, but the cross-site candidate matches still demonstrate a possible role for semantic search as candidate generation.",
-        "\"Actionable now: $0\" depends on interpreting the stale global snapshot and restrictions as insufficient for action; it is a defensible governance position, but should be framed as zero currently approved action rather than zero economically actionable opportunity."
+        "\"Description mismatch is the root cause\" is reasonably challenged for the same-site cases, but the broader rejection may overstate what the evidence proves: semantic retrieval could still be valuable for the 11 requests without MPNs and for cross-site discovery.",
+        "\"Actionable now: $0\" is defensible under the stated evidence standard, but it depends on treating stale global data and engineer confirmation as disqualifying rather than allowing any provisional transfer workflow.",
+        "The conclusion that semantic search should not be funded first is plausible, but the submission does not quantify the cost, cycle-time benefit, or expected coverage of a semantic candidate-generation pilot versus the proposed manual process."
       ],
-      "strongest_alternative_interpretation": "The data may support a narrowly scoped semantic-search pilot as candidate generation, particularly for the cross-site QUALIFIED_COMMON matches, while using MPN normalization and same-site deduplication as the first control. The observed same-site concentration does not by itself disprove value from global semantic retrieval; it may instead show that both local deduplication and cross-site equivalence need to be addressed.",
-      "single_most_valuable_next_improvement": "Make the proposed two-week pilot explicitly test both arms\u2014same-site MPN/deduplication and cross-site semantic candidate generation\u2014using a live local/global availability check, engineering equivalence confirmation, revision/UOM/qualification/reservation gates, and a pre-specified success measure separating candidate value from approved transfer value."
+      "strongest_alternative_interpretation": "The dominant same-site duplication may reflect legitimate separate work orders, timing differences, or local replenishment practices rather than avoidable duplication. At the same time, semantic search may still be justified as a bounded candidate-generation tool for the no-MPN requests and cross-site matches, provided engineering, revision, UOM, reservation, and live-availability checks remain mandatory.",
+      "single_most_valuable_next_improvement": "Provide a reproducible request-to-donor allocation table for all 24 requests, showing MPN, description match, site, revision, UOM, qualification, reservation status, available quantity, freshness timestamp, and the specific donor units consumed; then validate that table against the live local CMMS."
     }
   ]
 }

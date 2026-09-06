@@ -1,8 +1,8 @@
 {
   "questions_answered": 8,
   "participation": 20.0,
-  "analytical": 42.7,
-  "final": 62.7,
+  "analytical": 49.3,
+  "final": 69.3,
   "per_question": [
     {
       "exercise": "1a-dth-month-end",
@@ -386,27 +386,72 @@
     {
       "exercise": "4a-consumer-qc-queue",
       "participation": 2.5,
-      "analytical": 0.0,
-      "verdict": "good",
+      "analytical": 6.6,
+      "verdict": "mixed",
       "dimensions": [
         {
           "name": "Evidence traceability",
           "weight_pct": 20,
           "score_0_4": 3,
           "citations": [
-            "\"185 of 220 released batches have a qcore_release_ts of exactly 02:10:00, which precisely matches the QCore interface snapshot_ts\"",
-            "\"batch_release.csv (No CertVault or COA receipt timestamp exists in the file, only a binary coa_status) & qc_release_sop.md\"",
-            "\"source_freshness.csv\"],",
-            "reason????? ",
-            "reason",
-            "Evidence is tied to specific files, fields, and a concrete frequency, and the missing CertVault timestamp is directly relevant. However, the submission does not quantify the alleged 36-hour alignment or explicitly address that the extracts may not be a coherent point-in-time snapshot.",
-            "score_0_4"
+            "\"batch_release.csv\" has no CertVault or COA receipt timestamp; \"qc_release_sop.md\" requires both lab and supplier certificates \u2014 directly supports the missing-input claim, though no row-level evidence or counterevidence is provided.",
+            "\"185 of 220 released batches have a qcore_release_ts of exactly 02:10:00\" and this is compared with \"source_freshness.csv\" \u2014 specific and relevant triangulation, but the submission treats the match as definitive proof of artifact semantics."
+          ]
+        },
+        {
+          "name": "Causal / investigative reasoning",
+          "weight_pct": 25,
+          "score_0_4": 3,
+          "citations": [
+            "\"the true cycle time is completely unknown\" and \"you would be measuring ETL sync delays rather than actual operational cycle times\" correctly separates a timestamp-pattern symptom from the KPI mechanism, but it does not fully test whether 02:10 is an interface commit, a deliberate release batch time, or a pipeline transformation.",
+            "The submission tests sufficiency of the SOP inputs and survivorship bias in completed-only means, showing more than a simple anomaly-to-cause leap."
+          ]
+        },
+        {
+          "name": "Calibration and uncertainty",
+          "weight_pct": 15,
+          "score_0_4": 2,
+          "citations": [
+            "The table uses confidence labels and identifies \"Material Unknowns,\" including \"The actual transactional disposition timestamp,\" which is useful calibration.",
+            "However, claims such as \"Release timestamps are batch-sync artifacts, not real events\" and \"the true cycle time is completely unknown\" are stated with high confidence from timestamp concentration alone; the source-freshness timing mismatch and timestamp semantics remain unresolved."
+          ]
+        },
+        {
+          "name": "Decision usefulness / reframing",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "\"Do not build the dashboard yet\" appropriately reframes the request around KPI validity rather than proceeding with a misleading dashboard.",
+            "\"Query the live QCore transactional audit log for batch NO-260701-001\" is small, reversible, and testable, but the proposed gate \"after the ETL pipeline is fixed\" does not address the separate missing CertVault availability timestamp or define success criteria for the KPI."
+          ]
+        },
+        {
+          "name": "Disconfirmation and rejected hypotheses",
+          "weight_pct": 10,
+          "score_0_4": 2,
+          "citations": [
+            "The submission rejects both dataset sufficiency and the reported average, citing missing CertVault timestamps, 42 HOLD rows, survivorship bias, and skew.",
+            "It does not actively test the strongest competing explanation for the 02:10 concentration\u2014legitimate interface-commit or scheduled-release semantics rather than ETL stripping\u2014and does not state what evidence would revive that explanation."
+          ]
+        },
+        {
+          "name": "Questioning / next evidence",
+          "weight_pct": 10,
+          "score_0_4": 2,
+          "citations": [
+            "The request for a \"live QCore transactional audit log for batch NO-260701-001\" is prioritized and discriminates transactional time from extract time.",
+            "It is incomplete as the highest-value evidence request because it does not also request the event/decision timestamp definition, CertVault receipt/availability events, or confirmation that QCore and LabTrack extracts are from the same snapshot."
           ]
         }
       ],
-      "unsupported_or_overstated_claims": [],
-      "strongest_alternative_interpretation": "",
-      "single_most_valuable_next_improvement": ""
+      "unsupported_or_overstated_claims": [
+        "\"Release timestamps are batch-sync artifacts, not real events\" is stronger than the supplied timestamp concentration and snapshot match establish; they show a serious semantic concern, not definitive proof of the business-event meaning.",
+        "\"you would be measuring ETL sync delays rather than actual operational cycle times\" is plausible but not yet proven without the QCore event/audit semantics.",
+        "\"the true cycle time is completely unknown\" overstates the situation: the current extract cannot establish the SOP-compliant cycle time, but some proxy or partial bounds may still be possible.",
+        "The inference that Operations is miscalculating the KPI is not fully demonstrated because the submission does not establish how the reported 36-hour figure was actually calculated."
+      ],
+      "strongest_alternative_interpretation": "The 02:10 concentration may reflect a legitimate scheduled/interface commit timestamp or a release-batching convention rather than ETL corruption; apparent cycle time could therefore mix real workflow delay with interface timing. The missing CertVault availability timestamp independently prevents a compliant SOP KPI, but the magnitude and operational cause of delay remain open.",
+      "single_most_valuable_next_improvement": "Request and inspect the timestamp semantics and event history for one batch across QCore, LabTrack, and CertVault\u2014specifically required-evidence-available, decision/disposition, interface-commit, and extract timestamps, with source snapshot identifiers\u2014so the analysis can distinguish missing inputs from interface timing and quantify what KPI, if any, is recoverable."
     },
     {
       "exercise": "4b-consumer-spares-search",

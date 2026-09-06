@@ -1,8 +1,8 @@
 {
   "questions_answered": 8,
   "participation": 20.0,
-  "analytical": 49.4,
-  "final": 69.4,
+  "analytical": 56.4,
+  "final": 76.4,
   "per_question": [
     {
       "exercise": "1a-dth-month-end",
@@ -467,26 +467,65 @@
     {
       "exercise": "4b-consumer-spares-search",
       "participation": 2.5,
-      "analytical": 0.0,
-      "verdict": "mixed",
+      "analytical": 7.0,
+      "verdict": "good",
       "dimensions": [
         {
           "name": "Evidence traceability",
           "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "\"MaintStar-global inventory quantity snapshot is over a month old (June 26)\" \u2014 `source_freshness.csv`; \"Local reservations/critical status were updated recently (July 30)\" \u2014 `part_restrictions.csv`; \"the highest-value requests (e.g. PR-260700 servo drives at $21,751)\" \u2014 `part_requests.csv`, `spare_parts.csv`."
+          ]
+        },
+        {
+          "name": "Causal / investigative reasoning",
+          "weight_pct": 25,
+          "score_0_4": 3,
+          "citations": [
+            "\"Finding identically described or synonymous parts is only the first hurdle. Strict business rules (critical-asset reservations, revision letters, site qualifications) disqualify 71.1% of the value.\" This separates semantic retrieval from transferability and identifies several operational mechanisms, but does not show the row-level tests or fully address manufacturer part number, UOM, and temporal join risks."
+          ]
+        },
+        {
+          "name": "Calibration and uncertainty",
+          "weight_pct": 15,
+          "score_0_4": 3,
+          "citations": [
+            "The submission distinguishes \"Actionable Now,\" \"Needs Engineering Check,\" and \"Not Transferable from Current Evidence,\" and states: \"Because the MaintStar-global snapshot is from June 26, the global quantity data is stale.\" This is useful claim-specific uncertainty, although the precise bounds for the three categories and the residual uncertainty in the Actionable Now group are not shown."
+          ]
+        },
+        {
+          "name": "Decision usefulness / reframing",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "\"The semantic-search pilot successfully identifies compatible parts across varying catalog descriptions, but the true opportunity is much smaller than the raw matches suggest.\" The recommendation to obtain \"a live physical count or live CMMS integration\" before executing transfers is operationally protective, but it lacks a small reversible test, explicit success criteria, and a clear engineering/availability confirmation workflow for candidate generation."
+          ]
+        },
+        {
+          "name": "Disconfirmation and rejected hypotheses",
+          "weight_pct": 10,
           "score_0_4": 2,
           "citations": [
-            "\"MaintStar-global inventory quantity snapshot is over a month old (June 26) | source_freshness.csv\"",
-            "\"Local reservations/critical status were updated recently (July 30) | part_restrictions.csv\"",
-            "\"The highest-value requests (e.g. PR-260700 servo drives at $21,751) are blocked by strict constraints | part_requests.csv, spare_parts.csv\"",
-            "\"11.3% ($17,315.58) is Actionable Now\"],",
-            "reasoning omitted? Need valid schema only properties specified! Can't add reason. Need citations only. JSON schema dimensions objects only name weight score citations. So no reason field. Continue.",
-            "dummy?"
+            "\"All semantic matches are immediately transferable: Rejected.\" The servo-drive example tests one important competing hypothesis using reservation and revision evidence, but alternatives such as stale data causing false negatives or inability to prove transferability rather than actual non-transferability are not actively tested."
+          ]
+        },
+        {
+          "name": "Questioning / next evidence",
+          "weight_pct": 10,
+          "score_0_4": 2,
+          "citations": [
+            "\"A live physical count or live CMMS integration for `available_qty_global`\" is a relevant request and recognizes the stale source, but it presents two relatively broad options without prioritizing the smallest high-value query or specifying which candidate transfers should be checked first."
           ]
         }
       ],
-      "unsupported_or_overstated_claims": [],
-      "strongest_alternative_interpretation": "",
-      "single_most_valuable_next_improvement": ""
+      "unsupported_or_overstated_claims": [
+        "\"Strict business rules ... disqualify 71.1% of the value\" is stronger than the evidence presented: the submission does not show the row-level restriction, revision, qualification, reservation, UOM, or manufacturer-part-number checks supporting every item in that percentage.",
+        "The label \"Actionable now\" may be overstated while the only global inventory quantity snapshot is from June 26; current stock, reservation state, and transferability should be confirmed before treating those matches as executable.",
+        "\"The true opportunity is much smaller\" is directionally plausible from the classification table, but the calculation and treatment of candidate value versus actionable value are not independently auditable from the submission alone."
+      ],
+      "strongest_alternative_interpretation": "The 71.1% classified as Not Transferable may partly represent not-yet-provable transferability rather than actual incompatibility. A current inventory and restriction extract, joined by manufacturer part number and validated for revision, UOM, qualification, reservation, and criticality, could convert some apparent negatives into actionable candidates; conversely, stale quantities could also invalidate some current positives.",
+      "single_most_valuable_next_improvement": "Provide a row-level audit for every candidate, starting with the highest-value requests and the eight Actionable Now items, joining request and stock by manufacturer part number and explicitly recording revision, UOM, qualification, reservation/criticality, site, quantity, and source timestamp; then reclassify candidates using a live or freshly reconciled stock check before any transfer."
     }
   ]
 }

@@ -1,8 +1,8 @@
 {
   "questions_answered": 8,
   "participation": 20.0,
-  "analytical": 59.5,
-  "final": 79.5,
+  "analytical": 66.1,
+  "final": 86.1,
   "per_question": [
     {
       "exercise": "1a-dth-month-end",
@@ -391,7 +391,7 @@
     {
       "exercise": "4a-consumer-qc-queue",
       "participation": 2.5,
-      "analytical": 0.0,
+      "analytical": 6.6,
       "verdict": "mixed",
       "dimensions": [
         {
@@ -399,16 +399,67 @@
           "weight_pct": 20,
           "score_0_4": 3,
           "citations": [
-            "\"Closed-batch median cycle time (lab-complete\u2192release) is ~21h\"",
+            "\"batch_release.csv, 220 rows with qcore_release_ts\"",
             "\"42/262 rows (16%) are HOLD with no release timestamp\"",
-            "\"32 of those 42 open batches have open_deviation=false; 22 of those already exceed the 24h SOP target\"],",
-            "reasoning? no"
+            "\"source_freshness.csv\"",
+            "\"32 of those 42 open batches have open_deviation=false; 22 of those already exceed the 24h SOP target\""
+          ]
+        },
+        {
+          "name": "Causal / investigative reasoning",
+          "weight_pct": 25,
+          "score_0_4": 2,
+          "citations": [
+            "\"A KPI built only from closed batches will look fast precisely because the slow ones haven't finished yet.\"",
+            "\"The day-and-a-half number is simply wrong/fabricated \u2014 rejected\"",
+            "\"issue is scope, not arithmetic\""
+          ]
+        },
+        {
+          "name": "Calibration and uncertainty",
+          "weight_pct": 15,
+          "score_0_4": 3,
+          "citations": [
+            "\"LabTrack ... refreshes only every 48h and is 'not live,' so even the open-queue snapshot may lag\"",
+            "Confidence table labels the LabTrack limitation \"Medium\""
+          ]
+        },
+        {
+          "name": "Decision usefulness / reframing",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "\"before building the dashboard, add an 'open queue age' view ... alongside the closed-batch cycle time\"",
+            "\"don't report cycle time from closed batches alone\""
+          ]
+        },
+        {
+          "name": "Disconfirmation and rejected hypotheses",
+          "weight_pct": 10,
+          "score_0_4": 2,
+          "citations": [
+            "\"The day-and-a-half number is simply wrong/fabricated \u2014 rejected\"",
+            "\"All 42 open batches are legitimately excluded as complex exceptions \u2014 rejected\""
+          ]
+        },
+        {
+          "name": "Questioning / next evidence",
+          "weight_pct": 10,
+          "score_0_4": 3,
+          "citations": [
+            "\"A live queue pull direct from QCore/LabTrack ... to get current backlog size/age\"",
+            "\"confirmation from Operations of exactly which population ('day and a half') was computed from\""
           ]
         }
       ],
-      "unsupported_or_overstated_claims": [],
-      "strongest_alternative_interpretation": "",
-      "single_most_valuable_next_improvement": ""
+      "unsupported_or_overstated_claims": [
+        "The submission treats lab-complete-to-release as the relevant SOP cycle measure, although the SOP target starts when required evidence is available, not when laboratory work is complete.",
+        "\"22 ... already exceeded the 24-hour SOP target\" is not safely established unless the comparison uses the SOP-defined required-evidence-available timestamp rather than lab_complete_ts or an otherwise mismatched snapshot.",
+        "\"The math isn't fabricated\" and \"the issue is scope, not arithmetic\" overstate the conclusion: the arithmetic may reproduce from the extract, but timestamp semantics and the concentration of qcore_release_ts at 02:10 still need investigation.",
+        "The claim that the closed-batch median of approximately 21 hours is \"matching\" a day-and-a-half figure is imprecise unless the original figure's population and definition are confirmed."
+      ],
+      "strongest_alternative_interpretation": "The apparent cycle time may be materially affected by measurement design rather than only right-censoring: qcore_release_ts may represent an interface commit rather than the decision time, and the QCore and LabTrack extracts may not be a coherent point-in-time snapshot. The open-queue finding remains useful, but it does not by itself identify the operational delay or validate the KPI definition.",
+      "single_most_valuable_next_improvement": "Recompute and validate the KPI using the SOP-defined required-evidence-available event, while obtaining an event log or explicit timestamp-definition mapping for decision time versus qcore_release_ts; use the same coherent snapshot for QCore and LabTrack and retain the proposed open-queue-age view."
     },
     {
       "exercise": "4b-consumer-spares-search",
@@ -421,22 +472,71 @@
           "weight_pct": 20,
           "score_0_4": 3,
           "citations": [
-            "\"RI-0001, HA-0012, RI-0024, HA-0020 reserved for critical assets, not free despite on_hand>0 | part_restrictions.csv\"",
-            "\"spare_parts snapshot (MaintStar-global) is ~5 weeks stale | source_freshness.csv\"",
-            "\"Manufacturer part no. is the primary identity check per policy | spares_transfer_policy.md (MT-18)\"",
-            "\"ME-0006, HA-0022 have negative available_qty_global \u2014 data error | spare_parts.csv\"],",
-            "reason missing?}]}]} \u6052\u4e00 Sorry invalid JSON. Need fix. Need produce valid. Ensure only schema fields. Could cite with exact submission quotes. Let's craft. weighted 71.25. Unsupported claims list. strongest alternative interpretation. single improvement. overall_label adequate maybe rubric says strong/adequate/weak/unsafe, but schema no enum. verdict good or mixed. Overall likely adequate, verdict good? Submission solid but important omissions. Set overall_label "
+            "\"RI-0001, HA-0012, RI-0024, HA-0020 reserved for critical assets\" \u2014 cites part_restrictions.csv and distinguishes on-hand from transferable stock.",
+            "\"Northport/Meridian requested parts they already stock locally\" \u2014 cites spare_parts.csv site match.",
+            "\"spare_parts snapshot (MaintStar-global) is ~5 weeks stale\" \u2014 cites source_freshness.csv."
+          ]
+        },
+        {
+          "name": "Causal / investigative reasoning",
+          "weight_pct": 25,
+          "score_0_4": 3,
+          "citations": [
+            "\"On-hand qty = available for transfer \u2014 rejected; several high-qty rows are 100% reserved\" tests a plausible alternative explanation.",
+            "\"All description lookalikes are cross-site transfer wins \u2014 rejected for ~5 requests; real issue is the requester's own site not finding its own stock\" separates retrieval matches from the operational mechanism.",
+            "\"Sum all matching quotes as savings \u2014 rejected\" recognizes duplicate demand and shared scarce supply."
+          ]
+        },
+        {
+          "name": "Calibration and uncertainty",
+          "weight_pct": 15,
+          "score_0_4": 2,
+          "citations": [
+            "\"Not transferable,\" \"Actionable,\" and \"Needs check\" provide claim-specific categories.",
+            "\"Estimate ~25-30% ... actionable now, ~35% needs ... check, ~35-40% is not transferable\" gives a quantitative split, but no denominator, valuation basis, or calculation is shown.",
+            "The submission reports both a \"~5 weeks stale\" snapshot and a \"~1 month stale\" confirmation request, leaving freshness handling somewhat inconsistent."
+          ]
+        },
+        {
+          "name": "Decision usefulness / reframing",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "\"most apparent value is NOT safely actionable yet\" appropriately reframes semantic matching as candidate generation rather than automatic transfer.",
+            "The table distinguishes local visibility fixes from cross-site transfer opportunities and flags reserved, negative-availability, revision, and ambiguous-description cases.",
+            "\"Engineering sign-off on VLV-3722 rev A vs rev B interchangeability\" and live local confirmation add operational safeguards, though no explicit pilot or success criterion is proposed."
+          ]
+        },
+        {
+          "name": "Disconfirmation and rejected hypotheses",
+          "weight_pct": 10,
+          "score_0_4": 3,
+          "citations": [
+            "\"On-hand qty = available for transfer \u2014 rejected\" is tested against restrictions and an email-confirmed failure mode.",
+            "\"All description lookalikes are cross-site transfer wins \u2014 rejected\" is tested using local-stock examples.",
+            "\"Sum all matching quotes as savings \u2014 rejected\" is supported by the duplicate-request and scarce-supply examples, although the strongest temporal-extract alternative is not fully developed."
+          ]
+        },
+        {
+          "name": "Questioning / next evidence",
+          "weight_pct": 10,
+          "score_0_4": 3,
+          "citations": [
+            "\"Live local CMMS on-hand confirmation\" targets the stale snapshot and would change current-actionability decisions.",
+            "\"Engineering sign-off on VLV-3722 rev A vs rev B interchangeability\" directly tests the revision hypothesis.",
+            "\"Confirmation whether PR-260716/PR-260721 are duplicate entries\" targets double-counting, and \"Root-cause on negative available_qty_global values\" targets data reliability."
           ]
         }
       ],
       "unsupported_or_overstated_claims": [
-        "The estimate that \"~25-30% of apparent matched value is actionable now, ~35% needs an engineering/ops check, ~35-40% is not transferable\" is not supported by a visible value calculation or clearly defined denominator.",
-        "\"Actionable\" is overstated for the local-stock rows: these are useful visibility fixes, but they are not cross-site transfer opportunities and the stale MaintStar snapshot still requires live confirmation.",
-        "\"VLV-3722 rev A ... no rev A exists in catalog, only rev B\" does not by itself establish that the request cannot be fulfilled; it identifies an engineering interchangeability question.",
-        "The analysis does not demonstrate checks for UOM, qualification, or all reservation/criticality constraints, despite treating several matches as actionable."
+        "The estimate that 25-30% of apparent matched value is actionable, 35% needs checking, and 35-40% is not transferable is not supported by a displayed denominator, valuation method, or row-level calculation.",
+        "Several classifications such as \"Actionable\" and \"Not transferable\" appear stronger than the stated stale MaintStar snapshot permits unless reservations, quantities, and request status are refreshed.",
+        "The claim that \"servo drv 2.2kW\" / \"Servo-drive 2,2 kW\" / MTR-4401 are one part is plausible, but the submission does not show the exact manufacturer-part-number, revision, UOM, or qualification fields establishing equivalence.",
+        "The submission does not visibly apply all separate revision, UOM, qualification, reservation, and criticality constraints to each candidate; it mainly demonstrates reservation and revision checks.",
+        "\"Email confirms this exact failure mode\" is not included in the evidence table with a specific source or quote."
       ],
-      "strongest_alternative_interpretation": "The apparent transfer value may be primarily a catalog/search and local-visibility problem rather than a stock-rebalancing opportunity; however, stale global data and unresolved revision, reservation, UOM, and qualification constraints leave some genuine cross-site value open.",
-      "single_most_valuable_next_improvement": "Recompute a row-level candidate-versus-actionable-value table using manufacturer part number, revision, UOM, qualification, reservation/criticality, and live site quantities, explicitly separating local-stock visibility fixes from transferable stock and showing the denominator behind the 25-30% estimate."
+      "strongest_alternative_interpretation": "The apparent local-stock and cross-site opportunities may be artifacts of temporally inconsistent extracts: requests, reservations, and MaintStar availability may not represent the same point in time. Some apparent actionable local matches could already have been consumed, reserved, or closed, while the negative quantities may reflect extract timing or calculation defects rather than true supply absence. A semantic search may therefore still be useful for candidate generation, but the current evidence does not establish the stated actionable percentage.",
+      "single_most_valuable_next_improvement": "Recalculate the candidate-versus-actionable assessment from a row-level reconciliation using a common refresh timestamp: join open requests to manufacturer part number, revision, UOM, qualification, site, reservation/criticality status, and current available quantity, then show the denominator and value behind each percentage. This would resolve both the unsupported quantitative estimate and the temporal-consistency risk."
     }
   ]
 }

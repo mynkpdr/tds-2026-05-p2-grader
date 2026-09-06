@@ -1,8 +1,8 @@
 {
   "questions_answered": 8,
   "participation": 20.0,
-  "analytical": 67.9,
-  "final": 87.9,
+  "analytical": 67.6,
+  "final": 87.6,
   "per_question": [
     {
       "exercise": "1a-dth-month-end",
@@ -386,7 +386,7 @@
     {
       "exercise": "4a-consumer-qc-queue",
       "participation": 2.5,
-      "analytical": 8.5,
+      "analytical": 8.2,
       "verdict": "good",
       "dimensions": [
         {
@@ -394,21 +394,70 @@
           "weight_pct": 20,
           "score_0_4": 3,
           "citations": [
-            "\"185 of 262 `qcore_release_ts` values are exactly 02:10:00\"",
-            "\"The 42 HOLD rows are open/right-censored\"",
-            "\"The SOP defines the routine target from required evidence being available\"",
-            "\"For 220 completed rows, receipt-to-release mean is 45.5 hours\"],",
-            "reasoning?"
+            "\"185 of 262 `qcore_release_ts` values are exactly 02:10:00\"; sources identified as `batch_release.csv` and `source_freshness.csv`.",
+            "\"The SOP defines the routine target from required evidence being available\"; cites `qc_release_sop.md` and the extract header.",
+            "\"For 220 completed rows, receipt-to-release mean is 45.5 hours\"; specifies fields and completed-row scope."
+          ]
+        },
+        {
+          "name": "Causal / investigative reasoning",
+          "weight_pct": 3,
+          "score_0_4": 3,
+          "citations": [
+            "\"The 45.5-hour figure is a receipt-to-release measure and cannot be relabeled as the SOP target.\"",
+            "\"The observed 02:10:00 timestamp clustering represents a batch-processing synchronization artifact rather than actual release timing.\"",
+            "\"A live QCore audit for a sample of the 185 stamped rows\" is proposed to distinguish timestamp semantics."
+          ]
+        },
+        {
+          "name": "Calibration and uncertainty",
+          "weight_pct": 15,
+          "score_0_4": 3,
+          "citations": [
+            "\"the snapshot cannot compute compliance with SOP service targets because `evidence_available_ts` is missing\"",
+            "\"missing/index-pending COA may be source lag rather than confirmed release\"",
+            "\"A live portal check is required before alleging a control breach.\""
+          ]
+        },
+        {
+          "name": "Decision usefulness / reframing",
+          "weight_pct": 20,
+          "score_0_4": 4,
+          "citations": [
+            "\"Decision: Defer KPI dashboard publication pending timestamp verification.\"",
+            "\"Do one read-only validation of 5\u201310 02:10-stamped batches ... before building a dashboard.\"",
+            "\"if it cannot be reconstructed, the KPI remains unavailable.\""
+          ]
+        },
+        {
+          "name": "Disconfirmation and rejected hypotheses",
+          "weight_pct": 10,
+          "score_0_4": 3,
+          "citations": [
+            "\"The data is broken and should be discarded\": rejected because timestamps ... have no negative durations\"",
+            "\"The 45.5-hour average is the SOP cycle time\": rejected because ... required-evidence availability ... is not represented.",
+            "\"COA MISSING proves release without certificates\": rejected ... because ... the extract may lag the portal."
+          ]
+        },
+        {
+          "name": "Questioning / next evidence",
+          "weight_pct": 10,
+          "score_0_4": 4,
+          "citations": [
+            "\"`evidence_available_ts` or a validated field mapping for 5\u201310 batches\"",
+            "\"Live QCore audit for a sample of the 185 stamped rows\"",
+            "\"Same-day CertVault/QCore reconciliation\""
           ]
         }
       ],
       "unsupported_or_overstated_claims": [
-        "\"the observed 02:10:00 timestamp clustering represents a batch-processing synchronization artifact rather than actual release timing\" is stronger than the evidence supports; the clustering and freshness timing establish a serious concern, not the definitive cause.",
-        "\"excluding those completed rows gives an evidence-to-release median of about 8.4 hours\" is potentially mislabeled because the submission also states that the required-evidence availability timestamp is absent; it should be explicitly called a proxy and tied to the exact substitute field.",
-        "\"their omission biases completed-only cycle-time estimates downward\" is directionally plausible under right censoring, but the claim that the HOLD rows are \"likely to become the slowest observations\" is not demonstrated from the supplied extract."
+        "The statement that \"excluding those completed rows gives an evidence-to-release median of about 8.4 hours\" is internally inconsistent with the later conclusion that `evidence_available_ts` is absent; it appears to be a proxy, not an evidence-to-release measure, and should be labeled accordingly.",
+        "\"The observed 02:10:00 timestamp clustering represents a batch-processing synchronization artifact\" is stronger than the direct evidence supports. Coincidence with the snapshot time supports that hypothesis, but live audit or event-log evidence is needed to establish it.",
+        "The claim that the 42 HOLD rows are \"likely to become the slowest observations\" is not established merely by their being open and more recent; their eventual durations remain unknown.",
+        "The routine subset's \"22/23 within 24 hours\" and the 8.4-hour statistic are presented as high-confidence results without enough calculation detail to verify how proxy timestamps and exclusion rules were applied."
       ],
-      "strongest_alternative_interpretation": "The 02:10 timestamps may be genuine QCore interface-commit or batch-release times rather than mere extract defaults. The apparent long cycle may therefore reflect a mixture of real workflow delay and timestamp/interface timing; an event log or validated decision-time mapping is needed before attributing it to either process performance or synchronization artifact.",
-      "single_most_valuable_next_improvement": "Replace the categorical synchronization-artifact conclusion with a bounded timestamp-semantics test: obtain QCore audit/event records for a stratified sample of 02:10 and non-02:10 rows, compare interface commit, disposition decision, and evidence-availability times, and explicitly label any 8.4-hour result as a proxy until that mapping is validated."
+      "strongest_alternative_interpretation": "The 02:10 timestamps could be legitimate disposition or release times that happen to align with the QCore snapshot, while the apparent gap between receipt, lab completion, and release could reflect genuine operational delay rather than an interface-timing artifact. A second possibility is that some COA or evidence statuses are stale because the extracts are not a coherent point-in-time snapshot. These alternatives require event-level or live-record reconciliation before KPI publication.",
+      "single_most_valuable_next_improvement": "Relabel every result based on `lab_complete_ts` or non-default `qcore_release_ts` as a proxy, then obtain an event-level sample linking required-evidence availability, disposition decision, and QCore interface commit time for the same batches. This would directly separate workflow delay from timestamp/interface delay and prevent the unsupported 8.4-hour figure from being treated as an SOP KPI."
     },
     {
       "exercise": "4b-consumer-spares-search",

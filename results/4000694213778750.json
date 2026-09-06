@@ -1,8 +1,8 @@
 {
   "questions_answered": 8,
   "participation": 20.0,
-  "analytical": 70.8,
-  "final": 90.8,
+  "analytical": 71.0,
+  "final": 91.0,
   "per_question": [
     {
       "exercise": "1a-dth-month-end",
@@ -383,52 +383,138 @@
       "exercise": "4a-consumer-qc-queue",
       "participation": 2.5,
       "analytical": 8.2,
-      "verdict": "good",
+      "verdict": "strong",
       "dimensions": [
         {
           "name": "Evidence traceability",
           "weight_pct": 20,
           "score_0_4": 3,
           "citations": [
-            "\"The routine service target is 24 hours from required evidence being available to disposition\"",
-            "\"Lab completion alone does not represent all required evidence\"",
-            "\"Upstream sources have their own snapshot freshness\"",
-            "\"The extract contains operational timestamps, but the KPI definition must be matched to the SOP's specific start point\"],",
-            "reason",
-            "reason citation? schema disallows reason! Must only properties specified? It says matching schema; additional properties perhaps invalid. Need no reason. citations can include reasons? We need provide short reason but schema lacks reason. Could encode in citations? Exact schema only properties no additionalProperties specified, likely can include reason? "
+            "\"The routine service target is 24 hours from required evidence being available to disposition\" \u2014 correctly traces the KPI definition to qc_release_sop.md, Service target.",
+            "\"Upstream sources have their own snapshot freshness\" \u2014 cites source_freshness.csv and acknowledges a relevant data-quality limitation.",
+            "Reason: Key claims are tied to relevant files and SOP sections, but the submission does not cite specific rows, timestamp distributions, or the observed 02:10 concentration."
           ]
-        }
-      ],
-      "unsupported_or_overstated_claims": [],
-      "strongest_alternative_interpretation": "The apparent cycle-time delay may be driven by interface or batch-commit timing in qcore_release_ts rather than by operational workflow delay. The submission identifies the timestamp-definition problem but does not test this specific explanation.",
-      "single_most_valuable_next_improvement": "Profile qcore_release_ts by hour and investigate the extreme 02:10 concentration, then obtain an event log or field definition distinguishing decision time from enterprise interface-commit time. This would discriminate true workflow delay from a measurement artifact before sampling or dashboard approval."
-    },
-    {
-      "exercise": "4b-consumer-spares-search",
-      "participation": 2.5,
-      "analytical": 8.0,
-      "verdict": "good",
-      "dimensions": [
+        },
         {
-          "name": "Evidence traceability",
-          "weight_pct": 20,
+          "name": "Causal / investigative reasoning",
+          "weight_pct": 25,
           "score_0_4": 3,
           "citations": [
-            "\"Across the 24 open requests, the apparent purchase value is $166,495.60\"",
-            "\"24 open requests total $166,495.60 using qty \u00d7 external_quote_usd | part_requests.csv\"",
-            "\"MTR-4401 stock is reserved for critical assets or unavailable | spare_parts.csv + part_restrictions.csv + maintenance_email.txt\"",
-            "\"MaintStar-global is a monthly snapshot dated 2026-06-26 | source_freshness.csv\"],",
-            "reason"
+            "\"The main issue is a definition mismatch\" \u2014 distinguishes the SOP start event from available extract timestamps.",
+            "\"lab_complete_ts is not automatically the same as the point at which all required evidence is available\" \u2014 separates a symptom/proxy from the operational mechanism.",
+            "Reason: The reasoning preserves both workflow and measurement explanations, but it does not explicitly investigate the qcore_release_ts hour profile or identify interface commits as a tested mechanism."
+          ]
+        },
+        {
+          "name": "Calibration and uncertainty",
+          "weight_pct": 15,
+          "score_0_4": 3,
+          "citations": [
+            "\"Until that is done, I would treat any lab-completion-to-release calculation as a proxy, not the SOP-defined performance KPI.\"",
+            "\"Whether differences in source snapshot freshness affect the joined view for batches near the extract boundary.\"",
+            "Reason: Uncertainty is claim-specific and operationally relevant, especially around timestamp semantics, exceptions, and freshness; it could be stronger by quantifying the apparent distortion or explicitly bounding the 02:10 timing pattern."
+          ]
+        },
+        {
+          "name": "Decision usefulness / reframing",
+          "weight_pct": 20,
+          "score_0_4": 4,
+          "citations": [
+            "\"The smallest useful verification is therefore not to rebuild the dashboard.\"",
+            "\"I would still allow a dashboard, but I would label the measure clearly as a proxy from the available timestamp to QCore disposition, not as the official 24-hour routine QC KPI.\"",
+            "Reason: The submission appropriately reframes the decision, proposes a small reversible verification, and protects against presenting a proxy as an official KPI while preserving useful interim reporting."
+          ]
+        },
+        {
+          "name": "Disconfirmation and rejected hypotheses",
+          "weight_pct": 10,
+          "score_0_4": 3,
+          "citations": [
+            "\"Lab completion is the KPI start time.\" Rejected because the SOP defines the start as required evidence available.",
+            "\"Any batch taking more than 24 hours is a routine service failure.\" Rejected because complex exceptions are excluded.",
+            "Reason: It actively tests and rejects plausible alternatives using the SOP, but it does not fully articulate the strongest competing explanation\u2014that genuine workflow delay exists\u2014or specify what evidence would revive it."
+          ]
+        },
+        {
+          "name": "Questioning / next evidence",
+          "weight_pct": 10,
+          "score_0_4": 4,
+          "citations": [
+            "\"Select a sample of routine batches, trace the SOP-defined point at which all required evidence became available, confirm whether an exception was open, and compare the resulting interval with qcore_release_ts.\"",
+            "\"If the extract cannot provide that start point\" \u2014 requests the relevant event or field needed to resolve the KPI definition.",
+            "Reason: This is a prioritized, high-value query with a clear decision impact and does not ask for an undirected data rebuild."
           ]
         }
       ],
       "unsupported_or_overstated_claims": [
-        "The exact totals and classification of 8 actionable, 12 conditional, and 4 non-transferable requests are asserted without row-level request IDs, quantities, restriction fields, or a reconciliation showing how each request maps to the total.",
-        "\"I would therefore transfer only the 8 clear cases\" is somewhat stronger than the evidence shown because the submission does not explicitly demonstrate every required UOM, qualification, reservation, and current-stock check for each of the eight.",
-        "\"This could convert conditional cases into genuine transfer opportunities\" is plausible, but the submission does not quantify which blank-identifier requests have plausible matches or how many could become actionable."
+        "No major unsupported conclusion is present. The main omission is that the submission does not demonstrate the observed qcore_release_ts concentration at 02:10 or explicitly test whether QCore timestamps are interface commits rather than decision times."
       ],
-      "strongest_alternative_interpretation": "The case may still justify a semantic-search investment as a candidate-generation capability: description normalization and similarity could identify matches for the 11 requests lacking manufacturer part numbers and surface revision or configuration relationships for engineering review. The evidence supports controlling search outputs rather than treating the problem as only data quality.",
-      "single_most_valuable_next_improvement": "Provide a request-level reconciliation table for all 24 requests showing manufacturer part number, candidate stock record, revision, UOM, qualification, reservation/criticality, local and global availability, source timestamps, quote value, and final status; then rerun it against live stock and confirm whether the eight proposed transfers remain actionable."
+      "strongest_alternative_interpretation": "The apparent delay may reflect genuine workflow time between evidence availability and disposition, rather than only a timestamp artifact; distinguishing that explanation requires event or decision timestamps and comparison with the interface commit timestamp.",
+      "single_most_valuable_next_improvement": "Explicitly profile qcore_release_ts by hour and obtain the event/decision timestamp definition or event log, then use a targeted sample to determine whether the apparent cycle time is workflow delay, interface timing, or a mixture of both."
+    },
+    {
+      "exercise": "4b-consumer-spares-search",
+      "participation": 2.5,
+      "analytical": 8.2,
+      "verdict": "good",
+      "dimensions": [
+        {
+          "name": "Evidence traceability",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "\"24 open requests total $166,495.60 using qty \u00d7 external_quote_usd\"; \"11 of 24 requests have a blank manufacturer_part_no\"; \"MaintStar-global is a monthly snapshot dated 2026-06-26\" \u2014 Claims are tied to named files and relevant fields, with useful cross-file triangulation, though the 8/12/4 classification is not fully traceable to individual request rows."
+          ]
+        },
+        {
+          "name": "Causal / investigative reasoning",
+          "weight_pct": 25,
+          "score_0_4": 3,
+          "citations": [
+            "\"Semantic search alone will solve the problem. Rejected\"; \"Every search hit is a transferable part. Rejected\"; \"Global availability of \u22121 means there is no stock. Rejected\" \u2014 The submission separates candidate retrieval from transferability and tests several plausible explanations using policy, inventory, restrictions, and email evidence. It could more explicitly distinguish stale-data effects from actual reservation state for each affected request."
+          ]
+        },
+        {
+          "name": "Calibration and uncertainty",
+          "weight_pct": 15,
+          "score_0_4": 3,
+          "citations": [
+            "\"8 requests ... are actionable now, 12 ... need a specific check, and 4 ... are not transferable\"; \"The search should be treated as a way of finding candidate matches, not as approval to transfer stock\" \u2014 Confidence is claim-specific and appropriately reduced for blank identifiers, revision issues, reservations, and stale global availability, although the certainty of the exact 8/12/4 split is not operationally bounded."
+          ]
+        },
+        {
+          "name": "Decision usefulness / reframing",
+          "weight_pct": 20,
+          "score_0_4": 4,
+          "citations": [
+            "\"I would therefore transfer only the 8 clear cases, investigate the 12 conditional cases, and leave the 4 servo-drive purchases as external buys\"; \"fix identifier completeness and stock freshness before investing in a more sophisticated search\" \u2014 This provides a risk-controlled, reversible decision path, protects against unsafe transfers, and reframes the problem toward identity and control readiness rather than blindly deploying semantic search."
+          ]
+        },
+        {
+          "name": "Disconfirmation and rejected hypotheses",
+          "weight_pct": 10,
+          "score_0_4": 4,
+          "citations": [
+            "\"An exact part-number match is automatically transferable. Rejected by the MTR-4401 example\"; \"Global availability of \u22121 means there is no stock. Rejected because HA-0022 has positive on-hand stock\" \u2014 The strongest competing interpretations are actively tested against independent evidence, and the submission identifies evidence that would change the decisions."
+          ]
+        },
+        {
+          "name": "Questioning / next evidence",
+          "weight_pct": 10,
+          "score_0_4": 3,
+          "citations": [
+            "\"The highest-value next step is to confirm the manufacturer part numbers for the 11 blank requests\"; \"I would also check live local stock\"; \"the VLV-3722 revision A/B cases need an Engineering decision\" \u2014 Requests are prioritized and decision-linked, though the response does not quantify which individual query among the 11 blanks has the greatest expected value."
+          ]
+        }
+      ],
+      "unsupported_or_overstated_claims": [
+        "\"8 requests worth $20,536 ... are actionable now\" is stronger than the shown evidence unless every row has been individually checked for current reservation, qualification, UOM, revision, and site restrictions; the submission does not expose that row-level audit trail.",
+        "\"Better search cannot fix missing identity data\" is overstated. Semantic search can still generate useful candidates for blank-identifier requests, provided identity and transferability are subsequently confirmed.",
+        "\"Some already have plausible internal matches\" for the 11 blank requests is not supported with specific request-to-stock examples or values in the submission.",
+        "The exact $20,536/$64,234/$81,725 allocation is asserted but not reconciled to the individual request rows in the evidence table."
+      ],
+      "strongest_alternative_interpretation": "Semantic search may still be materially valuable even when manufacturer part numbers are missing: normalized descriptions and engineering attributes could generate candidate matches and prioritize identifier-resolution work. The evidence supports using it as controlled candidate generation, rather than concluding that the problem is primarily data quality and transfer control.",
+      "single_most_valuable_next_improvement": "Provide a row-level decision ledger for all 24 requests showing manufacturer-part-number match, revision, UOM, qualification, reservation/criticality, site, quantity, quote value, and source freshness; then recompute the 8/12/4 totals and label each result as candidate value versus currently actionable value."
     }
   ]
 }

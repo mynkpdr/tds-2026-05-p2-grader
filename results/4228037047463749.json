@@ -1,8 +1,8 @@
 {
   "questions_answered": 8,
   "participation": 20.0,
-  "analytical": 63.3,
-  "final": 83.3,
+  "analytical": 72.7,
+  "final": 92.7,
   "per_question": [
     {
       "exercise": "1a-dth-month-end",
@@ -389,25 +389,80 @@
     {
       "exercise": "4a-consumer-qc-queue",
       "participation": 2.5,
-      "analytical": 0.0,
+      "analytical": 9.4,
       "verdict": "strong",
       "dimensions": [
         {
           "name": "Evidence traceability",
           "weight_pct": 20,
-          "score_0_4": 3,
+          "score_0_4": 4,
           "citations": [
             "\"Receipt\u2192release median 39.0h (mean 44.9h) reproduces the 'day and a half' claim\"",
             "\"SOP clock is 'required evidence available \u2192 disposition,' 24h target, exceptions excluded\"",
             "\"24% of released batches carry an exception; their cycle runs ~28h longer (63.5 vs 35.0h)\"",
-            "\"lab_complete_ts derives from a 48h analytics extract 'not live application'\"],",
-            "reason_placeholder?"
+            "\"16.4% of batches are HOLD/CONDITIONAL with no release_ts \u2192 excluded from cycle\"",
+            "\"lab_complete_ts derives from a 48h analytics extract 'not live application'\""
+          ]
+        },
+        {
+          "name": "Causal / investigative reasoning",
+          "weight_pct": 25,
+          "score_0_4": 3,
+          "citations": [
+            "\"It is directionally useful, not KPI-grade\"",
+            "\"Mixed freshness: cycle timestamps are stitched across systems with very different lag\"",
+            "\"Release-without-CoA = compliance breach to escalate \u2014 rejected ... most likely a snapshot-freshness artifact, not a true missing certificate\"",
+            "\"Would need the live portal to confirm\""
+          ]
+        },
+        {
+          "name": "Calibration and uncertainty",
+          "weight_pct": 15,
+          "score_0_4": 4,
+          "citations": [
+            "\"It is directionally useful, not KPI-grade\"",
+            "\"consistent with CertVault 'nightly index' lag ... Would need the live portal to confirm\"",
+            "\"If that clean metric is still ~24h, the KPI stands\""
+          ]
+        },
+        {
+          "name": "Decision usefulness / reframing",
+          "weight_pct": 20,
+          "score_0_4": 4,
+          "citations": [
+            "\"Yes \u2014 verify before using this as a performance KPI\"",
+            "\"The smallest verification: rebuild the clock on the SOP definition ... with still-open batches counted\"",
+            "\"Just exclude HOLDs and report the release mean \u2014 rejected: that is the censoring that makes the KPI look fast\""
+          ]
+        },
+        {
+          "name": "Disconfirmation and rejected hypotheses",
+          "weight_pct": 10,
+          "score_0_4": 4,
+          "citations": [
+            "\"The 1.5-day figure is simply wrong/fabricated \u2014 rejected: it reproduces from the receipt/release columns\"",
+            "\"Release-without-CoA = compliance breach to escalate \u2014 rejected ... most likely a snapshot-freshness artifact\"",
+            "\"Just exclude HOLDs and report the release mean \u2014 rejected\""
+          ]
+        },
+        {
+          "name": "Questioning / next evidence",
+          "weight_pct": 10,
+          "score_0_4": 4,
+          "citations": [
+            "\"A per-batch 'required-evidence-available' timestamp\"",
+            "\"Confirmation that lab_complete_ts (and release_ts) are live event-times, not the LabTrack/QCore extract as-of times\"",
+            "\"The data-catalog definition referenced in the SOP note ... to fix which timestamp each column really is\""
           ]
         }
       ],
-      "unsupported_or_overstated_claims": [],
-      "strongest_alternative_interpretation": "",
-      "single_most_valuable_next_improvement": ""
+      "unsupported_or_overstated_claims": [
+        "\"most likely a snapshot-freshness artifact\" is a reasonable hypothesis but is not established by nightly indexing alone; live portal or event-level evidence is still needed.",
+        "The recommendation to confirm that timestamps are \"live event-times\" does not fully test whether release_ts is an interface commit rather than the underlying decision time.",
+        "The submission does not report the observed extreme concentration of qcore_release_ts at 02:10 or test whether that batch-time pattern explains part of the apparent cycle."
+      ],
+      "strongest_alternative_interpretation": "The apparent delay may reflect not only mixed extract freshness and population/censoring effects, but also a systematic timestamp-semantics issue: qcore_release_ts may record an interface or batch commit rather than the actual disposition decision. In that case, a live timestamp still would not be a valid workflow-cycle endpoint.",
+      "single_most_valuable_next_improvement": "Request the timestamp data dictionary plus a small per-batch event log linking required-evidence availability, disposition decision, and QCore release/interface commit times; use it to quantify the gap between decision and release and check the 02:10 concentration before approving any KPI."
     },
     {
       "exercise": "4b-consumer-spares-search",

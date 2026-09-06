@@ -1,8 +1,8 @@
 {
   "questions_answered": 8,
   "participation": 20.0,
-  "analytical": 66.4,
-  "final": 86.4,
+  "analytical": 65.8,
+  "final": 85.8,
   "per_question": [
     {
       "exercise": "1a-dth-month-end",
@@ -387,29 +387,78 @@
     {
       "exercise": "4a-consumer-qc-queue",
       "participation": 2.5,
-      "analytical": 7.4,
-      "verdict": "good",
+      "analytical": 6.8,
+      "verdict": "mixed",
       "dimensions": [
         {
           "name": "Evidence traceability",
           "weight_pct": 20,
           "score_0_4": 3,
           "citations": [
-            "\"70.6% of qcore_release_ts values (185 of 262) are stamped at exactly 02:10:00\"",
-            "\"42 HOLD rows have null qcore_release_ts (open, no cycle time); all received >= 2026-07-24 while dispositioned rows all received <= 2026-07-20\"",
-            "\"plus a fresher, source-aligned extract so LabTrack/QCore snapshot lags don't contaminate the time delta\"],",
-            "reason_placeholder?"
+            "\"185/262 (70.6%) qcore_release_ts values are stamped at exactly 02:10:00\" and \"42 HOLD rows have null qcore_release_ts\" \u2014 specific counts and fields are traceable to named files.",
+            "\"Excluding 02:10 rows drops median evidence-to-release from 21.3 h to 8.4 h\" \u2014 provides a reproducible comparison, but the semantic interpretation of the timestamp is not established by the cited extracts.",
+            "\"HOLD represents the entire most recent week \u2014 $5.97M inventory / $6.64M shortage exposure censored\" \u2014 usefully identifies selection and right-censoring risk, though the source alignment issue is only briefly acknowledged."
+          ]
+        },
+        {
+          "name": "Causal / investigative reasoning",
+          "weight_pct": 25,
+          "score_0_4": 2,
+          "citations": [
+            "\"QCore records the release date but defaults the time to its batch boundary, so the intraday duration is fabricated\" \u2014 this is a causal conclusion not demonstrated by the extract; the relevant alternative is that the timestamp is an interface commit rather than a decision time.",
+            "\"The genuine process is fast, and the slow headline is an artifact\" \u2014 overstates what can be inferred after excluding 70% of observations and retaining only 23 routine rows.",
+            "\"Survivorship: All 42 open-HOLD batches... have no release timestamp\" \u2014 correctly identifies a separate mechanism that can bias observed cycle time, but the submission does not fully separate workflow delay from interface-timing effects."
+          ]
+        },
+        {
+          "name": "Calibration and uncertainty",
+          "weight_pct": 2,
+          "score_0_4": 2,
+          "citations": [
+            "The table labels several findings \"High\" confidence even though the meaning of qcore_release_ts is the decisive unresolved issue.",
+            "\"likely CertVault nightly-index lag, not a control failure\" and \"would need a live-portal check\" appropriately preserve uncertainty for the COA hypothesis.",
+            "\"What Would Change the Decision\" identifies the timestamp definition and aligned extract as decision-relevant missing evidence, but the headline conclusion remains more certain than those gaps permit."
+          ]
+        },
+        {
+          "name": "Decision usefulness / reframing",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "\"the apparent cycle time should NOT be shipped as a KPI yet\" \u2014 a safe and useful decision reframing that prevents optimizing a potentially invalid measure.",
+            "\"Smallest verification: Pull the true disposition timestamp from live QCore for 5\u201310 batches\" \u2014 proposes a small, reversible test with a clear interpretation.",
+            "The recommendation to define endpoints and obtain a source-aligned extract is useful, but calling the residual 5.5-hour result the \"genuine process\" could lead to premature performance conclusions."
+          ]
+        },
+        {
+          "name": "Disconfirmation and rejected hypotheses",
+          "weight_pct": 10,
+          "score_0_4": 3,
+          "citations": [
+            "The submission rejects \"1.5 days is a real, trustworthy cycle time\" using the SOP clock, timestamp concentration, and backlog censoring.",
+            "It rejects \"The data is broken \u2014 throw it out\" and preserves a verification path, which is a useful alternative test.",
+            "The COA hypothesis is described as \"more consistent with CertVault's nightly index lag,\" but that explanation is not independently tested and the strongest competing explanation\u2014actual release before certificate availability\u2014is not fully bounded."
+          ]
+        },
+        {
+          "name": "Questioning / next evidence",
+          "weight_pct": 10,
+          "score_0_4": 4,
+          "citations": [
+            "\"Pull the true disposition timestamp from live QCore for 5\u201310 batches whose extract time is 02:10:00\" \u2014 highly targeted evidence that directly discriminates default/interface timing from real event timing.",
+            "\"The data-catalog definition of qcore_release_ts\" is correctly identified as the decisive definitional question.",
+            "The request for \"a fresher, source-aligned extract\" addresses temporal inconsistency and prevents overconfident joins across LabTrack and QCore snapshots."
           ]
         }
       ],
       "unsupported_or_overstated_claims": [
-        "\"QCore records the release date but defaults the time to its batch boundary\" is an inference from timestamp concentration and source freshness, not established directly by the cited files.",
-        "\"the genuine process is fast, and the slow headline is an artifact\" is too strong before confirming whether qcore_release_ts is an interface commit, a date-derived default, or a real disposition timestamp.",
-        "\"17 RELEASED with COA MISSING / 13 INDEX_PENDING \u2014 likely CertVault nightly-index lag, not a control failure\" is plausible but not demonstrated; the submission appropriately notes that a live-portal check is needed.",
-        "The routine non-artifact n=23 estimate may be directionally useful, but its generalization to the whole process is limited by missing timestamps, current HOLD work, and non-coherent source snapshots."
+        "\"QCore records the release date but defaults the time to its batch boundary\" is asserted from the 02:10 concentration and source freshness, but those facts do not prove defaulting rather than an interface-commit convention.",
+        "\"The genuine process is fast\" and \"the slow headline is an artifact\" overstate the evidence after excluding most rows and selecting only 23 routine observations; the residual result may still mix workflow and interface timing.",
+        "Treating the 02:10 rows as an \"artifact\" and the remaining rows as valid is not justified until event/decision timestamp semantics or an event log is obtained.",
+        "\"COA MISSING\" being likely CertVault indexing lag is plausible but not demonstrated by the supplied evidence."
       ],
-      "strongest_alternative_interpretation": "The 02:10 concentration may reflect a real QCore interface or batch-commit convention rather than fabricated cycle time, or the extract may mix real and defaulted timestamps. The observed duration therefore may combine workflow delay with interface timing; an event/decision timestamp or event log is needed before declaring the underlying process fast.",
-      "single_most_valuable_next_improvement": "Obtain the QCore timestamp definition and an event-level extract for a stratified sample of 02:10 rows and non-02:10 rows, including evidence-available, disposition-decision, and interface-commit timestamps. Use that comparison to decide whether the KPI can be reconstructed or must be redefined."
+      "strongest_alternative_interpretation": "The 02:10 value may be a genuine enterprise interface-commit timestamp rather than a fabricated or defaulted decision time. Apparent cycle time could therefore combine real workflow delay with delayed or batched interface publication; neither the 45.5-hour receipt clock nor the 5.5-hour filtered result is safe as a KPI without event/decision timestamp semantics and source-aligned data.",
+      "single_most_valuable_next_improvement": "Obtain the qcore_release_ts data-catalog definition and a small event-level extract for the same 5\u201310 02:10 batches, including evidence-available, decision/disposition, and interface-commit timestamps from a coherent snapshot. Use it to determine whether the KPI measures workflow time, publication latency, or both before reporting any filtered cycle-time result."
     },
     {
       "exercise": "4b-consumer-spares-search",

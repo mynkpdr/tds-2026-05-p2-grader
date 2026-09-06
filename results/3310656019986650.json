@@ -1,8 +1,8 @@
 {
   "questions_answered": 8,
   "participation": 20.0,
-  "analytical": 54.7,
-  "final": 74.7,
+  "analytical": 54.5,
+  "final": 74.5,
   "per_question": [
     {
       "exercise": "1a-dth-month-end",
@@ -459,7 +459,7 @@
     {
       "exercise": "4b-consumer-spares-search",
       "participation": 2.5,
-      "analytical": 7.4,
+      "analytical": 7.2,
       "verdict": "good",
       "dimensions": [
         {
@@ -470,18 +470,66 @@
             "\"source_freshness.csv (MaintStar-global snapshot is 2026-06-26)\"",
             "\"maintenance_email.txt (\\\"Global available quantity can lag a local reservation... Engineering declined the transfer\\\")\"",
             "\"Joined analysis of spare_parts.csv, part_requests.csv, and part_restrictions.csv\"",
-            "\"PR-260701 ... PR-260722\" with listed manufacturer part numbers, routes, and values],",
-            "reasoning_note?"
+            "Candidate Matches table listing request IDs, manufacturer part numbers, routes, and values."
+          ]
+        },
+        {
+          "name": "Causal / investigative reasoning",
+          "weight_pct": 25,
+          "score_0_4": 3,
+          "citations": [
+            "\"Local reservations frequently consume \\\"available\\\" global stock before a transfer can be executed.\"",
+            "\"The restrictions file is sufficient to clear a part for transfer: Rejected.\"",
+            "\"it does not capture the day-to-day routine consumption of the part at the source site between the June 26 snapshot and today.\""
+          ]
+        },
+        {
+          "name": "Calibration and uncertainty",
+          "weight_pct": 15,
+          "score_0_4": 3,
+          "citations": [
+            "\"Candidate Matches (Pending Live CMMS Verification)\"",
+            "\"~$8.1k requires engineering checks due to revision mismatches\"",
+            "\"0% of this value is actionable right now\"",
+            "\"Confidence: High\" for the stale-data and joined-analysis claims."
+          ]
+        },
+        {
+          "name": "Decision usefulness / reframing",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "\"no transfer can be safely authorized without manually verifying live stock levels\"",
+            "\"Request a live API check (or an updated daily extract) from the \\\"live\\\" local CMMS systems\"",
+            "\"confirm real-time on_hand_qty minus current local reservations.\""
+          ]
+        },
+        {
+          "name": "Disconfirmation and rejected hypotheses",
+          "weight_pct": 10,
+          "score_0_4": 2,
+          "citations": [
+            "\"The apparent match value ($17.3k) can be immediately realized: Rejected.\"",
+            "\"The restrictions file is sufficient to clear a part for transfer: Rejected.\""
+          ]
+        },
+        {
+          "name": "Questioning / next evidence",
+          "weight_pct": 10,
+          "score_0_4": 3,
+          "citations": [
+            "\"Request a live API check (or an updated daily extract) from the \\\"live\\\" local CMMS systems\"",
+            "\"confirm real-time on_hand_qty minus current local reservations.\""
           ]
         }
       ],
       "unsupported_or_overstated_claims": [
-        "\"0% of this value is actionable right now\" is stronger than the evidence supports: stale global data establishes uncertainty and the need for live verification, not that every candidate is currently unavailable.",
-        "\"The global inventory data is dangerously stale (over three weeks old)\" is directionally supported by the snapshot date and email, but the submission does not establish the exact current date used or quantify how the age affects each source site's availability.",
-        "\"$29.7k is explicitly not transferable\" and the aggregate restriction/value totals are asserted without row-level evidence or showing how revision, UOM, qualification, reservation, and criticality fields were applied."
+        "\"0% of this value is actionable right now\" is stronger than the evidence supports: stale global data prevents safe authorization, but does not establish that no candidate would pass a live check.",
+        "\"real-time local reservations and routine consumption outpace the monthly global sync\" goes beyond the cited email, which establishes that global availability can lag local reservations but does not prove the frequency or magnitude of routine consumption.",
+        "The memo does not explicitly demonstrate checks for all restriction dimensions, such as UOM and qualification, or show row-level evidence for the $8.1k and $29.7k totals."
       ],
-      "strongest_alternative_interpretation": "The semantic search has produced a meaningful, potentially actionable candidate set\u2014especially the exact manufacturer-part-number matches\u2014but the candidates are not yet transfer decisions. Some may still be transferable despite the stale global snapshot; live source-site on-hand, reservation, criticality, revision, UOM, and qualification checks could convert part of the $17.3k candidate value into actionable value.",
-      "single_most_valuable_next_improvement": "Run a prioritized live verification for the highest-value candidates first, beginning with PMP-2288 and BRG-1507, retrieving timestamped source-site on-hand quantity, current reservations/criticality, and engineering equivalence status. Use the results to report an actionable-value range rather than asserting 0%, and define a small pilot success criterion such as confirmed eligible transfers or avoided purchases."
+      "strongest_alternative_interpretation": "The stale MaintStar snapshot reduces confidence in transferability but does not make the candidate value zero or necessarily non-actionable. Some source sites may still have sufficient live stock after reservations, and the semantic-search output may generate valid transfers once revision, UOM, qualification, criticality, and current availability are confirmed.",
+      "single_most_valuable_next_improvement": "Run the proposed live source-site check for the highest-value candidates first, joining current on-hand quantity, reservations, criticality, revision, UOM, and qualification status to each request; report the resulting actionable value separately from the $17.3k candidate value and define a pilot success threshold."
     }
   ]
 }

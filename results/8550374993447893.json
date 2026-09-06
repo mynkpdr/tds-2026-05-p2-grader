@@ -457,20 +457,72 @@
           "weight_pct": 20,
           "score_0_4": 3,
           "citations": [
-            "\"~17% ($26,240) actionable now\" and \"~29% ($44,592) needs engineering check\"",
-            "\"spare_parts.csv + part_restrictions.csv (RI-0001, ME-0003 reserved=true; HA-0002 qty 0)\"",
-            "\"maintenance_email.txt\"",
-            "\"SOP requires checking manufacturer identity, revision, UOM, qualification, and reservation\"],"
+            "\"spare_parts.csv + part_restrictions.csv (RI-0001, ME-0003 reserved=true; HA-0002 qty 0)\"; \"11 of 24 requests carry no manufacturer_part_no\"; \"SOP requires checking manufacturer identity, revision, UOM, qualification, and reservation\".",
+            "\"Some available_qty_global values are negative (HA-0022: -1, ME-0006: -1)\".",
+            "The memo uses specific files, rows, fields, quantities, and policy requirements, and distinguishes description similarity from confirmed identity. It does not trace the MaintStar extract timestamp or freshness, which is material to the availability conclusions."
+          ]
+        },
+        {
+          "name": "Causal / investigative reasoning",
+          "weight_pct": 25,
+          "score_0_4": 3,
+          "citations": [
+            "\"Matching purely on fuzzy description text overstates savings; matching on manufacturer part number + revision, then filtering by part_restrictions.csv ... collapses roughly half the apparent value.\"",
+            "\"the highest-value cluster (servo drives) is entirely blocked by reservations, exactly the scenario the email warns about.\"",
+            "\"its 'Harbor, two units, drive' description doesn't cleanly match any row ... treated as general caution, not literal.\"",
+            "The analysis separates retrieval similarity from transferability, triangulates restrictions with the email, and tests whether the email refers to a specific row. It does not test the temporal-consistency alternative or establish whether the joined extracts represent the same point in time."
+          ]
+        },
+        {
+          "name": "Calibration and uncertainty",
+          "weight_pct": 15,
+          "score_0_4": 2,
+          "citations": [
+            "\"~17% ... actionable now\"; \"~29% ... needs engineering check\"; \"~54% ... not transferable from current evidence\".",
+            "\"negative-quantity data anomaly\" and \"cause unknown\"; \"revision mismatch \u2014 substitutability unconfirmed\".",
+            "The memo uses claim-specific caveats for revisions, missing part numbers, anomalies, and reservations. However, 'actionable now' and 'all ... no unreserved matching stock anywhere' are too confident without checking global MaintStar freshness and reservation timing; stale or temporally inconsistent extracts could change the buckets."
+          ]
+        },
+        {
+          "name": "Decision usefulness / reframing",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "\"matching on manufacturer part number + revision, then filtering by part_restrictions.csv (reservation/qualification)\".",
+            "\"A manufacturer-part-number backfill ... Confirmation ... negative available_qty_global ... Engineering sign-off on rev-A/rev-B interchangeability\".",
+            "The recommendation usefully reframes the pilot as conditional candidate matching rather than automatic savings and identifies operational gates. It would be stronger with an explicitly reversible pilot protocol, acceptance criteria, and a current-snapshot check before any transfer or savings claim."
+          ]
+        },
+        {
+          "name": "Disconfirmation and rejected hypotheses",
+          "weight_pct": 10,
+          "score_0_4": 3,
+          "citations": [
+            "\"All description-similar hits ... represent avoidable spend \u2014 rejected\".",
+            "\"The maintenance email describes a specific row in this dataset \u2014 rejected\".",
+            "\"Missing mfg part number can be safely inferred from description text \u2014 rejected\".",
+            "The memo actively rejects three plausible interpretations and gives evidence-based reasons. The strongest competing explanation that availability is distorted by stale or non-coherent extracts is not tested, and the same-site duplicate example is labeled actionable despite the stated rejection of description-only identity."
+          ]
+        },
+        {
+          "name": "Questioning / next evidence",
+          "weight_pct": 10,
+          "score_0_4": 3,
+          "citations": [
+            "\"A manufacturer-part-number backfill for the 11 requests currently missing it\".",
+            "\"Confirmation of whether the negative available_qty_global values are a live oversell or a stale/erroneous extract\".",
+            "\"Engineering sign-off on rev-A/rev-B interchangeability\".",
+            "These are prioritized, decision-relevant requests tied to specific value buckets. The highest-value missing query is a timestamped, current MaintStar inventory/reservation snapshot and reconciliation, which would test whether the 17/29/54 percent classification is operationally valid."
           ]
         }
       ],
       "unsupported_or_overstated_claims": [
-        "\"~17% ($26,240) actionable now\" is too definitive without establishing the freshness or point-in-time consistency of the MaintStar/spares extract; unreserved stock in the extract may not be currently transferable.",
-        "\"All 4 servo-drive requests ... have no unreserved matching stock anywhere\" is bounded to the supplied rows but is stated with high confidence without checking extract freshness or whether the join is temporally coherent.",
-        "The dollar allocations across the three buckets are not shown with a complete request-by-request reconciliation, so the totals are difficult to independently audit from the memo alone."
+        "\"~17% ($26,240) actionable now\" and the broader \"all 4 servo-drive requests ... have no unreserved matching stock anywhere\" are overstated unless MaintStar freshness and reservation effective times have been checked.",
+        "The PR-260710 row is called \"Actionable\" on the basis of a same-site duplicate description even though the memo says missing manufacturer part numbers cannot safely be inferred from descriptions and does not show confirmed revision, UOM, and qualification.",
+        "\"~$44.6k of the 'needs check' bucket hinges\" on manufacturer-part-number backfill is not fully reconciled to the listed bucket composition and may conflate missing identity with revision, qualification, and anomaly issues."
       ],
-      "strongest_alternative_interpretation": "The pilot may be useful primarily as a candidate-generation tool, while the apparent $26,240 actionable value could materially shrink after a fresh, point-in-time inventory/reservation check and engineering confirmation. The apparent blocked value may also reflect stale or temporally inconsistent extracts rather than true non-transferability.",
-      "single_most_valuable_next_improvement": "Add a timestamp/freshness and point-in-time consistency check for the MaintStar availability, reservation, and request extracts, then rerun the candidate table using current quantities and reservations before labeling any value actionable."
+      "strongest_alternative_interpretation": "The pilot may still be valuable as semantic candidate generation, but the current evidence may establish only candidate value, not 17% actionable value: stale or temporally inconsistent inventory and reservation extracts could make both positive and negative availability conclusions unreliable until rerun against a coherent current snapshot.",
+      "single_most_valuable_next_improvement": "Obtain a timestamped current MaintStar inventory, reservation, and restriction snapshot, reconcile it to the request extract, and rerun the 24-request classification before calling any match actionable; then require engineering confirmation for missing-part-number, revision-mismatch, UOM, and qualification cases."
     }
   ]
 }
