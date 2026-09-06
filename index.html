@@ -1,0 +1,583 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Project 2 Result Lookup</title>
+<style>
+  :root {
+    color-scheme: light;
+    --surface-1: #ffffff;
+    --surface-2: #f4f4f2;
+    --page: #f7f7f5;
+    --text-primary: #14140f;
+    --text-secondary: #55544d;
+    --text-muted: #8b897f;
+    --gridline: #e7e6e0;
+    --baseline: #cfcec5;
+    --border: rgba(20,20,15,0.08);
+    --blue-250: #86b6ef;
+    --blue-350: #5598e7;
+    --blue-450: #2a78d6;
+    --blue-550: #1c5cab;
+    --blue-650: #104281;
+    --status-critical: #d03b3b;
+    --status-serious: #c9612f;
+    --status-warning: #a6720a;
+    --status-mixed: #8a7500;
+    --status-good: #0ca30c;
+    --status-strong: #036b1f;
+    --shadow-sm: 0 1px 2px rgba(20,20,15,0.05);
+    --shadow-md: 0 2px 6px rgba(20,20,15,0.05), 0 8px 24px rgba(20,20,15,0.05);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) {
+      color-scheme: dark;
+      --surface-1: #1c1c19;
+      --surface-2: #232320;
+      --page: #101010;
+      --text-primary: #f5f5f2;
+      --text-secondary: #c3c2b7;
+      --text-muted: #8b897f;
+      --gridline: #303029;
+      --baseline: #45443c;
+      --border: rgba(255,255,255,0.09);
+      --blue-250: #9ec5f4;
+      --blue-350: #5598e7;
+      --blue-450: #4a94ee;
+      --blue-550: #6fa8f0;
+      --blue-650: #a8cbf6;
+      --status-critical: #e8746f;
+      --status-serious: #e69a5c;
+      --status-warning: #ddb04a;
+      --status-mixed: #d0c04a;
+      --status-good: #59d15c;
+      --status-strong: #35c060;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.35);
+      --shadow-md: 0 2px 6px rgba(0,0,0,0.3), 0 12px 32px rgba(0,0,0,0.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --surface-1: #1c1c19; --surface-2: #232320; --page: #101010;
+    --text-primary: #f5f5f2; --text-secondary: #c3c2b7; --text-muted: #8b897f;
+    --gridline: #303029; --baseline: #45443c; --border: rgba(255,255,255,0.09);
+    --blue-250: #9ec5f4; --blue-350: #5598e7; --blue-450: #4a94ee; --blue-550: #6fa8f0; --blue-650: #a8cbf6;
+    --status-critical: #e8746f; --status-serious: #e69a5c; --status-warning: #ddb04a;
+    --status-mixed: #d0c04a; --status-good: #59d15c; --status-strong: #35c060;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.35); --shadow-md: 0 2px 6px rgba(0,0,0,0.3), 0 12px 32px rgba(0,0,0,0.35);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background:
+      radial-gradient(1100px 480px at 15% -12%, color-mix(in srgb, var(--blue-450) 7%, transparent), transparent 60%),
+      var(--page);
+    color: var(--text-primary);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 48px 20px 80px; }
+
+  header { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 36px; }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand-mark {
+    width: 40px; height: 40px; border-radius: 11px; flex-shrink: 0;
+    background: linear-gradient(135deg, var(--blue-450), var(--blue-650));
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: var(--shadow-sm);
+  }
+  .brand-mark svg { width: 20px; height: 20px; color: #fff; }
+  h1 { font-size: 1.25rem; font-weight: 750; margin: 0; letter-spacing: -0.015em; line-height: 1.2; }
+  .subtitle { color: var(--text-muted); font-size: 0.85rem; margin-top: 2px; }
+
+  button.icon-btn {
+    background: var(--surface-1); border: 1px solid var(--border); color: var(--text-secondary);
+    border-radius: 10px; width: 38px; height: 38px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    transition: all 0.15s ease; box-shadow: var(--shadow-sm);
+  }
+  button.icon-btn svg { width: 17px; height: 17px; }
+  button.icon-btn:hover { border-color: var(--baseline); color: var(--text-primary); transform: translateY(-1px); }
+
+  .panel {
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 18px;
+    padding: 26px; margin-bottom: 20px; box-shadow: var(--shadow-md);
+  }
+
+  .lookup-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .input-shell {
+    flex: 1; min-width: 240px; position: relative; display: flex; align-items: center;
+  }
+  .input-shell svg { position: absolute; left: 14px; width: 16px; height: 16px; color: var(--text-muted); pointer-events: none; }
+  input#code {
+    width: 100%; font-size: 1rem; padding: 13px 14px 13px 40px; border-radius: 12px;
+    border: 1px solid var(--border); background: var(--surface-2); color: var(--text-primary);
+    font-variant-numeric: tabular-nums; letter-spacing: 0.04em; transition: box-shadow 0.15s ease, border-color 0.15s ease;
+  }
+  input#code:focus { outline: none; border-color: var(--blue-450); box-shadow: 0 0 0 3px color-mix(in srgb, var(--blue-450) 20%, transparent); }
+  button.primary {
+    background: linear-gradient(135deg, var(--blue-450), var(--blue-550)); color: #fff; border: none; border-radius: 12px;
+    padding: 13px 24px; font-size: 0.96rem; cursor: pointer; font-weight: 650;
+    transition: transform 0.12s ease, box-shadow 0.12s ease; box-shadow: 0 1px 2px rgba(20,20,15,0.1), 0 4px 12px color-mix(in srgb, var(--blue-450) 30%, transparent);
+    white-space: nowrap;
+  }
+  button.primary:hover { transform: translateY(-1px); box-shadow: 0 2px 4px rgba(20,20,15,0.12), 0 6px 16px color-mix(in srgb, var(--blue-450) 38%, transparent); }
+  button.primary:active { transform: translateY(0); }
+  .hint { color: var(--text-muted); font-size: 0.82rem; margin-top: 12px; display: flex; align-items: center; gap: 6px; }
+  .hint svg { width: 13px; height: 13px; flex-shrink: 0; }
+
+  .error-box {
+    display: flex; align-items: flex-start; gap: 10px;
+    background: color-mix(in srgb, var(--status-critical) 8%, var(--surface-1));
+    border: 1px solid color-mix(in srgb, var(--status-critical) 30%, var(--border));
+    border-radius: 12px; padding: 14px 16px; color: var(--status-critical); font-size: 0.9rem; margin-top: 14px;
+  }
+  .error-box svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px; }
+
+  .fade-in { animation: fadeInUp 0.45s cubic-bezier(.2,.7,.3,1) backwards; }
+  @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  .hero { display: flex; align-items: center; gap: 30px; flex-wrap: wrap; }
+  .hero-ring { position: relative; width: 148px; height: 148px; flex-shrink: 0; margin: 0 auto; }
+  .hero-ring svg.ring { transform: rotate(-90deg); }
+  .hero-ring circle.fill { transition: stroke-dashoffset 1.1s cubic-bezier(.16,1,.3,1); }
+  .hero-ring .figure {
+    position: absolute; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+  }
+  .hero-ring .figure .n { font-size: 2.1rem; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -0.03em; }
+  .hero-ring .figure .d { font-size: 0.72rem; color: var(--text-muted); margin-top: -3px; font-weight: 600; }
+  .hero-body { flex: 1; min-width: 220px; }
+  .hero-title { font-size: 0.72rem; color: var(--blue-450); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 750; margin-bottom: 14px; }
+  .hero-stats { display: flex; gap: 30px; flex-wrap: wrap; }
+  .hero-stats div { min-width: 68px; }
+  .hero-stats .n { font-size: 1.4rem; font-weight: 750; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+  .hero-stats .l { font-size: 0.74rem; color: var(--text-muted); margin-top: 3px; font-weight: 500; }
+
+  .q-panel { padding: 0; overflow: hidden; }
+  .q-accent { height: 4px; width: 100%; }
+  .q-inner { padding: 22px 26px 26px; }
+  .q-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; flex-wrap: wrap; margin-bottom: 10px; }
+  .q-title { font-weight: 700; font-size: 1.05rem; letter-spacing: -0.01em; }
+  .q-sub { color: var(--text-muted); font-size: 0.8rem; margin-top: 2px; }
+
+  .tag {
+    display: inline-flex; align-items: center; gap: 5px; font-size: 0.74rem; font-weight: 700;
+    padding: 5px 11px; border-radius: 999px; white-space: nowrap;
+    text-transform: uppercase; letter-spacing: 0.04em; border: 1px solid transparent;
+  }
+  .tag svg { width: 12px; height: 12px; }
+
+  .q-score-row { display: flex; gap: 18px; flex-wrap: wrap; margin-bottom: 18px; font-size: 0.86rem; color: var(--text-secondary); }
+  .q-score-row b { color: var(--text-primary); font-variant-numeric: tabular-nums; }
+
+  .dim-list { display: flex; flex-direction: column; gap: 14px; margin-bottom: 6px; }
+  .dim-row { display: grid; grid-template-columns: 1fr auto; gap: 4px 14px; align-items: center; }
+  .dim-name-row { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.92rem; }
+  .dim-weight { font-size: 0.68rem; color: var(--text-muted); font-weight: 600; background: var(--surface-2); padding: 2px 7px; border-radius: 6px; }
+  .dim-score-wrap { display: flex; align-items: center; gap: 9px; justify-self: end; }
+  .dim-track { width: 84px; height: 6px; border-radius: 4px; background: var(--gridline); overflow: hidden; }
+  .dim-track > div { height: 100%; border-radius: 4px; width: 0; transition: width 0.8s cubic-bezier(.16,1,.3,1); }
+  .dim-score-label { font-variant-numeric: tabular-nums; font-size: 0.82rem; color: var(--text-secondary); font-weight: 600; width: 26px; }
+  .dim-evidence-toggle {
+    grid-column: 1 / -1; font-size: 0.78rem; color: var(--blue-450); font-weight: 600; cursor: pointer;
+    background: none; border: none; padding: 2px 0 0; text-align: left; display: flex; align-items: center; gap: 4px;
+  }
+  .dim-evidence-toggle svg { width: 11px; height: 11px; transition: transform 0.15s ease; }
+  .dim-evidence-toggle[aria-expanded="true"] svg { transform: rotate(90deg); }
+  .citations { grid-column: 1 / -1; margin: 6px 0 0; padding-left: 0; list-style: none; display: none; }
+  .citations.open { display: block; }
+  .citations li {
+    color: var(--text-secondary); font-size: 0.85rem; font-style: italic; margin-top: 6px;
+    padding: 8px 12px; border-left: 2px solid var(--baseline); background: var(--surface-2); border-radius: 0 8px 8px 0;
+  }
+  .citations li::before { content: "\201C"; }
+  .citations li::after { content: "\201D"; }
+
+  .divider { height: 1px; background: var(--gridline); margin: 20px 0; }
+
+  .callout { display: flex; gap: 12px; border-radius: 12px; padding: 13px 15px; margin-top: 12px; font-size: 0.87rem; }
+  .callout-icon {
+    width: 26px; height: 26px; border-radius: 8px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; margin-top: 1px;
+  }
+  .callout-icon svg { width: 14px; height: 14px; }
+  .callout-body { flex: 1; min-width: 0; }
+  .callout .label { font-weight: 700; display: block; margin-bottom: 3px; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; }
+  .callout p { margin: 0; color: var(--text-secondary); }
+
+  .callout.warn { background: color-mix(in srgb, var(--status-warning) 8%, var(--surface-1)); }
+  .callout.warn .callout-icon { background: color-mix(in srgb, var(--status-warning) 18%, var(--surface-1)); color: var(--status-warning); }
+  .callout.warn .label { color: var(--status-warning); }
+  .callout.info { background: color-mix(in srgb, var(--blue-450) 6%, var(--surface-1)); }
+  .callout.info .callout-icon { background: color-mix(in srgb, var(--blue-450) 15%, var(--surface-1)); color: var(--blue-450); }
+  .callout.info .label { color: var(--blue-450); }
+  .callout.tip { background: color-mix(in srgb, var(--status-good) 8%, var(--surface-1)); }
+  .callout.tip .callout-icon { background: color-mix(in srgb, var(--status-good) 16%, var(--surface-1)); color: var(--status-good); }
+  .callout.tip .label { color: var(--status-good); }
+
+  .rubric-link {
+    display: inline-flex; align-items: center; gap: 6px; margin-top: 16px; font-size: 0.85rem;
+    color: var(--blue-450); text-decoration: none; font-weight: 650;
+  }
+  .rubric-link svg { width: 14px; height: 14px; transition: transform 0.15s ease; }
+  .rubric-link:hover svg { transform: translateX(2px); }
+
+  footer { text-align: center; color: var(--text-muted); font-size: 0.82rem; margin-top: 40px; line-height: 1.7; }
+  footer a { color: var(--text-secondary); font-weight: 600; }
+
+  .empty-state { text-align: center; color: var(--text-secondary); padding: 30px 0; }
+  .skeleton { height: 3px; width: 100%; background: linear-gradient(90deg, var(--gridline), var(--blue-450), var(--gridline)); background-size: 200% 100%; animation: shimmer 1.2s ease-in-out infinite; border-radius: 3px; margin-top: 14px; }
+  @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+  @media (max-width: 480px) {
+    .hero { flex-direction: column; text-align: center; }
+    .hero-stats { justify-content: center; }
+    .q-inner { padding: 18px 18px 22px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      </div>
+      <div>
+        <h1>Project 2 Results</h1>
+        <div class="subtitle">Enter your code to view your detailed evaluation</div>
+      </div>
+    </div>
+    <button class="icon-btn" id="theme-toggle" type="button" aria-label="Toggle dark mode">
+      <svg id="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></svg>
+    </button>
+  </header>
+
+  <div class="panel fade-in">
+    <div class="lookup-row">
+      <div class="input-shell">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <input id="code" inputmode="numeric" autocomplete="off" placeholder="16-digit code" maxlength="16" />
+      </div>
+      <button class="primary" id="lookup-btn" type="button">View my result</button>
+    </div>
+    <div class="hint">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+      Your code maybe emailed to you..
+    </div>
+    <div id="loading" style="display:none" class="skeleton"></div>
+    <div id="error" style="display:none" class="error-box"></div>
+  </div>
+
+  <div id="result"></div>
+
+  <footer>
+    Grading breakdown: 2.5 participation marks per question (awarded for submitting a
+    valid-format answer) + up to 10 analytical marks (evaluated against the rubric below).
+    <br />Curious how a question was graded?
+    <a href="revealed/">Browse the revealed rubrics</a> for every exercise.
+  </footer>
+</div>
+
+<script>
+const EXERCISE_NAMES = {
+  "1a-dth-month-end": ["1A", "DTH Month-End Mystery"],
+  "1b-dth-complaints-quiet": ["1B", "DTH Complaints Went Quiet"],
+  "2a-solar-smell-test": ["2A", "Solar Inverter Smell Test"],
+  "2b-solar-impact-claim": ["2B", "Solar 31.6% Impact Claim"],
+  "3a-customs-mismatch": ["3A", "Swiss Mismatch Control"],
+  "3b-customs-preference": ["3B", "Irish Preference Claim"],
+  "4a-consumer-qc-queue": ["4A", "QC Queue Smell Test"],
+  "4b-consumer-spares-search": ["4B", "Spare-Parts Search"],
+};
+const EXERCISE_ORDER = Object.keys(EXERCISE_NAMES);
+
+// Inline SVG icon set -- consistent rendering everywhere, unlike unicode glyphs/emoji.
+const ICONS = {
+  check: '<path d="M20 6 9 17l-5-5"/>',
+  star: '<path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.6 7-6.2-3.8L6 21l1.6-7L2.2 9.2l7.1-.6z"/>',
+  tilde: '<path d="M2 12c1.5-3 3.5-3 5 0s3.5 3 5 0 3.5-3 5 0 3.5 3 5 0"/>',
+  triangle: '<path d="M12 3 2 20h20z"/><path d="M12 9v5M12 17h.01"/>',
+  x: '<path d="M18 6 6 18M6 6l12 12"/>',
+  alertOctagon: '<path d="M7.86 2h8.28L22 7.86v8.28L16.14 22H7.86L2 16.14V7.86z"/><path d="M12 8v4M12 16h.01"/>',
+  alertTriangle: '<path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/>',
+  compass: '<circle cx="12" cy="12" r="10"/><path d="m16.24 7.76-2.12 6.36-6.36 2.12 2.12-6.36z"/>',
+  target: '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
+  arrowUpRight: '<path d="M7 17 17 7M8 7h9v9"/>',
+  chevronRight: '<path d="m9 18 6-6-6-6"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>',
+  moon: '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>',
+};
+function svgIcon(name, extraClass) {
+  return `<svg class="${extraClass || ''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${ICONS[name]}</svg>`;
+}
+
+// Icon + color + text label together -- color never carries the meaning alone.
+const VERDICT_STYLE = {
+  strong: { v: "--status-strong", label: "Strong", icon: "star" },
+  good: { v: "--status-good", label: "Good", icon: "check" },
+  mixed: { v: "--status-mixed", label: "Mixed", icon: "tilde" },
+  weak: { v: "--status-warning", label: "Weak", icon: "triangle" },
+  poor: { v: "--status-serious", label: "Poor", icon: "alertTriangle" },
+  unsafe: { v: "--status-critical", label: "Unsafe", icon: "alertOctagon" },
+};
+
+const DIM_BAR_COLOR = ["var(--blue-250)", "var(--blue-350)", "var(--blue-450)", "var(--blue-550)", "var(--blue-650)"];
+
+function el(tag, attrs, children) {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (k === "html") e.innerHTML = v;
+    else if (k === "text") e.textContent = v;
+    else e.setAttribute(k, v);
+  }
+  for (const c of children || []) if (c) e.appendChild(c);
+  return e;
+}
+
+function tag(verdict) {
+  const v = VERDICT_STYLE[verdict] || { v: "--text-muted", label: verdict || "–", icon: "compass" };
+  const color = `var(${v.v})`;
+  const span = el("span", {
+    class: "tag",
+    style: `color:${color};background:color-mix(in srgb, ${color} 14%, var(--surface-1));border-color:color-mix(in srgb, ${color} 30%, transparent)`,
+    html: svgIcon(v.icon),
+  });
+  span.appendChild(document.createTextNode(v.label));
+  return span;
+}
+
+function scoreRing(value, max, size = 148) {
+  const r = (size - 16) / 2;
+  const c = 2 * Math.PI * r;
+  const frac = Math.max(0, Math.min(1, value / max));
+  const wrap = el("div", { class: "hero-ring", style: `width:${size}px;height:${size}px` });
+  wrap.innerHTML = `
+    <svg class="ring" width="${size}" height="${size}">
+      <circle cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="var(--gridline)" stroke-width="11"/>
+      <circle class="fill" cx="${size / 2}" cy="${size / 2}" r="${r}" fill="none" stroke="url(#ringGrad)" stroke-width="11"
+        stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${c}"/>
+      <defs><linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="var(--blue-350)"/><stop offset="100%" stop-color="var(--blue-650)"/>
+      </linearGradient></defs>
+    </svg>`;
+  wrap.appendChild(el("div", { class: "figure" }, [
+    el("div", { class: "n", text: "0" }),
+    el("div", { class: "d", text: `/ ${max}` }),
+  ]));
+  requestAnimationFrame(() => {
+    const fillCircle = wrap.querySelector("circle.fill");
+    fillCircle.style.strokeDashoffset = `${c * (1 - frac)}`;
+    animateCount(wrap.querySelector(".figure .n"), value);
+  });
+  return wrap;
+}
+
+function animateCount(node, target, duration = 900) {
+  const start = performance.now();
+  const decimals = (String(target).split(".")[1] || "").length;
+  function frame(now) {
+    const t = Math.min(1, (now - start) / duration);
+    const eased = 1 - Math.pow(1 - t, 3);
+    node.textContent = (target * eased).toFixed(decimals);
+    if (t < 1) requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+
+let dimCounter = 0;
+function renderQuestion(q, index) {
+  const [num, title] = EXERCISE_NAMES[q.exercise] || ["?", q.exercise];
+  const v = VERDICT_STYLE[q.verdict] || { v: "--text-muted" };
+  const accentColor = `var(${v.v})`;
+
+  const panel = el("div", { class: "panel q-panel fade-in", style: `animation-delay:${80 + index * 60}ms` });
+  panel.appendChild(el("div", { class: "q-accent", style: `background:${accentColor}` }));
+  const inner = el("div", { class: "q-inner" });
+
+  const headerLeft = el("div", {}, [
+    el("div", { class: "q-title", text: `${num} — ${title}` }),
+  ]);
+  inner.appendChild(el("div", { class: "q-header" }, [headerLeft, tag(q.verdict)]));
+
+  inner.appendChild(el("div", { class: "q-score-row" }, [
+    el("span", {}, [document.createTextNode("Participation "), el("b", { text: `${q.participation}/2.5` })]),
+    el("span", {}, [document.createTextNode("Analytical "), el("b", { text: `${q.analytical}/10` })]),
+  ]));
+
+  if (q.dimensions && q.dimensions.length) {
+    const list = el("div", { class: "dim-list" });
+    for (const d of q.dimensions) {
+      dimCounter += 1;
+      const citId = `cit-${dimCounter}`;
+      const barColor = DIM_BAR_COLOR[Math.max(0, Math.min(4, d.score_0_4))];
+      const row = el("div", { class: "dim-row" });
+      row.appendChild(el("div", { class: "dim-name-row" }, [
+        document.createTextNode(d.name),
+        el("span", { class: "dim-weight", text: `${d.weight_pct}%` }),
+      ]));
+      const track = el("div", { class: "dim-track" }, [el("div", {})]);
+      const scoreWrap = el("div", { class: "dim-score-wrap" }, [
+        track,
+        el("span", { class: "dim-score-label", text: `${d.score_0_4}/4` }),
+      ]);
+      row.appendChild(scoreWrap);
+      list.appendChild(row);
+
+      if (d.citations && d.citations.length) {
+        const toggle = el("button", { class: "dim-evidence-toggle", type: "button", "aria-expanded": "false", "aria-controls": citId });
+        toggle.innerHTML = svgIcon("chevronRight") + `<span>${d.citations.length} supporting citation${d.citations.length > 1 ? "s" : ""}</span>`;
+        const ul = el("ul", { class: "citations", id: citId });
+        for (const c of d.citations) ul.appendChild(el("li", { text: c }));
+        toggle.addEventListener("click", () => {
+          const open = ul.classList.toggle("open");
+          toggle.setAttribute("aria-expanded", String(open));
+        });
+        list.appendChild(toggle);
+        list.appendChild(ul);
+      }
+
+      requestAnimationFrame(() => {
+        setTimeout(() => { track.firstChild.style.width = `${(d.score_0_4 / 4) * 100}%`; track.firstChild.style.background = barColor; }, 60);
+      });
+    }
+    inner.appendChild(list);
+  }
+
+  const callouts = [];
+  if (q.unsupported_or_overstated_claims && q.unsupported_or_overstated_claims.length) {
+    const body = el("div", { class: "callout-body" }, [el("span", { class: "label", text: "Unsupported or overstated claims" })]);
+    const ul = el("ul", { style: "margin:0; padding-left:16px" });
+    for (const c of q.unsupported_or_overstated_claims) ul.appendChild(el("li", { style: "color:var(--text-secondary); margin-top:2px", text: c }));
+    body.appendChild(ul);
+    callouts.push(el("div", { class: "callout warn" }, [el("div", { class: "callout-icon", html: svgIcon("alertTriangle") }), body]));
+  }
+  if (q.strongest_alternative_interpretation) {
+    const body = el("div", { class: "callout-body" }, [
+      el("span", { class: "label", text: "Strongest alternative interpretation" }),
+      el("p", { text: q.strongest_alternative_interpretation }),
+    ]);
+    callouts.push(el("div", { class: "callout info" }, [el("div", { class: "callout-icon", html: svgIcon("compass") }), body]));
+  }
+  if (q.single_most_valuable_next_improvement) {
+    const body = el("div", { class: "callout-body" }, [
+      el("span", { class: "label", text: "Most valuable next improvement" }),
+      el("p", { text: q.single_most_valuable_next_improvement }),
+    ]);
+    callouts.push(el("div", { class: "callout tip" }, [el("div", { class: "callout-icon", html: svgIcon("target") }), body]));
+  }
+  if (callouts.length) {
+    inner.appendChild(el("div", { class: "divider" }));
+    for (const c of callouts) inner.appendChild(c);
+  }
+
+  const link = el("a", { class: "rubric-link", href: `revealed/${q.exercise}/rubric.md`, target: "_blank", rel: "noopener" });
+  link.innerHTML = `See the rubric this was graded against ${svgIcon("arrowUpRight")}`;
+  inner.appendChild(link);
+
+  panel.appendChild(inner);
+  return panel;
+}
+
+function renderResult(data) {
+  const root = document.getElementById("result");
+  root.innerHTML = "";
+  dimCounter = 0;
+
+  const hero = el("div", { class: "panel hero fade-in" });
+  hero.appendChild(scoreRing(data.final, 100));
+  const body = el("div", { class: "hero-body" });
+  body.appendChild(el("div", { class: "hero-title" }, [document.createTextNode("Your final mark")]));
+  body.appendChild(el("div", { class: "hero-stats" }, [
+    el("div", {}, [el("div", { class: "n", text: `${data.questions_answered}/8` }), el("div", { class: "l", text: "answered" })]),
+    el("div", {}, [el("div", { class: "n", text: `${data.participation}` }), el("div", { class: "l", text: "participation" })]),
+    el("div", {}, [el("div", { class: "n", text: `${data.analytical}` }), el("div", { class: "l", text: "analytical" })]),
+  ]));
+  hero.appendChild(body);
+  root.appendChild(hero);
+
+  const byExercise = {};
+  for (const q of data.per_question || []) byExercise[q.exercise] = q;
+  let idx = 0;
+  for (const slug of EXERCISE_ORDER) {
+    if (byExercise[slug]) root.appendChild(renderQuestion(byExercise[slug], idx++));
+  }
+  for (const q of data.per_question || []) {
+    if (!EXERCISE_ORDER.includes(q.exercise)) root.appendChild(renderQuestion(q, idx++));
+  }
+
+  if (!data.per_question || !data.per_question.length) {
+    root.appendChild(el("div", { class: "empty-state", text: "No questions were answered." }));
+  }
+}
+
+async function lookup() {
+  const codeInput = document.getElementById("code");
+  const errorBox = document.getElementById("error");
+  const loading = document.getElementById("loading");
+  const code = codeInput.value.trim();
+  errorBox.style.display = "none";
+  document.getElementById("result").innerHTML = "";
+
+  if (!/^[0-9]{16}$/.test(code)) {
+    errorBox.innerHTML = svgIcon("alertTriangle") + "<div>That doesn't look like a valid 16-digit code. Check what was emailed to you.</div>";
+    errorBox.style.display = "flex";
+    return;
+  }
+
+  loading.style.display = "block";
+  try {
+    const resp = await fetch(`results/${code}.json`, { cache: "no-store" });
+    loading.style.display = "none";
+    if (resp.status === 404) {
+      errorBox.innerHTML = svgIcon("alertTriangle") + "<div>No result found for that code. Either it's mistyped, or grading for your submission isn't complete yet.</div>";
+      errorBox.style.display = "flex";
+      return;
+    }
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const data = await resp.json();
+    try { localStorage.setItem("p2-last-code", code); } catch {}
+    renderResult(data);
+  } catch (e) {
+    loading.style.display = "none";
+    errorBox.innerHTML = svgIcon("alertTriangle") + "<div>Couldn't load your result right now. Try again in a moment.</div>";
+    errorBox.style.display = "flex";
+  }
+}
+
+document.getElementById("lookup-btn").addEventListener("click", lookup);
+document.getElementById("code").addEventListener("keydown", (e) => { if (e.key === "Enter") lookup(); });
+
+try {
+  const last = localStorage.getItem("p2-last-code");
+  if (last) document.getElementById("code").value = last;
+} catch {}
+
+const themeToggle = document.getElementById("theme-toggle");
+const themeIcon = document.getElementById("theme-icon");
+function isDark() {
+  const stamped = document.documentElement.getAttribute("data-theme");
+  if (stamped) return stamped === "dark";
+  return window.matchMedia("(prefers-color-scheme: dark)").matches;
+}
+function syncThemeIcon() { themeIcon.innerHTML = ICONS[isDark() ? "sun" : "moon"]; }
+function applyTheme(t) {
+  if (t) document.documentElement.setAttribute("data-theme", t);
+  else document.documentElement.removeAttribute("data-theme");
+  syncThemeIcon();
+}
+try { applyTheme(localStorage.getItem("p2-theme")); } catch { syncThemeIcon(); }
+themeToggle.addEventListener("click", () => {
+  const next = isDark() ? "light" : "dark";
+  applyTheme(next);
+  try { localStorage.setItem("p2-theme", next); } catch {}
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,90 @@
+name: Grade Project 2
+
+# Manually triggered -- run whenever the deadline has passed, in batches (increasing
+# --limit) rather than all at once.
+on:
+  workflow_dispatch:
+    inputs:
+      quiz:
+        description: "Quiz id to fetch from the exam server"
+        required: true
+        default: "tds-2026-05-p2"
+      concurrency:
+        description: "Max concurrent grading calls"
+        required: true
+        default: "20"
+      limit:
+        description: "Only grade the first N students (leave blank for everyone)"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+jobs:
+  grade:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+
+      # Runners are ephemeral; this carries grading progress across separate
+      # workflow_dispatch runs so a re-triggered run resumes instead of re-grading
+      # (and re-paying for) everyone from scratch.
+      - name: Restore prior grading progress, if any
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            private/submissions
+            private/grades
+            private/roster.csv
+          key: p2-grading-state-${{ github.run_id }}
+          restore-keys: |
+            p2-grading-state-
+
+      - name: Fetch submissions
+        env:
+          AIPIPE_BASE_URL: ${{ secrets.AIPIPE_BASE_URL }}
+          AIPIPE_TOKEN: ${{ secrets.AIPIPE_TOKEN }}
+        run: uv run fetch.py --quiz "${{ inputs.quiz }}"
+
+      - name: Grade every answered question
+        env:
+          AIPIPE_BASE_URL: ${{ secrets.AIPIPE_BASE_URL }}
+          AIPIPE_TOKEN: ${{ secrets.AIPIPE_TOKEN }}
+        run: |
+          uv run batch.py \
+            --concurrency "${{ inputs.concurrency }}" \
+            ${{ inputs.limit != '' && format('--limit {0}', inputs.limit) || '' }}
+
+      # Runs even on failure/cancellation, so progress up to that point isn't lost.
+      - name: Save grading progress
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            private/submissions
+            private/grades
+            private/roster.csv
+          key: p2-grading-state-${{ github.run_id }}
+
+      - name: Generate per-student lookup codes
+        env:
+          CODE_SECRET: ${{ secrets.CODE_SECRET }}
+        run: uv run codes.py --emails private/roster.csv
+
+      - name: Publish results + reveal rubric
+        run: uv run publish.py --out .
+
+      # Explicit paths, not `add -A` -- private/ (real student data) must never be committed.
+      # Pages serves from main/root (Settings > Pages > Deploy from a branch), so this
+      # push is the deploy.
+      - name: Commit results + revealed rubric
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add results revealed
+          git diff --cached --quiet || git commit -m "Publish P2 results + revealed rubric ($(date -u +%Y-%m-%dT%H:%M:%SZ))"
+          git push
