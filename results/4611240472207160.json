@@ -1,0 +1,488 @@
+{
+  "questions_answered": 8,
+  "participation": 20.0,
+  "analytical": 67.6,
+  "final": 87.6,
+  "per_question": [
+    {
+      "exercise": "1a-dth-month-end",
+      "participation": 2.5,
+      "analytical": 9.5,
+      "verdict": "strong",
+      "dimensions": [
+        {
+          "name": "Evidence traceability",
+          "weight_pct": 30,
+          "score_0_4": 4,
+          "citations": [
+            "\"Zero duplicate `source_event_id` or `recharge_id` across the entire 24,542-row dataset\"",
+            "\"`effective_event_date` for the batch spans 5/01\u20135/28 (DLR-219) and 5/03\u20135/25 (DLR-104) \u2014 only `posted_at` clusters on 5/31\""
+          ]
+        },
+        {
+          "name": "Mechanism and causal judgment",
+          "weight_pct": 25,
+          "score_0_4": 4,
+          "citations": [
+            "\"The batching is plan-specific, not dealer-wide\"",
+            "\"The 31 May West-region annual-plan cluster is explained by a contracted, dealer-specific batch-submission process\""
+          ]
+        },
+        {
+          "name": "Calibration and alternatives",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "\"Material unknowns\"",
+            "\"The cash-to-ledger reconciliation is internally consistent within DealerDrop but doesn't independently prove the cash originated from real customer payments\""
+          ]
+        },
+        {
+          "name": "Decision safety and reframing",
+          "weight_pct": 15,
+          "score_0_4": 4,
+          "citations": [
+            "\"Do not reverse, restate, or exclude the $1,506.29\"",
+            "\"Temporarily annotate these month-end postings in the weekly trend/anomaly-detection view so they're not misread as a spike, using `effective_event_date` for trend purposes\""
+          ]
+        },
+        {
+          "name": "Usefulness and clarity",
+          "weight_pct": 10,
+          "score_0_4": 4,
+          "citations": [
+            "\"No material revenue-integrity issue \u2014 do not escalate as a duplication or manipulation incident.\"",
+            "\"Before making any reporting-logic change permanent, pull the DealerDrop audit trail and underlying payment/ledger transaction IDs\""
+          ]
+        }
+      ],
+      "unsupported_or_overstated_claims": [
+        "\"The transactions are reconciled and real\" overstates what internal DealerDrop reconciliation establishes; the submission itself acknowledges that independent payment-system evidence is still missing.",
+        "\"`effective_event_date` values are genuinely spread across the month, not backdated or fabricated\" supports temporal dispersion but does not by itself prove the dates were not fabricated or manipulated.",
+        "\"A defect would not selectively batch only the 365-day plan from only two dealers\" is a strong inference rather than a demonstrated impossibility; a configuration or workflow defect could also be selective.",
+        "\"Ops states dealers are contractually permitted... so treated as confirmed\" remains dependent on one email until the contract or dealer master is checked."
+      ],
+      "strongest_alternative_interpretation": "The analyst handled the principal alternatives\u2014duplicate revenue, manipulated reporting, and a pipeline defect\u2014and preserved the possibility of an unauthorized process deviation or self-referential reconciliation. The main alternative still needing stronger testing is genuine payment or ledger reprocessing outside DealerDrop, since the internal reconciliation and unique identifiers do not independently establish independent cash settlement.",
+      "single_most_valuable_next_improvement": "Obtain and join independent payment-system and ledger transaction IDs, settlement timestamps, and reprocessing/audit records for all 17 renewals, while verifying the dealer contract and region mapping; this would directly test the remaining integrity and authorization uncertainties rather than relying mainly on DealerDrop's internal reconciliation."
+    },
+    {
+      "exercise": "1b-dth-complaints-quiet",
+      "participation": 2.5,
+      "analytical": 9.2,
+      "verdict": "strong",
+      "dimensions": [
+        {
+          "name": "Evidence traceability",
+          "weight_pct": 30,
+          "score_0_4": 3,
+          "citations": [
+            "\"South CareDesk cases fell from 184 \u2192 157 \u2192 104 across Apr/May/Jun\" with source \"`tickets.csv`, monthly aggregation\"",
+            "\"South IVR transfer-to-agent rate fell from 49.5% under LEGACY to 3.3% under NOVA-S1; recorded `RESOLVED` rose from 26.0% to 56.1%.\" with source \"`ivr_interactions.jsonl`\""
+          ]
+        },
+        {
+          "name": "Mechanism and causal judgment",
+          "weight_pct": 25,
+          "score_0_4": 4,
+          "citations": [
+            "\"The most defensible interpretation is therefore reduced case capture rather than demonstrated reduction in customer problems.\"",
+            "\"Lower transfer volume can therefore reflect fewer customers reaching the transfer decision rather than successful resolution.\""
+          ]
+        },
+        {
+          "name": "Calibration and alternatives",
+          "weight_pct": 20,
+          "score_0_4": 4,
+          "citations": [
+            "\"This is enough to block national expansion, but not enough to conclude that NovaIVR itself is harmful.\"",
+            "\"Material unknowns: what happens after pre-authentication failure; whether `RESOLVED` sessions are independently verified as resolved; whether the `AGENT_DIRECT` decline reflects a routing/policy change\""
+          ]
+        },
+        {
+          "name": "Decision safety and reframing",
+          "weight_pct": 15,
+          "score_0_4": 4,
+          "citations": [
+            "\"Do not expand NovaIVR nationally on the current evidence. Keep the South pilot running under controlled observation.\"",
+            "\"Reconcile every NOVA-S1 session\u2014including pre-authentication failures\u2014against downstream CareDesk cases, repeat contacts, and other-channel contacts for the same subscriber.\""
+          ]
+        },
+        {
+          "name": "Usefulness and clarity",
+          "weight_pct": 10,
+          "score_0_4": 4,
+          "citations": [
+            "\"On the surface, this resembles a self-service improvement. However, the evidence does not establish improved customer experience.\"",
+            "\"Use a comparable non-pilot control cohort and independently validate `RESOLVED` outcome\""
+          ]
+        }
+      ],
+      "unsupported_or_overstated_claims": [
+        "\"Authentication is a prerequisite for CareDesk reporting\" is somewhat broader than the cited process statement that sessions ending before authentication are outside CareDesk reporting; the full case-creation rule should be verified.",
+        "\"Authentication/error-stage termination increased ... driven by `TOKEN_MISMATCH` (200) and `ANI_LOOKUP_TIMEOUT` (146)\" reports error counts but does not show that these errors account for the increase without denominators or event-level validation.",
+        "The note identifies service disruption as a confounder but does not quantify service-event exposure for pilot and comparison populations, so the claim that improved reliability does not explain the decline is appropriately cautious but not fully tested."
+      ],
+      "strongest_alternative_interpretation": "The analyst handled the main benign alternative\u2014that lower transfers and higher recorded RESOLVED outcomes could reflect genuine successful self-service\u2014and also considered service reliability and routing changes. It missed a fully tested explanation based on ordinary AGENT_DIRECT routing or policy changes, although it correctly preserved that possibility as an unknown.",
+      "single_most_valuable_next_improvement": "Complete the end-to-end journey linkage with verified outcomes: connect pre-authentication failures, subsequent repeat or other-channel contacts, and CareDesk cases using a comparable control cohort, then supplement this with sampled call listening to validate whether sessions marked RESOLVED were actually resolved."
+    },
+    {
+      "exercise": "2a-solar-smell-test",
+      "participation": 2.5,
+      "analytical": 7.6,
+      "verdict": "strong",
+      "dimensions": [
+        {
+          "name": "Evidence traceability",
+          "weight_pct": 20,
+          "score_0_4": 4,
+          "citations": [
+            "The submission ties the orphaned recovery claim to `inverter_events.csv` and identifies INV-09 and 2026-06-04.",
+            "It explicitly cites `impact_mw = 0`, `warning` severity, the 7-minute duration, distinct inverter IDs, and 1\u20137 minute clearing times.",
+            "It distinguishes the observed absence of an onset event from the inference that this may be a filtering or window artifact."
+          ]
+        },
+        {
+          "name": "Investigative reasoning",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "The submission tests the innocent explanation that the export is incomplete: \u201ccould be filtering/window artifact of the export rather than a real gap.\u201d",
+            "It compares events across the file to assess clustering, repeats, severity, duration, and impact rather than treating the recovery label alone as proof of a plant fault.",
+            "The analysis uses one event file rather than genuinely independent channels, and its statement that the evidence \u201crejects\u201d fleet-wide clustering is stronger than the available evidence supports."
+          ]
+        },
+        {
+          "name": "Calibration and uncertainty",
+          "weight_pct": 20,
+          "score_0_4": 4,
+          "citations": [
+            "It labels the orphaned recovery as a \u201cpossible incomplete export, not a fault signal.\u201d",
+            "It qualifies the zero-impact observation because the sample is only four rows and `impact_mw` could be unpopulated.",
+            "It proposes a decision-changing check\u2014an unfiltered log around INV-09 on 2026-06-04\u2014and gives conditional interpretations for whether the onset event is found."
+          ]
+        },
+        {
+          "name": "Decision/action quality",
+          "weight_pct": 20,
+          "score_0_4": 4,
+          "citations": [
+            "The recommendation, \u201cOne cheap check, not escalation,\u201d is proportionate to zero recorded impact, short durations, and lack of repeats.",
+            "Pulling the unfiltered INV-09 event log around the event is a targeted and discriminating next test that preserves the possibility of escalation if the anomaly persists in the full log."
+          ]
+        },
+        {
+          "name": "Conclusion fit",
+          "weight_pct": 20,
+          "score_0_4": 4,
+          "citations": [
+            "The conclusion does not invent a plant problem from a seven-minute communications warning or an isolated recovery record.",
+            "It accurately scopes the result to \u201cnothing here warrants escalation\u201d while retaining a low-cost data-completeness check.",
+            "The conclusion is consistent with the observed zero MW impact, quick clearing, distinct inverter IDs, and lack of severity escalation."
+          ]
+        }
+      ],
+      "unsupported_or_overstated_claims": [
+        "\u201cThe evidence rejects\u201d the fleet-wide fault-clustering hypothesis is overstated: the file shows no clustering, repeats, escalation, or impact, but four short events in one export cannot rule out a common intermittent issue.",
+        "\u201cThe file is behaving as expected\u201d is conditional and reasonable if the event is outside the extract scope, but the submission does not establish the export\u2019s actual time-window or event-type filters."
+      ],
+      "strongest_alternative_interpretation": "The `TEMP_SENSOR_RECOVERED` record may be a legitimate recovery whose onset was omitted by the export\u2019s time window or event-type filtering, rather than evidence of a sensor problem. A less likely but still possible alternative is that the full log contains a related recurring condition not represented in this four-row extract.",
+      "single_most_valuable_next_improvement": "Obtain the export metadata and the complete, unfiltered event history for INV-09 around 2026-06-04, including adjacent event types and timestamps, so the orphaned recovery can be distinguished from a genuine missing or recurring sensor event."
+    },
+    {
+      "exercise": "2b-solar-impact-claim",
+      "participation": 2.5,
+      "analytical": 8.5,
+      "verdict": "good",
+      "dimensions": [
+        {
+          "name": "A. Evidence traceability",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "The submission cites `dispatch_blocks.csv` for the block counts, penalties, gusts, schedule source, and deviation means, and cites `DSM_Commercial_Extract.pdf` for the charge-band arithmetic.",
+            "The statement that the net improvement is \u201centirely attributable\u201d to the 84 non-pilot blocks is traceable as a decomposition, but the submission does not show the required same-day `base_schedule_mw` versus `submitted_schedule_mw` comparison for 29 May."
+          ]
+        },
+        {
+          "name": "B. Investigative reasoning",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "It cross-checks the headline with block-level penalties, physical STOW counts, duration, gusts, and cloud factor rather than accepting the summary figure.",
+            "It tests forecast-quality variation as an innocent alternative and explicitly identifies forecast-source variance, scheduler differences, and chance as unresolved.",
+            "However, it treats the 28 May equivalent-window comparison as the main causal test and does not test whether the 29 May pilot revision improved performance relative to the 29 May base schedule."
+          ]
+        },
+        {
+          "name": "C. Calibration and uncertainty",
+          "weight_pct": 20,
+          "score_0_4": 4,
+          "citations": [
+            "The submission distinguishes \u201carithmetically reproducible\u201d from causally supported and labels the non-stow forecast driver as unidentified.",
+            "It states that one before/after pair cannot isolate the mechanism and requests multiple shadow-mode events rather than claiming certainty.",
+            "The recommendation appropriately avoids expanding the 31.6% claim while retaining the possibility of pilot value."
+          ]
+        },
+        {
+          "name": "D. Decision/action quality",
+          "weight_pct": 20,
+          "score_0_4": 4,
+          "citations": [
+            "The proposal to run the pilot in \u201cshadow mode,\u201d log the proposed schedule alongside the actual `qca_base` submission for the same window, and compare both with realized generation is a discriminating next test.",
+            "The recommendation to keep the workbook \u201cshadow/parallel, non-binding\u201d preserves operational constraints and avoids relying on an uncontrolled day comparison."
+          ]
+        },
+        {
+          "name": "E. Conclusion fit",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "The conclusion correctly rejects using the 31.6% whole-day figure as evidence of pilot effectiveness and preserves a narrower claim about lower whole-day DSM exposure on 29 May.",
+            "It is somewhat over-scoped in concluding that the pilot mechanism \u201cperformed worse\u201d and that the improvement is \u201cnot by the wind-stow pilot mechanism,\u201d because the submission does not compare the 29 May submitted schedule with the 29 May base schedule."
+          ]
+        }
+      ],
+      "unsupported_or_overstated_claims": [
+        "\u201cThe net day-level improvement is entirely attributable ... to the 84 non-pilot blocks\u201d is supported as a day-to-day arithmetic decomposition, but it does not establish that the pilot failed to improve 29 May relative to its same-day base schedule.",
+        "\u201cThe wind-stow pilot mechanism ... performed worse\u201d relies on comparing 29 May pilot-window outcomes with the corresponding 28 May window, not on the required 29 May `base_schedule_mw` versus `submitted_schedule_mw` counterfactual.",
+        "\u201cNo evidence the tracker logic itself behaved differently\u201d is reasonable from the cited STOW counts and gusts, but similar physical stow behavior alone does not rule out differences in schedule quality or operating context."
+      ],
+      "strongest_alternative_interpretation": "The pilot may have reduced penalty on 29 May relative to the 29 May base schedule even though the pilot-window penalty was higher than on 28 May; differing day conditions and forecast inputs could make the cross-day comparison unfavorable while the same-day pilot intervention was beneficial. The submission's shadow-mode recommendation is appropriate because this alternative remains unresolved.",
+      "single_most_valuable_next_improvement": "Explicitly calculate, for each 29 May pilot-revision block, the penalty under `base_schedule_mw` and under `submitted_schedule_mw`, then compare those same realized-generation outcomes before making a causal claim that the pilot worsened or failed to improve the window."
+    },
+    {
+      "exercise": "3a-customs-mismatch",
+      "participation": 2.5,
+      "analytical": 8.0,
+      "verdict": "good",
+      "dimensions": [
+        {
+          "name": "Evidence traceability",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "\"Declared code **90211000** for P1001 matches Switzerland's country-specific working classification.\"",
+            "\"Helios **90211090** is a master/reference value\"",
+            "\"The packet_manifest.txt would also be useful to confirm exactly which reference table generated the automated flag.\""
+          ]
+        },
+        {
+          "name": "Reasoning and hypothesis testing",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "\"Simple data-entry/formatting error \u2014 rejected.\"",
+            "\"Product/origin/value inconsistency \u2014 rejected.\"",
+            "\"The automated flag appears to compare this against Helios's **90211090** master value\""
+          ]
+        },
+        {
+          "name": "Calibration",
+          "weight_pct": 20,
+          "score_0_4": 4,
+          "citations": [
+            "\"The Swiss Matrix is a **working classification, not a binding legal ruling**.\"",
+            "\"The smallest decision-changing check is an authoritative **Swiss Tares lookup or applicable customs ruling\"",
+            "\"If it contradicts 90211000, the disposition should change.\""
+          ]
+        },
+        {
+          "name": "Process and system understanding",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "\"Swiss local tariff codes are not expected to match Helios/global codes as strings.\"",
+            "\"The automated flag appears to compare this against Helios's **90211090** master value\"",
+            "\"raise a control fix so Swiss declarations are\""
+          ]
+        },
+        {
+          "name": "Decision safety",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "\"Close the flag as an apparent cross-nomenclature false positive, subject to the authoritative Swiss Tares/ruling check.\"",
+            "\"Do not amend or escalate the declaration unless that check contradicts 90211000.\"",
+            "\"Separately, raise a control fix so Swiss declarations are\""
+          ]
+        }
+      ],
+      "unsupported_or_overstated_claims": [
+        "The claim that \"Product P1001, description, US origin and CHF 126,900 value are consistent across the declaration, invoice and shipment documents\" appears to overstate what the AWB independently establishes; the submission itself only specifies that the AWB links the shipment identifiers.",
+        "The rejection of a \"Simple data-entry/formatting error\" is not fully demonstrated merely by the code being eight digits, although the independent Swiss classification evidence supports rejecting it overall.",
+        "The cited files are named but no worksheet, row, page, or passage is provided, limiting audit-level traceability.",
+        "The proposed control fix is incomplete because the submission ends with \"raise a control fix so Swiss declarations are\"."
+      ],
+      "strongest_alternative_interpretation": "90211000 could still be an incorrect Swiss classification despite the working matrix, or the declaration could have been evaluated against a legally controlling tariff source rather than the local matrix. The submission appropriately identifies this possibility and proposes an authoritative Swiss Tares lookup or ruling, but does not test it directly.",
+      "single_most_valuable_next_improvement": "Complete the control-remediation recommendation and provide exact worksheet rows/pages plus the authoritative Swiss Tares or ruling result for P1001 on 4 Nov 2025 before final closure."
+    },
+    {
+      "exercise": "3b-customs-preference",
+      "participation": 2.5,
+      "analytical": 9.5,
+      "verdict": "strong",
+      "dimensions": [
+        {
+          "name": "Evidence traceability",
+          "weight_pct": 20,
+          "score_0_4": 4,
+          "citations": [
+            "\"Declaration claims Preference=Yes, declared origin United States, 0.0% duty, for P1006 (EUR 193,400) | declaration.pdf\"",
+            "\"The register's SUP-02/P1006 row is expired (valid_to 2025-07-31) and, while active, declared origin as Ireland, not United States\"",
+            "\"The register itself cautions that absence of a document there 'does not prove no document exists outside the register'\""
+          ]
+        },
+        {
+          "name": "Reasoning and hypothesis testing",
+          "weight_pct": 20,
+          "score_0_4": 4,
+          "citations": [
+            "\"Rejected as the primary explanation. The nearest matching register record is both expired and origin-inconsistent (Ireland vs. declared US)\"",
+            "\"The matching 'manufacturing country: United States' on the invoice is enough corroboration.' Rejected\"",
+            "\"If a different supplier code applies (e.g., one with a current US-origin record), the picture changes substantially.\""
+          ]
+        },
+        {
+          "name": "Calibration",
+          "weight_pct": 20,
+          "score_0_4": 4,
+          "citations": [
+            "\"The preferential-origin claim is not currently supported \u2014 treat as unresolved, not as a benign missing-link issue.\"",
+            "\"High \u2014 direct quote from internal working notes, but informal meeting minutes, not policy\"",
+            "\"it's unclear from these materials alone what standard the claim needs to meet.\""
+          ]
+        },
+        {
+          "name": "Process and system understanding",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "\"manufacturing-country/ERP fields (Helios) were 'never designed to prove preference'\"",
+            "\"the SUP-02 linkage comes only from the register-search note, not from the packet itself\"",
+            "\"the register itself cautions that absence of a document there 'does not prove no document exists outside the register'\""
+          ]
+        },
+        {
+          "name": "Decision safety",
+          "weight_pct": 20,
+          "score_0_4": 4,
+          "citations": [
+            "\"Hold the preference claim as unconfirmed and do not clear it on current evidence.\"",
+            "\"Route to procurement/trade compliance to (a) confirm the correct supplier ID for this shipment and (b) search category folders for a current, valid supplier declaration\"",
+            "\"rather than defaulting to the ERP manufacturing-country value, which the team has already agreed is insufficient for this purpose.\""
+          ]
+        }
+      ],
+      "unsupported_or_overstated_claims": [
+        "The statement that the register contains the \"only origin-support record\" is appropriately qualified by the acknowledged possibility of documents outside the register, but the submission does not independently demonstrate the completeness of the register search.",
+        "The reference to the \"customs filing\" is not separately sourced from a named file; the evidence table specifically identifies declaration.pdf and commercial_invoice.pdf."
+      ],
+      "strongest_alternative_interpretation": "The packet may be linked to a supplier other than SUP-02, or a current US-origin supplier declaration may exist in procurement category folders but not yet be registered. In that case the claim could still be supportable. The submission correctly treats these as unresolved alternatives rather than inferring fraud or invalidity. Manufacturing country and preferential origin may also differ, so the invoice field alone cannot resolve the issue.",
+      "single_most_valuable_next_improvement": "Provide the actual register-search result and independently verify the shipment-to-supplier linkage and applicable preference rule before characterizing the SUP-02/Ireland record as the nearest or only relevant reference."
+    },
+    {
+      "exercise": "4a-consumer-qc-queue",
+      "participation": 2.5,
+      "analytical": 7.5,
+      "verdict": "good",
+      "dimensions": [
+        {
+          "name": "Evidence traceability",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "\"181 of 215 RELEASED batches (84.2%) have qcore_release_ts ending in exactly 02:10:00\"",
+            "\"QCore's documented refresh cadence is 'daily'\"",
+            "\"42 HOLD batches have no qcore_release_ts\"",
+            "\"The 34 RELEASED rows with a non-02:10:00 timestamp have a substantially shorter lab-to-release interval\""
+          ]
+        },
+        {
+          "name": "Causal / investigative reasoning",
+          "weight_pct": 25,
+          "score_0_4": 3,
+          "citations": [
+            "\"The timestamp pattern is highly concentrated rather than uniformly distributed, suggesting that the observed interval incorporates a data-refresh component\"",
+            "\"The clustering is concentrated in qcore_release_ts, while the other operational timestamps do not show comparable behavior\"",
+            "\"The SOP also defines the target as 24 hours from required evidence becoming available, not from lab_complete_ts\""
+          ]
+        },
+        {
+          "name": "Calibration and uncertainty",
+          "weight_pct": 15,
+          "score_0_4": 3,
+          "citations": [
+            "\"Medium \u2014 smaller subgroup and its different timestamp behavior is unexplained\"",
+            "\"verify first\"",
+            "\"If it establishes that this field is an event timestamp rather than an extraction/batch timestamp, the timestamp concern weakens substantially\""
+          ]
+        },
+        {
+          "name": "Decision usefulness / reframing",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "\"Do not build the dashboard on the 'day and a half' figure as-is \u2014 verify first\"",
+            "\"The smallest verification before using it as a KPI is to pull actual disposition times from the live QCore application for ~15\u201320 batches\"",
+            "\"the dashboard must use a validated event-time field instead\""
+          ]
+        },
+        {
+          "name": "Disconfirmation and rejected hypotheses",
+          "weight_pct": 10,
+          "score_0_4": 3,
+          "citations": [
+            "\"'The ~1.1-day average is simply genuine performance near the 24h SOP target.' \u2014 Rejected as the primary interpretation\"",
+            "\"'The 02:10:00 clustering is coincidental workload timing.' \u2014 Rejected as the more plausible explanation\""
+          ]
+        },
+        {
+          "name": "Questioning / next evidence",
+          "weight_pct": 10,
+          "score_0_4": 3,
+          "citations": [
+            "\"The single most useful verification is the data-catalog definition of qcore_release_ts\"",
+            "\"pull actual disposition times from the live QCore application for ~15\u201320 batches and compare them with qcore_release_ts\"",
+            "\"A secondary check ... is whether the 42 HOLD/RB- records come from the same source query/feed\""
+          ]
+        }
+      ],
+      "unsupported_or_overstated_claims": [
+        "The statement that QCore's daily refresh cadence is \"consistent with a nightly batch stamp\" is plausible but does not establish that qcore_release_ts itself is a batch or extraction timestamp.",
+        "The claim that the interval is affected by \"analytics-refresh lag\" is directionally plausible, but the submission does not distinguish a reporting refresh timestamp from an interface-commit timestamp or quantify the resulting bias.",
+        "The memo does not explicitly verify that the QCore and LabTrack extracts are from the same point-in-time snapshot, so end-to-end interval comparisons remain more uncertain than stated.",
+        "The memo gives both the data-catalog definition and live-application comparison as the \"single most useful\" next step without resolving which should be prioritized."
+      ],
+      "strongest_alternative_interpretation": "The 02:10 concentration could reflect a legitimate QCore interface commit or scheduled operational release process rather than analytics-refresh lag. The shorter intervals among the 34 non-02:10 records are consistent with a timestamp artifact but do not by themselves identify its mechanism. A field-definition check plus matched application event times would discriminate these explanations.",
+      "single_most_valuable_next_improvement": "Explicitly separate event-time semantics from extract/refresh timing and request a small matched event-log sample containing required-evidence availability, actual disposition/decision time, QCore interface commit time, and extract timestamps, with snapshot dates for both source files."
+    },
+    {
+      "exercise": "4b-consumer-spares-search",
+      "participation": 2.5,
+      "analytical": 7.8,
+      "verdict": "good",
+      "dimensions": [
+        {
+          "name": "Evidence traceability",
+          "weight_pct": 20,
+          "score_0_4": 4,
+          "citations": [
+            "\"$152,558.03 in open external quotes (24 requests)\"",
+            "\"spare_parts.csv; part_restrictions.csv\"",
+            "\"MaintStar-global, whose enterprise snapshot refreshes monthly (last snapshot 2026-06-26)\"",
+            "\"10 of 24 requests carry a blank manufacturer_part_no\"",
+            "\"ME-0006, HA-0022 show available_qty_global = -1\"],",
+            "reasoning omitted due schema constraint?"
+          ]
+        }
+      ],
+      "unsupported_or_overstated_claims": [
+        "\"only $17,315.58 (11%) is actionable now\" is too definitive while the analyst acknowledges that MaintStar availability may be materially stale and has not yet checked work-order or reservation data beyond the critical-asset flag.",
+        "\"Four servo-drive requests ... have no unreserved matching stock\" may be accurate in the extract, but the stronger operational conclusion that the value is not transferable should be bounded by snapshot freshness and any local reservation/qualification data not yet joined.",
+        "\"A semantic-search pilot that reports raw match value ... would overstate the opportunity by roughly 6x\" is directionally useful but depends on the proposed classifications being complete and current."
+      ],
+      "strongest_alternative_interpretation": "The apparent non-transferability and oversubscription may partly reflect stale or inconsistent MaintStar data, incomplete reservation information, or incorrect request revisions rather than true operational infeasibility. The submission recognizes this for negative quantities and stale freshness, but does not apply the same caution consistently to the headline actionable and non-transferable totals.",
+      "single_most_valuable_next_improvement": "Turn the headline categories into explicitly provisional, time-bounded results and run a small reversible validation against current local work-order/reservation data and engineering revision/qualification checks. Report candidate value separately from confirmed actionable value, with success criteria such as precision of confirmed transferable matches and the share invalidated by current reservations, revision, or UOM constraints."
+    }
+  ]
+}
