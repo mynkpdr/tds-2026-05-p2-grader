@@ -1,8 +1,8 @@
 {
-  "questions_answered": 7,
-  "participation": 17.5,
-  "analytical": 63.3,
-  "final": 80.8,
+  "questions_answered": 8,
+  "participation": 20.0,
+  "analytical": 69.5,
+  "final": 89.5,
   "per_question": [
     {
       "exercise": "1a-dth-month-end",
@@ -378,6 +378,80 @@
       ],
       "strongest_alternative_interpretation": "The shipment may have been sourced from SUP-03, SUP-05 or SUP-06, or supported by a valid declaration held in Procurement/Customs outside the packet; the apparent defect may therefore be a packet-linkage or data-lineage failure rather than an invalid preference claim. Conversely, if no shipment-specific supplier proof and no applicable declaration are found, the claim should remain unverified and be corrected without inferring fraud.",
       "single_most_valuable_next_improvement": "Obtain and cite the shipment-specific purchase order or sourcing record, the underlying supplier declaration and the governing preferential-origin rule, while explicitly separating register metadata from proof of legal preference entitlement."
+    },
+    {
+      "exercise": "4a-consumer-qc-queue",
+      "participation": 2.5,
+      "analytical": 6.2,
+      "verdict": "mixed",
+      "dimensions": [
+        {
+          "name": "Evidence traceability",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "\"The SOP defines the routine target from required evidence being available to disposition, but the extract has no timestamp for certificate/specification/deviation evidence availability.\"",
+            "\"185 of 262 `qcore_release_ts` values are exactly 02:10:00, coinciding with the QCore daily snapshot time.\"",
+            "\"The 42 HOLD rows are open/right-censored... their omission biases completed-only cycle-time estimates downward.\""
+          ]
+        },
+        {
+          "name": "Causal / investigative reasoning",
+          "weight_pct": 25,
+          "score_0_4": 2,
+          "citations": [
+            "\"the observed 02:10:00 timestamp clustering represents a batch-processing synchronization artifact rather than actual release timing.\"",
+            "\"The limitation is semantic alignment with the SOP clock... rather than data corruption.\""
+          ]
+        },
+        {
+          "name": "Calibration and uncertainty",
+          "weight_pct": 15,
+          "score_0_4": 2,
+          "citations": [
+            "\"missing/index-pending COA may be source lag rather than confirmed release without evidence.\"",
+            "\"The observed 02:10:00 timestamp clustering represents a batch-processing synchronization artifact rather than actual release timing.\"",
+            "\"Confidence\" is marked \"High\" for the timestamp-artifact and strict-subset claims."
+          ]
+        },
+        {
+          "name": "Decision usefulness / reframing",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "\"Decision: Do not launch the \u2018one and a half days\u2019 KPI yet.\"",
+            "\"Can this extract calculate the SOP's routine evidence-available-to-disposition KPI? No\"",
+            "\"Execute a targeted read-only spot-check of 5\u201310 batches in live QCore and CertVault.\""
+          ]
+        },
+        {
+          "name": "Disconfirmation and rejected hypotheses",
+          "weight_pct": 10,
+          "score_0_4": 2,
+          "citations": [
+            "\"\u2018The 1.5-day headline reflects genuine process speed\u2019: rejected because 185 of 262 release timestamps... are defaulted to 02:10:00 snapshot boundaries.\"",
+            "\"\u2018Discard the extract as corrupt\u2019: rejected because duration arithmetic is valid and monotonic.\"",
+            "\"\u2018Immediate dashboard release is safe\u2019: rejected because unmodeled evidence timestamps, right-censoring... and snapshot defaults produce misleading management metrics.\""
+          ]
+        },
+        {
+          "name": "Questioning / next evidence",
+          "weight_pct": 10,
+          "score_0_4": 3,
+          "citations": [
+            "\"Required evidence availability timestamp | Live QCore timestamp audit capturing true certificate upload times\"",
+            "\"True disposition time of 02:10 batches | Read-only live audit of 10 batches with 02:10:00 extract timestamps\"",
+            "\"obtaining verified upload timestamps would resolve the true start of the release clock before building any report.\""
+          ]
+        }
+      ],
+      "unsupported_or_overstated_claims": [
+        "The statement that 02:10:00 timestamps are definitively \"defaulted\" and represent a \"batch-processing synchronization artifact\" is stronger than the evidence described; coincident snapshot timing supports a hypothesis, but does not establish whether the timestamps are interface commits, actual decisions, or a mixture.",
+        "The phrase \"evidence-to-release median of about 8.4 hours\" is potentially misleading because the submission also states that the required evidence-availability timestamp is absent; it appears to be a proxy or filtered elapsed-time statistic, not an SOP-aligned evidence-to-release measure.",
+        "The statement that \"duration arithmetic is valid and monotonic\" is asserted without showing the validation or addressing the non-coherent timing of the source extracts."
+      ],
+      "strongest_alternative_interpretation": "The 02:10 concentration may reflect legitimate batched operational releases or interface-commit timing rather than wholly defaulted or false release times. The apparent cycle could therefore combine genuine workflow delay with timestamp/interface delay; only event-level evidence-availability and decision/disposition timestamps from a coherent snapshot can distinguish these explanations.",
+      "single_most_valuable_next_improvement": "Replace the asserted timestamp-artifact conclusion with a discriminating event-log request: obtain, for a sampled set of batches, required-evidence-available, actual disposition decision, and QCore/interface-commit timestamps, with extraction times or a common snapshot identifier. This would directly separate workflow duration from interface timing and avoid treating live upload timestamps alone as the SOP start event."
     },
     {
       "exercise": "4b-consumer-spares-search",
