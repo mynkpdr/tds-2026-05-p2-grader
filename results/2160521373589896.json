@@ -1,8 +1,8 @@
 {
-  "questions_answered": 7,
-  "participation": 17.5,
-  "analytical": 60.7,
-  "final": 78.2,
+  "questions_answered": 8,
+  "participation": 20.0,
+  "analytical": 68.5,
+  "final": 88.5,
   "per_question": [
     {
       "exercise": "1a-dth-month-end",
@@ -457,6 +457,86 @@
       ],
       "strongest_alternative_interpretation": "The 02:10 concentration may reflect a QCore interface or daily batch-commit timestamp rather than corrupted data or slow physical processing. Receipt-to-release and lab-complete-to-release measures may still describe useful operational proxies for completed records, but they cannot establish compliance with the SOP evidence-available-to-disposition target without event-level timestamp semantics. The extracts' differing freshness also means end-to-end joins should remain provisional.",
       "single_most_valuable_next_improvement": "Remove or relabel every metric that is described as evidence-to-release unless an actual evidence-availability event exists. Obtain a small event-level audit for sampled batches containing certificate/specification/deviation availability, true disposition decision time, and QCore interface-commit time from a common snapshot; use those fields to determine whether 02:10 is a measurement artifact and then either compute the SOP KPI or explicitly publish a proxy with its limitations."
+    },
+    {
+      "exercise": "4b-consumer-spares-search",
+      "participation": 2.5,
+      "analytical": 7.8,
+      "verdict": "good",
+      "dimensions": [
+        {
+          "name": "Evidence traceability",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "\"The 24 open requests total $166,495.60...\" citing part_requests.csv, qty, external_quote_usd, and status=OPEN.",
+            "\"Revision-B valve supply is two free units...\" citing spare_parts.csv, part_requests.csv, and part_restrictions.csv.",
+            "\"The global stock snapshot is dated 26 June...\" citing source_freshness.csv and spares_transfer_policy.md.",
+            "The submission identifies relevant files, fields, request IDs, revisions, quantities, and restrictions, and triangulates across multiple sources; however, it gives few exact row-level values or quoted source text and contains possible classification/count ambiguity."
+          ]
+        },
+        {
+          "name": "Causal / investigative reasoning",
+          "weight_pct": 25,
+          "score_0_4": 3,
+          "citations": [
+            "\"Do not convert raw search hits into automatic transfers.\"",
+            "\"The governing constraints... are physical eligibility: engineering qualification, revision parity, and critical-asset reservations.\"",
+            "\"Every search hit represents a direct transfer opportunity: rejected\" using reservation and stock evidence.",
+            "The reasoning correctly separates candidate retrieval from operational eligibility and tests several mechanisms, but it moves too quickly from exact-MPN coverage to the conclusion that semantic search is not the real constraint without first measuring semantic recall for blank or imperfect records."
+          ]
+        },
+        {
+          "name": "Calibration and uncertainty",
+          "weight_pct": 15,
+          "score_0_4": 3,
+          "citations": [
+            "\"Actionable now still requires current confirmation\" because the global stock snapshot is stale.",
+            "\"Needs check\" is used for revision conflicts, reservation-lag sentinels, and uncertain manufacturer identity.",
+            "\"The firm saving is $20.5k across 8 requests\" and \"An exact join... resolves all 13 identified requests immediately\" are stronger than the evidence supports because stock is stale and candidate value is not yet confirmed transfer value."
+          ]
+        },
+        {
+          "name": "Decision usefulness / reframing",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "\"Do not convert raw search hits into automatic transfers.\"",
+            "The submission provides a usable triage of 24 requests into actionable, needs-check, and not-transferable categories and specifies live CMMS, engineering, and qualification checks.",
+            "The proposed direction is operationally safer and largely reversible, but the recommendation to prioritize master-data hygiene over semantic search is premature unless the proposed exact-versus-semantic benchmark is actually run."
+          ]
+        },
+        {
+          "name": "Disconfirmation and rejected hypotheses",
+          "weight_pct": 10,
+          "score_0_4": 4,
+          "citations": [
+            "\"Every search hit represents a direct transfer opportunity\": rejected\" with reservation and zero-stock counterevidence.",
+            "\"Same part family means interchangeable\": rejected\" using revision-A versus revision-B evidence and approval rules.",
+            "\"available_qty_global=-1 means zero stock\": rejected\" using on-hand data and the sentinel explanation.",
+            "The submission actively tests multiple plausible alternatives and states what live checks or approval evidence could revive some conclusions."
+          ]
+        },
+        {
+          "name": "Questioning / next evidence",
+          "weight_pct": 10,
+          "score_0_4": 3,
+          "citations": [
+            "\"Manufacturer part number and revision from local maintenance records\" for the 11 blank-part-number requests.",
+            "\"Live local CMMS reservation and availability query\" for negative availability.",
+            "\"Receiving engineer and qualification approval\" for substitutions.",
+            "\"Compare recall/precision of exact MPN join versus semantic search on 24 requests\" provides a decision-linked test, though the submission does not explicitly prioritize one next query above the others."
+          ]
+        }
+      ],
+      "unsupported_or_overstated_claims": [
+        "\"Semantic search is not the real problem\" is not established by exact-MPN coverage alone; semantic search may provide value for blank, malformed, or description-only requests.",
+        "\"An exact MPN join resolves all 13 identified requests immediately\" conflates retrieval of candidates with eligibility and executable transfer, especially given revision, reservation, qualification, and stale-stock constraints.",
+        "\"The firm saving is $20.5k across 8 requests\" should be labeled candidate value or potential value until current inventory and transfer approvals are confirmed.",
+        "The request counts and candidate table appear potentially inconsistent: the stated 13 identified requests do not obviously reconcile with all request IDs listed across the action, needs-check, and non-transferable rows."
+      ],
+      "strongest_alternative_interpretation": "Exact MPN matching may be valuable for high-confidence candidate generation, but semantic search could still materially improve recall for the 11 requests lacking populated MPNs or for records with description, revision, UOM, or manufacturer-data defects. The apparent need for master-data cleanup and the potential value of semantic search are complementary rather than mutually exclusive.",
+      "single_most_valuable_next_improvement": "Run a bounded, auditable benchmark on all 24 requests: compare exact MPN matching, normalized/semantic description search, and their combination, then independently validate revision, UOM, qualification, reservation, and current availability. Report candidate value separately from confirmed actionable value and use the measured incremental valid-match rate to decide whether to fund a semantic-search pilot."
     }
   ]
 }
