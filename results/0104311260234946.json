@@ -1,8 +1,8 @@
 {
-  "questions_answered": 6,
-  "participation": 15.0,
-  "analytical": 33.7,
-  "final": 48.7,
+  "questions_answered": 8,
+  "participation": 20.0,
+  "analytical": 45.1,
+  "final": 65.1,
   "per_question": [
     {
       "exercise": "1a-dth-month-end",
@@ -390,6 +390,164 @@
       ],
       "strongest_alternative_interpretation": "The preference claim is presently unsubstantiated in the reviewed records, but the supplier may possess a valid declaration or the evidence may reside in an incomplete or unsynchronized repository. The missing invoice statement and register reference therefore support a verification hold or controlled non-preferential treatment, not a definitive finding that no valid preferential-origin evidence exists or that a legal breach occurred. Manufacturing or dispatch in Ireland likewise does not establish preferential origin without the applicable PSR and supplier/manufacturing evidence.",
       "single_most_valuable_next_improvement": "Show the exact declaration code, invoice text, register rows/search result, document effective dates, and system lineage, then recommend a conditional verification hold or duty-security path before changing the entry rather than asserting that the evidence definitively does not exist."
+    },
+    {
+      "exercise": "4a-consumer-qc-queue",
+      "participation": 2.5,
+      "analytical": 5.8,
+      "verdict": "mixed",
+      "dimensions": [
+        {
+          "name": "Evidence traceability",
+          "weight_pct": 20,
+          "score_0_4": 2,
+          "citations": [
+            "\"Source: source_freshness.csv\" and \"Source: batch_release.csv\" identify relevant files, but the submission does not cite specific rows, fields, timestamps, or freshness values.",
+            "\"Timestamp field distribution shows end-of-shift/overnight timestamp clustering\" is directionally relevant but not precise enough to establish the stated mechanism."
+          ]
+        },
+        {
+          "name": "Causal / investigative reasoning",
+          "weight_pct": 2.5,
+          "score_0_4": 2,
+          "citations": [
+            "\"conflates actual physical QC testing time with data snapshot latency... weekend/off-shift queue delays, and non-routine batch holds\" identifies multiple plausible mechanisms.",
+            "\"Release timestamps cluster around batch sync jobs rather than true physical disposition sign-offs\" is a useful hypothesis, but the submission does not distinguish interface-commit timestamps from decision timestamps or test that distinction with event-level evidence."
+          ]
+        },
+        {
+          "name": "Calibration and uncertainty",
+          "weight_pct": 15,
+          "score_0_4": 1,
+          "citations": [
+            "The submission assigns \"Confidence: High\" to snapshot distortion, workflow mixing, and timestamp clustering without showing quantitative bounds or acknowledging that the extracts may not be a coherent point-in-time snapshot.",
+            "\"must be verified\" is appropriately cautious at the conclusion level, but the individual causal claims are overstated."
+          ]
+        },
+        {
+          "name": "Decision usefulness / reframing",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "\"must be verified before using it as a performance KPI or building a dashboard\" appropriately prevents premature institutionalization of a potentially invalid metric.",
+            "\"Manually cross-check a sample of 15 recent routine batches\" is a small, testable next action, although filtering out non-working hours could alter the SOP-defined metric rather than validate it."
+          ]
+        },
+        {
+          "name": "Disconfirmation and rejected hypotheses",
+          "weight_pct": 10,
+          "score_0_4": 2,
+          "citations": [
+            "The submission explicitly considers and rejects active testing duration, dashboard readiness, and laboratory capacity as explanations.",
+            "The rejections rely mainly on SOP interpretation and do not test the strongest competing explanation: that release timestamps are interface commits and the KPI target is based on required evidence availability rather than lab completion."
+          ]
+        },
+        {
+          "name": "Questioning / next evidence",
+          "weight_pct": 10,
+          "score_0_4": 3,
+          "citations": [
+            "\"Raw LIMS Event Logs\" with Sample Receipt, Test Start, Test Completion, and Final QA Sign-Off is relevant and can separate testing, queue, and sign-off intervals.",
+            "\"Plant Operating Calendar\" is useful for a separately defined working-time metric, but \"Live LIMS System Connection\" is not the smallest or highest-value request and would not by itself resolve timestamp semantics or cross-extract snapshot alignment."
+          ]
+        }
+      ],
+      "unsupported_or_overstated_claims": [
+        "The claim that source freshness demonstrably \"artificially inflate[s]\" cycle time is not established without aligned snapshots or event-level timestamps; freshness differences may make joins and comparisons unreliable rather than directly inflate the metric.",
+        "The claim that the extract blends routine releases with delayed hold/quarantine batches is asserted from the SOP, which describes workflows but does not by itself show the composition of batch_release.csv.",
+        "The statement that timestamps cluster around \"batch sync jobs\" is stronger than the cited observation of overnight or end-of-shift clustering; the 02:10 concentration could indicate interface commits, but that mechanism was not directly demonstrated.",
+        "The recommendation to filter out non-working hours risks changing the defined KPI. The SOP target is tied to required evidence availability, so working-hour normalization should be a separate, explicitly defined measure."
+      ],
+      "strongest_alternative_interpretation": "The apparent 1.5-day cycle may primarily reflect release/interface commit timing rather than physical QC duration, with the relevant decision point being when required evidence became available. Non-routine holds and queue delays may contribute, but they should not be treated as the primary explanation until event and decision timestamps are aligned.",
+      "single_most_valuable_next_improvement": "Request a small, point-in-time-aligned event extract for routine and held batches containing required-evidence-available, decision/sign-off, and QCore/interface-release timestamps, plus source snapshot identifiers. Use it to test whether the 02:10 release concentration and apparent 1.5-day duration disappear when the decision timestamp is used."
+    },
+    {
+      "exercise": "4b-consumer-spares-search",
+      "participation": 2.5,
+      "analytical": 5.6,
+      "verdict": "mixed",
+      "dimensions": [
+        {
+          "name": "Evidence traceability",
+          "weight_pct": 20,
+          "score_0_4": 2,
+          "citations": [
+            "\"Based on cross-referencing all six data files\"",
+            "\"Identical OEM spec, fresh stock record (source_freshness.csv), compliant with transfer policy.\"",
+            "\"Plant C ERP sync delay >14 days\" (source_freshness.csv)",
+            "\"Rows 12-18\" (part_restrictions.csv)",
+            "\"Section 3.2 \\\"Transfer Economic Thresholds\\\"\" (spares_transfer_policy.md)",
+            "The submission names relevant files and some sections, but does not provide manufacturer part numbers, revisions, UOM, quantities, reservations, criticality, exact freshness fields, or row-level evidence supporting the 15%/55%/30% breakdown and individual actionability decisions."
+          ]
+        },
+        {
+          "name": "Causal / investigative reasoning",
+          "weight_pct": 25,
+          "score_0_4": 2,
+          "citations": [
+            "\"Semantic search alone overstates actionable savings.\"",
+            "\"Vector embeddings match descriptive phrasing well but ignore hard engineering parameters\"",
+            "\"All spare parts listed as \\\"in stock\\\" ... are physically available for immediate dispatch\" was rejected using freshness and safety-buffer evidence.",
+            "The submission correctly separates semantic similarity from engineering and policy constraints and tests several alternatives, but it jumps from a Plant C lag to the causal claim that inventory is phantom and does not establish the required identity, revision, UOM, qualification, reservation, or global freshness joins."
+          ]
+        },
+        {
+          "name": "Calibration and uncertainty",
+          "weight_pct": 15,
+          "score_0_4": 1,
+          "citations": [
+            "\"Actionable Now (15%)\"",
+            "\"Needs Engineering Check (55%)\"",
+            "\"Not Transferable / Illusory (30%)\"",
+            "Confidence is marked \"High\" for supplier aliasing, phantom inventory, transfer prohibitions, and freight economics.",
+            "The precise percentages and high-confidence causal claims are not bounded by a denominator, match methodology, freshness cutoff, or quantified uncertainty. The answer appropriately labels one candidate \"Needs Engineering Check,\" but calling REQ-104 actionable now is overconfident without stronger identity and operational checks."
+          ]
+        },
+        {
+          "name": "Decision usefulness / reframing",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "\"semantic search as candidate generation with engineering/availability confirmation\" (expressed through the distinction between Actionable Now and Needs Engineering Check)",
+            "\"Not Transferable\" for the voltage mismatch and freight/safety-stock case",
+            "\"Live ERP Inventory API\"",
+            "The recommendation usefully reframes semantic search as a screening mechanism rather than an automatic reallocation authority and identifies engineering, policy, and freshness safeguards. It would be stronger with a reversible pilot, explicit acceptance criteria, and candidate value versus confirmed actionable value."
+          ]
+        },
+        {
+          "name": "Disconfirmation and rejected hypotheses",
+          "weight_pct": 10,
+          "score_0_4": 3,
+          "citations": [
+            "\"Hypotheses Considered and Rejected\"",
+            "\"Semantic NLP vector similarity alone is sufficient to automate cross-plant inventory reallocation\"",
+            "\"All spare parts listed as \\\"in stock\\\" ... are physically available\"",
+            "\"High-dollar spare matches yield the highest net financial recovery\"",
+            "The submission considers and rejects three plausible alternatives using engineering constraints, freshness, policy, and warranty considerations. It does not specify what future evidence would revive any rejected hypothesis or test whether the cited mechanisms are primary rather than contributing factors."
+          ]
+        },
+        {
+          "name": "Questioning / next evidence",
+          "weight_pct": 10,
+          "score_0_4": 3,
+          "citations": [
+            "\"Parametric Technical Schema\"",
+            "\"Live ERP Inventory API\"",
+            "\"OEM Cross-Reference Matrix\"",
+            "These are relevant and aligned with the diagnostic gaps, especially MPN mapping and freshness. However, the request is a broad three-part data program rather than a prioritized smallest test; it does not identify the highest-value candidate or specify the fields needed to discriminate identity, transferability, and availability for that candidate."
+          ]
+        }
+      ],
+      "unsupported_or_overstated_claims": [
+        "The 15%/55%/30% value breakdown is presented without a defined population, calculation, or row-level audit trail.",
+        "REQ-104 is labeled \"Actionable Now\" based on \"Identical OEM spec,\" but no manufacturer part number, revision, UOM, qualification, reservation, criticality, or sufficiently detailed freshness evidence is shown.",
+        "\"Upstream stock data contains phantom inventory\" and the claim that high-turnover parts are \"often already consumed\" go beyond evidence of a Plant C ERP sync delay; lag establishes uncertainty, not actual consumption.",
+        "\"Supplier alias naming is the primary cause of catalog divergence\" is not demonstrated by the cited email alone and should remain a hypothesis until MPN-level comparisons quantify it.",
+        "The high-confidence claim that cross-plant transfers are prohibited on sanitary/hazardous lines may overgeneralize restrictions that could be conditional by part, site, qualification, or reservation.",
+        "REQ-115 and REQ-122 may be reasonable non-transfer candidates, but the submission does not show the exact restriction, quantity, current stock, reservation, revision, or freight calculation needed to verify the decisions."
+      ],
+      "strongest_alternative_interpretation": "The data supports semantic retrieval of possible cross-plant candidates, but not the asserted actionable-versus-illusory percentages. The apparent matches may be mostly unresolved candidates because manufacturer part-number identity, revision/UOM/qualification and reservation or criticality status are missing, while the non-coherent freshness extracts make availability uncertain even where descriptions appear equivalent.",
+      "single_most_valuable_next_improvement": "Replace the asserted actionability labels and percentages with a row-level pilot for the highest-value candidates: join request and stock records by manufacturer part number plus revision/UOM, apply every restriction including qualification and reservation/criticality, attach the global freshness status and quantity timestamp, and report candidate value separately from confirmed transferable value with an engineering sign-off outcome."
     }
   ]
 }
