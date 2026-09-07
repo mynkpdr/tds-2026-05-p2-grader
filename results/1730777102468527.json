@@ -1,0 +1,458 @@
+{
+  "questions_answered": 7,
+  "participation": 17.5,
+  "analytical": 57.5,
+  "final": 75.0,
+  "per_question": [
+    {
+      "exercise": "1a-dth-month-end",
+      "participation": 2.5,
+      "analytical": 8.6,
+      "verdict": "good",
+      "dimensions": [
+        {
+          "name": "Evidence traceability",
+          "weight_pct": 30,
+          "score_0_4": 4,
+          "citations": [
+            "\"210 rows posted 2026-05-31 vs ~128/day average | recharges.csv, posted_at, n=210 of 24,542\"",
+            "\"Those 17 rows tie exactly to two import batches (DF-00020: 8 rows, DF-00040: 9 rows), both status=RECONCILED, reconciliation_difference_usd=0 | dealer_import_log.csv, n=2 batches\""
+          ]
+        },
+        {
+          "name": "Mechanism and causal judgment",
+          "weight_pct": 25,
+          "score_0_4": 3,
+          "citations": [
+            "\"Only 17 of 210 rows have posted_at \u2260 effective_event_date; all term_days=365, dealers DLR-104/DLR-219\"",
+            "\"Pipeline defect (broad) \u2014 the only date-column divergence is 17 rows, both fully reconciled and matching the dealers' documented monthly-upload pattern\""
+          ]
+        },
+        {
+          "name": "Calibration and alternatives",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "\"Confidence: Medium-High.\"",
+            "\"Why 193 of 210 rows (same-day, non-batch) also cluster at month-end \u2014 plausibly routine billing-cycle behavior, but unconfirmed without a longer history or a 'renewal due date' field.\""
+          ]
+        },
+        {
+          "name": "Decision safety and reframing",
+          "weight_pct": 15,
+          "score_0_4": 4,
+          "citations": [
+            "\"Pull (or request) a dealer_id-to-region lookup and re-run the 31-May breakdown split by region\"",
+            "\"a read-only query, no data changes.\""
+          ]
+        },
+        {
+          "name": "Usefulness and clarity",
+          "weight_pct": 10,
+          "score_0_4": 4,
+          "citations": [
+            "\"No material issue. The 31-May cluster is mostly ordinary month-boundary renewal volume ... plus a small, fully-reconciled batch-posting timing effect from two dealers\"",
+            "\"spot-check the 17 batch-posted rows' effective_event_date against dealer source documents\""
+          ]
+        }
+      ],
+      "unsupported_or_overstated_claims": [
+        "\"Other month boundaries equally high ...\" is supported by several listed boundary counts but overstates the evidence as applying to every month start/end without showing the full distribution or a defined comparison criterion.",
+        "\"Manipulated reporting \u2014 killed by 100% RECONCILED status and $0 reconciliation_difference_usd across every batch\" overstates what reconciliation establishes; it rules out certain duplicate or settlement discrepancies but does not by itself eliminate all forms of reporting manipulation.",
+        "\"Pipeline defect (broad) ... killed\" is stronger than the evidence warrants because the analysis does not test all pipeline failure modes, only the observed date divergence, reconciliation status, and malformed-row checks.",
+        "\"No duplicate revenue\" is somewhat broader than the tested absence of duplicate recharge_id/source_event_id and reconciliation differences; duplicate economic value with distinct identifiers is not fully excluded."
+      ],
+      "strongest_alternative_interpretation": "The analyst handled duplicate revenue, manipulated reporting, and broad pipeline-defect hypotheses, while also recognizing a benign routine billing-cycle explanation for the 193 same-day rows. The partially missed or unresolved alternative is that the 193 rows represent a separate month-end operational or renewal-cycle effect rather than the two-dealer posting quirk; this remains untested without longer history or renewal-due-date data.",
+      "single_most_valuable_next_improvement": "Run a reproducible reconciliation and economic-duplication test at the customer/contract and effective-event-date level, not only by recharge_id and source_event_id, while documenting the full month-boundary comparison and directly validating the dealer email/source documents."
+    },
+    {
+      "exercise": "1b-dth-complaints-quiet",
+      "participation": 2.5,
+      "analytical": 9.0,
+      "verdict": "strong",
+      "dimensions": [
+        {
+          "name": "Evidence traceability",
+          "weight_pct": 30,
+          "score_0_4": 3,
+          "citations": [
+            "\"South tickets/day: 6.16 pre vs 3.84 post (-38%); E/N/W roughly flat (\u00b15%)\"",
+            "\"Pre-auth ABANDONED+ERROR South IVR sessions: 108 pre vs 1,098 post (40% of post volume)\""
+          ]
+        },
+        {
+          "name": "Mechanism and causal judgment",
+          "weight_pct": 25,
+          "score_0_4": 4,
+          "citations": [
+            "\"Email confirms pre-authentication sessions are excluded from CareDesk case reporting\"",
+            "\"South IVR-origin tickets/day: 1.73 pre vs 1.84 post (+6%); AGENT_DIRECT -54%, APP -48%, DEALER -76%\""
+          ]
+        },
+        {
+          "name": "Calibration and alternatives",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "\"Whether the 1,098 pre-auth ABANDONED/ERROR sessions are genuinely lost complaints or resolved elsewhere\"",
+            "\"Why non-IVR origins (DEALER, AGENT_DIRECT) also fell sharply \u2014 points to a possible co-occurring change, not the pilot itself.\""
+          ]
+        },
+        {
+          "name": "Decision safety and reframing",
+          "weight_pct": 15,
+          "score_0_4": 4,
+          "citations": [
+            "\"Do not approve national expansion on this evidence.\"",
+            "\"a read-only merge/reconciliation, no data or routing changes.\""
+          ]
+        },
+        {
+          "name": "Usefulness and clarity",
+          "weight_pct": 10,
+          "score_0_4": 4,
+          "citations": [
+            "\"Request the technical pilot report for South (pre-auth ABANDONED/ERROR volume) and reconcile it against CareDesk ticket counts\"",
+            "\"What is South's total inbound contact volume from the telephony switch itself, pre- vs post-10-May, independent of CareDesk or IVR logs?\""
+          ]
+        }
+      ],
+      "unsupported_or_overstated_claims": [
+        "\"Self-service resolved more issues, so agent tickets fell\" \u2014 \"killed by IVR-origin tickets staying flat/up\" is too definitive; flat IVR-origin ticket creation weakens the claim but does not rule out self-service resolution before case creation or changes in contact mix.",
+        "\"Fewer real problems caused fewer complaints\" \u2014 \"killed by flat/rising service_events incident rate\" overstates what service_events establish, since service events are not necessarily equivalent to complaints or total customer friction.",
+        "\"the 'technical pilot report' the email references would settle this\" is overstated; it could reconcile pre-auth volume but would not by itself establish whether abandonments were complaints, successful self-service, repeat contacts, or harmless exits.",
+        "The submission does not provide journey linkage, repeat-contact analysis, or sampled call listening, so it cannot determine whether the increased pre-auth abandonment reflects failed capture, successful resolution, or non-complaint behavior."
+      ],
+      "strongest_alternative_interpretation": "The analyst appropriately considered a co-occurring South-specific change and the possibility that pre-authenticated abandonments were resolved elsewhere rather than being lost complaints. However, it missed explicitly testing the benign possibility that some abandonment reflects successful self-service or users ending a session without dissatisfaction; abandonment and service-event volume are not themselves complaint measures.",
+      "single_most_valuable_next_improvement": "Add end-to-end journey validation to the reconciliation: link IVR sessions to subsequent CareDesk cases and repeat contacts, stratify by terminal stage and authentication outcome, and review a sample of recorded calls before drawing conclusions about customer experience or national expansion."
+    },
+    {
+      "exercise": "2a-solar-smell-test",
+      "participation": 2.5,
+      "analytical": 9.5,
+      "verdict": "strong",
+      "dimensions": [
+        {
+          "name": "Evidence traceability",
+          "weight_pct": 20,
+          "score_0_4": 4,
+          "citations": [
+            "Observed: the submission cites inverter_events.csv, all columns, n=4 for four rows, four inverter IDs, and the stated date range.",
+            "Observed: it cites inverter_events.csv impact_mw, n=4 for impact_mw = 0 in every row.",
+            "Observed: it cites inverter_events.csv cleared, n=4 for cleared = yes in every row.",
+            "Inferred: the file is too small and invariant to support escalation; this is grounded in the cited row count and invariant fields but is a judgment rather than a direct observation."
+          ]
+        },
+        {
+          "name": "Investigative reasoning",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "The submission tests a plausible innocent explanation: the export may be pre-filtered to trivial or resolved events.",
+            "It correctly distinguishes the observed zero-impact and cleared fields from the unsupported conclusion that no impactful outages occurred.",
+            "Limitation: it does not triangulate the event export against communications timing, recovery duration, or another operational channel before stopping."
+          ]
+        },
+        {
+          "name": "Calibration and uncertainty",
+          "weight_pct": 20,
+          "score_0_4": 4,
+          "citations": [
+            "The submission explicitly labels the core observations as high confidence while treating the absence-of-impact conclusion as unestablished.",
+            "The statement that the data cannot distinguish actual absence of impact from pre-filtering is appropriately scoped.",
+            "The proposed export-scope check targets the main uncertainty rather than inventing a plant problem."
+          ]
+        },
+        {
+          "name": "Decision/action quality",
+          "weight_pct": 20,
+          "score_0_4": 4,
+          "citations": [
+            "The recommendation to stop escalation on this file alone is proportionate to four rows, zero impact_mw in all rows, and cleared = yes in all rows.",
+            "The requested query/filter definition is a reversible, low-cost, decision-relevant next test.",
+            "The action preserves uncertainty about plant health instead of treating the extract as proof of either no outage or a plant problem."
+          ]
+        },
+        {
+          "name": "Conclusion fit",
+          "weight_pct": 20,
+          "score_0_4": 4,
+          "citations": [
+            "The conclusion is accurately scoped to 'on its own' and does not claim that the plant was definitively healthy.",
+            "It aligns with the visible evidence and the need to avoid inferring a plant problem from a small, invariant export.",
+            "The caveat to confirm export scope before drawing a plant-health conclusion is an appropriate qualification."
+          ]
+        }
+      ],
+      "unsupported_or_overstated_claims": [
+        "The claim that the export-scope question 'would settle whether the invariant columns reflect reality' is slightly overstated: it would establish selection scope, but not by itself verify plant health or exclude missing events outside the export.",
+        "The submission does not establish the implied absence of quick recovery or communications-only behavior because it does not cite event timestamps, warning duration, or an independent operational channel."
+      ],
+      "strongest_alternative_interpretation": "The four zero-impact, cleared events may be a complete set of trivial communications or resolved events rather than evidence about plant performance; alternatively, the extract may be filtered and omit impactful events. The submission appropriately leaves both possibilities open.",
+      "single_most_valuable_next_improvement": "Add a targeted cross-check of event start/clear timestamps and the communications or operational record to confirm the warning duration and zero-MW operational effect, while retaining the export query/filter definition as the first scope check."
+    },
+    {
+      "exercise": "2b-solar-impact-claim",
+      "participation": 2.5,
+      "analytical": 5.6,
+      "verdict": "mixed",
+      "dimensions": [
+        {
+          "name": "A. Evidence traceability",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "The submission cites specific files, fields, dates, block counts, and values, including \u201cdispatch_blocks.csv,\u201d \u201cschedule_source,\u201d \u201cdsm_penalty_rs,\u201d and \u201cDSM_Commercial_Extract.pdf.\u201d",
+            "The arithmetic and block classifications are presented as reproducible observations, but the central conclusion that penalty was higher \u201cwhere the pilot actually acted\u201d relies on comparing 29-May pilot-touched blocks with 28-May rather than using 29-May\u2019s base_schedule_mw versus submitted_schedule_mw counterfactual."
+          ]
+        },
+        {
+          "name": "B. Investigative reasoning",
+          "weight_pct": 20,
+          "score_0_4": 2,
+          "citations": [
+            "The submission correctly distinguishes whole-day performance from causation and identifies weather/forecastability as a plausible innocent explanation: \u201cwhether 29-May simply had more favorable/forecastable wind than 28-May.\u201d",
+            "It does not perform the required same-day counterfactual using base_schedule_mw versus submitted_schedule_mw on 29-May, so its rejection of the pilot mechanism is based on a non-equivalent day comparison. The proposed future A/B test is sensible, but the available same-day test was not used."
+          ]
+        },
+        {
+          "name": "C. Calibration and uncertainty",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "The submission appropriately says \u201cthe evidence does not support that the wind-stow pilot caused it\u201d and explicitly identifies missing wind/forecast data.",
+            "However, it overstates the evidence by saying \u201cwhere the pilot actually acted, DSM penalty was higher, not lower\u201d and by labeling the pilot hypothesis \u201crejected\u201d; the cross-day comparison cannot establish the pilot\u2019s same-day incremental effect."
+          ]
+        },
+        {
+          "name": "D. Decision/action quality",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "\u201cDo not expand based on this evidence\u201d is a proportionate response to the lack of causal identification.",
+            "\u201cContinue the pilot in a controlled, block-level A/B form\u201d and compare pilot-touched blocks with same-day base scheduling is directionally appropriate and discriminating, though the recommendation should first exploit the existing 29-May base_schedule_mw/submitted_schedule_mw comparison and preserve operational safety constraints explicitly."
+          ]
+        },
+        {
+          "name": "E. Conclusion fit",
+          "weight_pct": 20,
+          "score_0_4": 2,
+          "citations": [
+            "The narrower claim \u201c29-May had a lower whole-day DSM penalty than 28-May, with no causal link established\u201d is well scoped and supported.",
+            "The conclusion misses the smaller same-day benefit available from comparing 29-May base versus submitted schedules and instead implies the pilot increased penalty based on a different-day comparison. Thus it avoids the 31.6% causal overclaim but overcorrects in the opposite direction."
+          ]
+        }
+      ],
+      "unsupported_or_overstated_claims": [
+        "\u201cWhere the pilot actually acted, DSM penalty was higher, not lower\u201d is not a valid estimate of the pilot effect because the comparison is between 29-May pilot-touched blocks and 28-May blocks, not 29-May submitted_schedule_mw versus base_schedule_mw.",
+        "\u201cThe pilot's schedule revisions reduced DSM penalty \u2014 rejected\u201d is too strong. The data may reject the 31.6% whole-day causal claim, but it does not by itself reject a smaller same-day pilot benefit.",
+        "The statement that there is \u201cno causal link established to the 12 pilot-revised blocks\u201d is defensible as a limitation, but it should not be paired with a directional claim about those revisions without the same-day counterfactual calculation."
+      ],
+      "strongest_alternative_interpretation": "The 31-May-style whole-day comparison is not causal, but the pilot may still have produced a smaller same-day benefit on 29-May. The decisive analysis is to compare DSM penalty under submitted_schedule_mw with the counterfactual penalty implied by base_schedule_mw for the 12 pilot-touched blocks on that same day, while treating unchanged blocks and day-level weather as context rather than as the causal comparison.",
+      "single_most_valuable_next_improvement": "Compute and report the 29-May same-day counterfactual using base_schedule_mw versus submitted_schedule_mw for each pilot-touched block, including the resulting penalty difference and uncertainty; only then characterize the pilot as beneficial, harmful, or inconclusive."
+    },
+    {
+      "exercise": "3a-customs-mismatch",
+      "participation": 2.5,
+      "analytical": 9.5,
+      "verdict": "strong",
+      "dimensions": [
+        {
+          "name": "Evidence traceability",
+          "weight_pct": 20,
+          "score_0_4": 4,
+          "citations": [
+            "\"Declaration line 1 (P1001) shows code 90211000, origin US, status Accepted\" with source \"declaration.pdf, Line 1\"",
+            "\"Swiss tariff matrix lists P1001 \\\"Approved CN8\\\" = 90211000\" with source \"country_tariff_matrix.xlsx, \\\"Swiss Matrix\\\" sheet\"",
+            "\"Product master's Helios code for P1001 = 90211090\" with source \"product_master_current.xlsx, \\\"Product Master\\\" + \\\"Read Me\\\" sheets\"",
+            "\"Canonical schema has no code-system identifier or nomenclature-version field\" with source \"canonical-schema-v0.3.md\""
+          ]
+        },
+        {
+          "name": "Reasoning and hypothesis testing",
+          "weight_pct": 20,
+          "score_0_4": 4,
+          "citations": [
+            "\"Rejected Hypotheses\" explicitly considers \"Declaration error\", \"Origin misdeclaration\", and \"Genuine classification mistake\"",
+            "\"Both codes agree at HS6 level (902110); only the 4-digit national suffix differs (1000 vs 1090)\"",
+            "\"Exact comparison logic inside the automated control ... is not visible\""
+          ]
+        },
+        {
+          "name": "Calibration",
+          "weight_pct": 20,
+          "score_0_4": 4,
+          "citations": [
+            "\"No certified Tares/legal ruling exists for the Swiss code\"",
+            "\"the matrix is a \\\"working classification,\\\" not a ruling, so the Swiss code itself isn't independently verified\"",
+            "\"it's unconfirmed whether Helios-vs-Swiss is an intentional design choice or a control bug\""
+          ]
+        },
+        {
+          "name": "Process and system understanding",
+          "weight_pct": 20,
+          "score_0_4": 4,
+          "citations": [
+            "\"Switzerland uses its own local tariff code; Helios is a global/EU-style code auto-filled by migration mapping\"",
+            "\"Read-me states EU entries use CN8, Switzerland uses a local code, and cross-jurisdiction string matches are \\\"not expected\\\"\"",
+            "\"Canonical schema has no code-system identifier or nomenclature-version field\""
+          ]
+        },
+        {
+          "name": "Decision safety",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "\"Query the control's comparison configuration (read-only)\"",
+            "\"do not amend or resubmit the declaration\"",
+            "\"Hold escalation as \\\"system-mismatch, no action\\\" pending that check\""
+          ]
+        }
+      ],
+      "unsupported_or_overstated_claims": [
+        "\"No declaration error\" is stronger than the evidence supports because the comparison logic is not visible and the Swiss matrix is expressly described as a working classification rather than a certified ruling.",
+        "\"The two were never meant to match as strings\" overstates the documentation's wording: the cited Read Me reportedly says matches are \"not expected,\" which supports a likely mismatch artefact but not an absolute conclusion.",
+        "\"Declaration error ... killed by the declared code matching Switzerland's own approved CN8\" is too categorical because a working matrix match does not independently establish legal classification correctness.",
+        "The proposed possibility that the control operates \"without a jurisdiction filter\" is not established; it is an appropriate configuration hypothesis to test."
+      ],
+      "strongest_alternative_interpretation": "The mismatch is probably a benign cross-jurisdiction code-system and migration-mapping artefact, but the control could also contain a configuration or jurisdiction-filtering defect, or the working Swiss classification could be wrong. The available evidence does not distinguish these possibilities completely.",
+      "single_most_valuable_next_improvement": "Reframe the conclusion as provisional and state the precise acceptance criteria for the read-only control review, including confirming the compared code-system and nomenclature fields, jurisdiction filtering, and independent validation of the Swiss classification before closing the alert."
+    },
+    {
+      "exercise": "3b-customs-preference",
+      "participation": 2.5,
+      "analytical": 9.5,
+      "verdict": "strong",
+      "dimensions": [
+        {
+          "name": "Evidence traceability",
+          "weight_pct": 20,
+          "score_0_4": 4,
+          "citations": [
+            "\"Declaration line 1 (P1006) shows origin \\\"United States,\\\" preference = Yes, 0% duty | declaration.pdf, Line 1\"",
+            "\"Register has a SUP-02/P1006 row, declared_origin=Ireland, valid_to 2025-07-31, status \\\"Expired in register\\\" \u2014 i.e. it existed but lapsed before the 2025-09-18 declaration date | supplier_origin_register.csv, row SUP-02/P1006\"",
+            "\"No document in the packet confirms SUP-02 is the correct supplier ID for this specific shipment's P1006 units\""
+          ]
+        },
+        {
+          "name": "Reasoning and hypothesis testing",
+          "weight_pct": 20,
+          "score_0_4": 4,
+          "citations": [
+            "\"\\\"No document ever existed, so the claim is simply false\\\" \u2014 rejected\"",
+            "\"\\\"The register gap alone proves the claim is unsupportable\\\" \u2014 rejected as a strong claim\"",
+            "\"\\\"The expired record itself would have supported the claim anyway\\\" \u2014 rejected\""
+          ]
+        },
+        {
+          "name": "Calibration",
+          "weight_pct": 20,
+          "score_0_4": 4,
+          "citations": [
+            "\"The preference claim is unsupported, not disproved.\"",
+            "\"Given known register-coverage gaps, this is a hold-and-verify case, not a claim to amend or disclose yet.\"",
+            "\"The specific FTA/preference rule being invoked ... hasn't been captured\""
+          ]
+        },
+        {
+          "name": "Process and system understanding",
+          "weight_pct": 20,
+          "score_0_4": 4,
+          "citations": [
+            "\"Register is \\\"not always updated when sourcing routes change\\\"; live supplier declarations may sit in category folders outside the register\"",
+            "\"Helios/ERP origin field \\\"was never designed to prove preference\\\"; COO field is overloaded across multiple uses\"",
+            "\"Confirmation that SUP-02 is the correct supplier for this specific shipment/batch (party-matching hasn't been verified)\""
+          ]
+        },
+        {
+          "name": "Decision safety",
+          "weight_pct": 20,
+          "score_0_4": 4,
+          "citations": [
+            "\"Place the preference claim on hold pending Procurement retrieving the underlying supplier declaration ... and confirming supplier identity and the applicable preference rule\"",
+            "\"do not amend, disclose, or clear the claim on current evidence\""
+          ]
+        }
+      ],
+      "unsupported_or_overstated_claims": [
+        "\"The declared origin on the invoice/declaration itself is United States \u2014 a third-country origin that would not normally qualify for an EU preference claim.\" The submission correctly notes that the applicable rule is missing, but this general eligibility implication is not established without identifying the relevant agreement, product rule, processing history, and any applicable cumulation or other provisions.",
+        "\"The one register record found for this supplier/product combination\" is supported as a found row, but its relevance to this shipment remains uncertain because the submission also acknowledges that SUP-02 has not been matched to the shipment."
+      ],
+      "strongest_alternative_interpretation": "The United States entry may describe manufacturing country rather than preferential origin, and a valid route-specific supplier declaration may exist outside the register. Depending on the unidentified preference rule and the product's processing and sourcing history, the claim could still be valid despite the expired Ireland register entry and the U.S. manufacturing-country statement.",
+      "single_most_valuable_next_improvement": "Identify the applicable preference agreement and product-specific origin rule, then obtain and match the shipment-specific supplier declaration and supplier/batch identity before drawing any eligibility conclusion."
+    },
+    {
+      "exercise": "4b-consumer-spares-search",
+      "participation": 2.5,
+      "analytical": 5.8,
+      "verdict": "mixed",
+      "dimensions": [
+        {
+          "name": "Evidence traceability",
+          "weight_pct": 20,
+          "score_0_4": 3,
+          "citations": [
+            "\"Total open request value = $152,558.03, n=24\"; \"10 requests across 4 mfr_part_no values are exact duplicates, sum $30,531.30\"; \"spare_parts.csv was not included in this download\"; \"MaintStar-global ... snapshots monthly, last 2026-06-26\".",
+            "The submission cites specific files, fields, values, and a set-intersection test, but provides limited row-level detail and does not sufficiently connect the claimed matches to actual stock records."
+          ]
+        },
+        {
+          "name": "Causal / investigative reasoning",
+          "weight_pct": 25,
+          "score_0_4": 2,
+          "citations": [
+            "\"the real gap is manufacturer_part_no capture at request time, a data-entry fix, not a search product\"",
+            "\"exact-ID join already surfaces the clearest $30.5k without any matching logic\"",
+            "The analysis tests the missing restriction-file join, but it treats repeated manufacturer IDs in requests as confirmed duplicate demand and jumps from missing IDs to a data-entry diagnosis without testing stock availability, equivalence, revision, UOM, or qualification explanations."
+          ]
+        },
+        {
+          "name": "Calibration and uncertainty",
+          "weight_pct": 15,
+          "score_0_4": 2,
+          "citations": [
+            "\"High\" confidence for the exact-ID and missing-file claims; \"Medium\" for MaintStar freshness",
+            "\"Needs check\" for the exact-ID candidates and \"Not transferable from current evidence\" for description-only clusters",
+            "The submission uses some claim-specific confidence and acknowledges missing evidence, but the headline claim that $30,531 is machine-confirmed duplicate demand is stronger than the evidence supports, and freshness is not translated into an operational availability bound."
+          ]
+        },
+        {
+          "name": "Decision usefulness / reframing",
+          "weight_pct": 20,
+          "score_0_4": 2,
+          "citations": [
+            "\"Reframe the ask: the biggest win isn't a semantic-search pilot\"",
+            "\"Supply spare_parts.csv with a join key to both part_requests.manufacturer_part_no and part_restrictions.part_id\"",
+            "The request for a stock file and join keys is useful, but the recommendation prematurely dismisses semantic search and does not propose a small reversible candidate-generation test with engineering, restriction, and current-availability confirmation safeguards."
+          ]
+        },
+        {
+          "name": "Disconfirmation and rejected hypotheses",
+          "weight_pct": 10,
+          "score_0_4": 2,
+          "citations": [
+            "\"We need a semantic-search pilot first\" \u2014 rejected",
+            "\"The restriction file lets us pre-screen matches automatically\" \u2014 rejected",
+            "The submission gives competing hypotheses and some rationale, but does not actively test the strongest alternative that semantic search could generate valuable candidates among the 11 requests lacking manufacturer numbers, nor specify evidence that would revive that hypothesis beyond supplying files."
+          ]
+        },
+        {
+          "name": "Questioning / next evidence",
+          "weight_pct": 10,
+          "score_0_4": 3,
+          "citations": [
+            "\"Supply spare_parts.csv with a join key to both part_requests.manufacturer_part_no and part_restrictions.part_id, and confirm which source feeds it and how stale that feed runs relative to local stock\"",
+            "This is a focused, high-value evidence request tied to the decision and appropriately includes source lineage and freshness, although it could prioritize a current stock extract and restriction mapping as separate immediate tests."
+          ]
+        }
+      ],
+      "unsupported_or_overstated_claims": [
+        "\"only $30,531 (20%) is machine-confirmed duplicate demand today\" is not established by repeated manufacturer_part_no values in the request file; it does not demonstrate matching stock, cross-site availability, or duplicate demand rather than multiple legitimate requests.",
+        "\"the biggest win isn't a semantic-search pilot\" and \"a data-entry fix, not a search product\" are premature because description-only requests may still be recoverable through semantic candidate generation once candidates are checked against restrictions and stock.",
+        "The candidate table's claims such as \"3 sites, exact mfr ID\" do not establish transferability or current availability without the missing spare-parts/stock data."
+      ],
+      "strongest_alternative_interpretation": "The exact manufacturer-number groups are useful high-confidence candidate leads, but the larger opportunity may still be semantic candidate generation for the 11 requests without manufacturer numbers. Semantic search need not make transferability decisions: it can retrieve candidates, after which engineering equivalence, revision/UOM/qualification restrictions, reservations, criticality, and fresh stock confirmation determine actionable value.",
+      "single_most_valuable_next_improvement": "Recast the $30,531 as candidate value rather than confirmed duplicate demand, then run a small join-and-validation test using the current spare-parts extract plus restriction mapping: measure how many exact-ID and semantic candidates remain valid after revision/UOM/qualification/reservation checks and current-stock confirmation, while explicitly reporting stale MaintStar records as lower-confidence."
+    }
+  ]
+}
