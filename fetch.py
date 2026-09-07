@@ -27,22 +27,38 @@ BASE = "https://exam.sanand.workers.dev"
 PAGE_LIMIT = 200
 
 
-async def fetch_no_history(client, quiz):
-    rows = []
+async def _discover_emails_once(client, quiz, limit):
+    emails = set()
     page = 1
     while True:
-        resp = await client.get(f"{BASE}/filter", params={"quiz": quiz, "limit": PAGE_LIMIT, "page": page})
+        resp = await client.get(f"{BASE}/filter", params={"quiz": quiz, "history": "true", "limit": limit, "page": page})
         resp.raise_for_status()
         batch = resp.json().get("data", [])
-        rows.extend(batch)
-        if len(batch) < PAGE_LIMIT:
+        emails.update((r.get("email") or "").strip().lower() for r in batch if r.get("email"))
+        if len(batch) < limit:
             break
         page += 1
-    return rows
+    return emails
 
 
-async def fetch_email_history(client, quiz, email):
-    resp = await client.get(f"{BASE}/filter", params={"quiz": quiz, "email": email, "history": "true", "limit": -1})
+# Offset pagination against this endpoint drops different rows each pass -- observed
+# empirically, not a documented server bug -- so no single page size is reliable. Sweeping
+# several sizes and taking the union recovers everyone in practice (each student has many
+# retry attempts, so a row dropped at one page size usually isn't dropped at another).
+DISCOVERY_PAGE_SIZES = [50, 200]
+
+
+async def discover_emails(client, quiz):
+    """Every email that has ever attempted this quiz."""
+    emails = set()
+    for limit in DISCOVERY_PAGE_SIZES:
+        emails |= await _discover_emails_once(client, quiz, limit)
+    return emails
+
+
+async def fetch_email_history(client, sem, quiz, email):
+    async with sem:
+        resp = await client.get(f"{BASE}/filter", params={"quiz": quiz, "email": email, "history": "true", "limit": -1})
     resp.raise_for_status()
     rows = resp.json().get("data", [])
     accepted = [r for r in rows if r.get("total") is not None and r.get("total") >= 0]
@@ -53,27 +69,11 @@ async def fetch_email_history(client, quiz, email):
 
 async def resolve(quiz):
     async with httpx.AsyncClient(timeout=60) as client:
-        rows = await fetch_no_history(client, quiz)
-        by_email = {}
-        needs_check = []
-        for r in rows:
-            email = (r.get("email") or "").strip().lower()
-            if not email:
-                continue
-            if r.get("total") is not None and r.get("total") >= 0:
-                by_email[email] = r
-            else:
-                needs_check.append(email)
-
-        if needs_check:
-            print(f"  {len(needs_check)} students' latest row is rejected -- checking full history individually...")
-            results = await asyncio.gather(*(fetch_email_history(client, quiz, e) for e in needs_check))
-            for email, row in zip(needs_check, results):
-                if row is not None:
-                    by_email[email] = row
-                    print(f"    recovered {email}: earlier accepted attempt found")
-
-        return by_email
+        emails = await discover_emails(client, quiz)
+        print(f"  {len(emails)} distinct emails seen -- resolving each one's true latest accepted attempt...")
+        sem = asyncio.Semaphore(20)
+        results = await asyncio.gather(*(fetch_email_history(client, sem, quiz, e) for e in emails))
+        return {email: row for email, row in zip(emails, results) if row is not None}
 
 
 def main():
